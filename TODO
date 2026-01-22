@@ -1,0 +1,30 @@
+--// Vision Goals
+  - Basic robot angle to target.
+    - Simply read the target observation and center the target within the robot's view. 
+    - Utilizes RBSI's new TargetObservation class
+  - Full-Field (FF) Odometry
+    - Robot is aware of where it is at all times on the field. 
+    - Could be used to determine what to activate in a certain region of the field.
+
+--// Outtake (Shooter) Goals
+  - Flywheel speed calculation function 
+    - based on distance from target
+
+--// Intake Goals
+  - idk what the heck you do with a simple intake it's literally just wheels turning
+
+--// Drive Goals
+  - (REQUIRES FF ODOMETRY) Modular speed based on field position
+    - e.g., Lower speed when driving over the ramp to prevent module damage
+  - Vision integration
+    - e.g., focus on target while moving (strafing)
+    - possibly limited to certain tag numbers?
+
+--// Miscellaneous
+  - Lights?
+  - Power Optimization? (ADVANCED advanced)
+  - Proper PID values?
+
+--// Finalizing
+  - no magic numbers (numbers that simply appear in one place; they don't have an identifier)
+  - idk what else this is really ahrd to plan :///

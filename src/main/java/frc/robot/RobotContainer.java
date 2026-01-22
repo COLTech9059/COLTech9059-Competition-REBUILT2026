@@ -432,7 +432,7 @@ public class RobotContainer {
   /**
    * Example Choreo auto command
    *
-   * <p>NOTE: This would normally be in a spearate file.
+   * <p>NOTE: This would normally be in a spearate file. <-- unforgivable typo, shut it all down
    */
   private AutoRoutine twoPieceAuto() {
     AutoRoutine routine = autoFactoryChoreo.newRoutine("twoPieceAuto");
