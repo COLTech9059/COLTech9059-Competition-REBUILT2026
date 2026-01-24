@@ -269,6 +269,18 @@ public class RobotContainer {
             () -> -driveStickY.value(),
             () -> -driveStickX.value(),
             () -> -turnStickX.value()));
+    
+    driverController
+      .rightBumper()
+      .toggleOnTrue(
+          Commands.runOnce(
+              () -> 
+                  DriveCommands.fieldRelativeDriveAtAngle(
+                      m_drivebase, 
+                      () -> -driveStickY.value(), 
+                      () -> -driveStickX.value(), 
+                      () -> m_vision.getTargetX(0)), 
+                m_drivebase));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
