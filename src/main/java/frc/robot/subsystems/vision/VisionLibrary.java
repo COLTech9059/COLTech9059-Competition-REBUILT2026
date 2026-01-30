@@ -9,9 +9,7 @@ class VisionHelpers {
     VisionIOInputs[] allCameras = vision.getAllCameras();
     int bestCamera = -1;
 
-    for (int i = 0; i < allCameras.length; i++) {
-      
-    }
+    for (int i = 0; i < allCameras.length; i++) {}
 
     return bestCamera;
   }
@@ -22,8 +20,6 @@ public class VisionLibrary {
 
     // Get the yaw to target based on the best camera at the moment.
     Rotation2d yawToTarget = vision.getTargetX(VisionHelpers.getBestCamera(vision));
-
-
 
     return new Rotation2d();
   }
