@@ -13,7 +13,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.flywheel_example;
+package frc.robot.subsystems.flywheel;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FlywheelConstants.*;

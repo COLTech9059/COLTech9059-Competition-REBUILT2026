@@ -7,7 +7,7 @@
 // license that can be found in the AdvantageKit-License.md file
 // at the root directory of this project.
 
-package frc.robot.subsystems.flywheel_example;
+package frc.robot.subsystems.flywheel;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
