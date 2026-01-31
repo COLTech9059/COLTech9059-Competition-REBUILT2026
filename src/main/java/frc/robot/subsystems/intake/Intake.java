@@ -1,14 +1,13 @@
 package frc.robot.subsystems.intake;
 
+import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.Constants.IntakeConstants.*;
-import frc.robot.util.RBSISubsystem;
 
 public class Intake extends RBSISubsystem {
-  
+
   private final IntakeIO io;
+  private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -16,46 +15,42 @@ public class Intake extends RBSISubsystem {
 
   @Override
   public void periodic() {
-    // io.updateInputs(inputs);
-    // Logger.processInputs("Intake", inputs);
+    io.updateInputs(inputs);
+    Logger.processInputs("Intake", inputs);
   }
-  
+
   public void runVolts(double volts) {
-    // io.setVoltage(volts);
+    io.setVoltage(volts);
   }
 
   public void runSpeed(double speed) {
-    // io.setSpeed(speed);
+    io.setSpeed(speed);
   }
 
   public void setPosition(double speed, boolean out) {
-    // io.setIntakePosition(speed, out);
+    io.setPosition(speed, out);
 
-    // Logger.recordOutput("Intake/setpointPosition", position);
+    Logger.recordOutput("Intake/setpointPosition", out);
   }
 
-  /**
-   * Stops the intake motor
-   */
+  /** Stops the intake motor */
   public void stopIntake() {
-    // io.stopIntake();
+    io.stopIntake();
   }
 
-  /**
-   * Stops the intake position motor
-   */
+  /** Stops the intake position motor */
   public void stopPosition() {
-    // io.stopPosition();
+    io.stopPosition();
   }
 
   @AutoLogOutput(key = "Mechanism/Intake")
   public double getIntakePos() {
-    return 0; // io.getIntakePos();
+    return io.getIntakePos();
   }
 
   @AutoLogOutput(key = "Mechanism/Intake")
   public boolean isIntakeOut() {
-    return false; // io.isIntakeOut();
+    return io.isIntakeOut();
   }
 
   @Override

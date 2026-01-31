@@ -88,7 +88,7 @@ public class FlywheelIOSpark implements FlywheelIO {
     leaderConfig
         .openLoopRampRate(DrivebaseConstants.kDriveOpenLoopRampPeriod)
         .closedLoopRampRate(DrivebaseConstants.kDriveClosedLoopRampPeriod);
-    
+
     var followerConfig = leaderConfig;
     followerConfig.follow(leader.getDeviceId());
 
@@ -104,7 +104,7 @@ public class FlywheelIOSpark implements FlywheelIO {
         () ->
             follower.configure(
                 followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    
+
     SparkUtil.tryUntilOk(leader, 5, () -> encoder.setPosition(0.0));
   }
 

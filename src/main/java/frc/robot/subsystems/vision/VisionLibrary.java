@@ -1,17 +1,17 @@
 package frc.robot.subsystems.vision;
 
+import com.therekrab.autopilot.*;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.FieldConstants;
 import frc.robot.commands.AutopilotCommands;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import java.util.function.Supplier;
-import com.therekrab.autopilot.*;
 
 class VisionHelpers {
   static int getBestCamera(Vision vision) {
@@ -50,7 +50,8 @@ public class VisionLibrary {
   }
 
   // luna wuz here
-  public static Supplier<Command> moveToTargetParallel(Drive driveSubsystem, int targetIndex, double distanceFromTarget) {
+  public static Supplier<Command> moveToTargetParallel(
+      Drive driveSubsystem, int targetIndex, double distanceFromTarget) {
     return () -> {
       AprilTagFieldLayout aprilTagField = FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
       Pose3d targetPose = aprilTagField.getTagPose(targetIndex).orElse(new Pose3d());
@@ -64,5 +65,4 @@ public class VisionLibrary {
       return AutopilotCommands.runAutopilot(driveSubsystem, null);
     };
   }
-
 }

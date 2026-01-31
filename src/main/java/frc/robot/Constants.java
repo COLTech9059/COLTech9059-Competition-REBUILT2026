@@ -340,8 +340,9 @@ public final class Constants {
     // Mechanism idle mode
     public static final MotorIdleMode kIntakeIdleMode = MotorIdleMode.BRAKE;
 
-    // Mechanism gear ratio
-    public static final double kIntakeGearRatio = 1;
+    // Mechanism gear ratios
+    public static final double kIntakeGearRatio = 1.0;
+    public static final double kIntakePositionGearRatio = 1.0;
 
     public static final int kIntakeCurrentLimit = 40;
     public static final int kIntakeOptimalVoltage = 12;
@@ -359,6 +360,7 @@ public final class Constants {
     // Feedback (PID) constants
     public static final PIDConstants pid = new PIDConstants(1.0, 0.0, 0.0);
   }
+
   // public static class Mechanism2Constants {}
   // ...
 
