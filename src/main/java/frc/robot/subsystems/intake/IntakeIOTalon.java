@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 
+// TODO: Add feeding rollers
 public class IntakeIOTalon implements IntakeIO {
 
   private TalonFX positionMotor = new TalonFX(INTAKE_POSITION_MOTOR.getDeviceNumber());
@@ -63,6 +64,7 @@ public class IntakeIOTalon implements IntakeIO {
     intakeMotor.optimizeBusUtilization();
   }
 
+  @Override
   public void updateInputs(IntakeIOInputs inputs) {
     BaseStatusSignal.refreshAll(position, positionCurrent, intakeCurrent);
     inputs.intakeSpeed = intakeMotor.get();
@@ -73,14 +75,17 @@ public class IntakeIOTalon implements IntakeIO {
         new double[] {positionCurrent.getValueAsDouble(), intakeCurrent.getValueAsDouble()};
   }
 
+  @Override
   public void setVoltage(double volts) {
     intakeMotor.setControl(new VoltageOut(volts));
   }
 
+  @Override
   public void setSpeed(double speed) {
     intakeMotor.set(speed);
   }
 
+  @Override
   public void setPosition(double speed, boolean out) {
     speed = Math.abs(speed);
 
@@ -93,20 +98,29 @@ public class IntakeIOTalon implements IntakeIO {
     }
   }
 
+  @Override
   public void stopIntake() {
     intakeMotor.stopMotor();
   }
 
+  @Override
   public void stopPosition() {
     positionMotor.stopMotor();
   }
 
+  @Override
   public double getIntakePos() {
     return Units.rotationsToDegrees(positionMotor.getPosition().getValueAsDouble())
         / kIntakePositionGearRatio;
   }
 
+  @Override
   public boolean isIntakeOut() {
     return outLimit.get();
+  }
+
+  @Override
+  public boolean isIntakeIn() {
+    return inLimit.get();
   }
 }

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: Add feeding rollers
 public class IntakeIOSpark implements IntakeIO {
 
   private SparkMax positionMotor =
@@ -118,5 +119,10 @@ public class IntakeIOSpark implements IntakeIO {
   @Override
   public boolean isIntakeOut() {
     return outLimit.get();
+  }
+ 
+  @Override
+  public boolean isIntakeIn() {
+    return inLimit.get();
   }
 }

@@ -53,6 +53,11 @@ public class Intake extends RBSISubsystem {
     return io.isIntakeOut();
   }
 
+  @AutoLogOutput(key = "Mechanism/Intake")
+  public boolean isIntakeIn() {
+    return io.isIntakeIn();
+  }
+
   @Override
   public int[] getPowerPorts() {
     return io.getPowerPorts();

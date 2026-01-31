@@ -37,6 +37,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.FieldConstants.AprilTagLayoutType;
 import frc.robot.commands.AutopilotCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.FlywheelCommands;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
@@ -48,6 +50,8 @@ import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOSpark;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -79,6 +83,7 @@ public class RobotContainer {
 
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
+  private final Intake intake = new Intake(new IntakeIOSpark());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -287,28 +292,28 @@ public class RobotContainer {
 
     // Press Left Trigger -> Climb Position Mapping
     // TODO: get the pose we want for climbing
-    driverController
-        .leftTrigger()
-        .onTrue(
-            Commands.defer(
-                () -> {
-                  return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);
-                },
-                Set.of(m_drivebase)));
+    // driverController
+    //     .leftTrigger()
+    //     .onTrue(
+    //         Commands.defer(
+    //             () -> {
+    //               return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);
+    //             },
+    //             Set.of(m_drivebase)));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
-    driverController
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    DriveCommands.robotRelativeDrive(
-                        m_drivebase,
-                        () -> -driveStickY.value(),
-                        () -> -driveStickX.value(),
-                        () -> turnStickX.value()),
-                m_drivebase));
+    // driverController
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 DriveCommands.robotRelativeDrive(
+    //                     m_drivebase,
+    //                     () -> -driveStickY.value(),
+    //                     () -> -driveStickX.value(),
+    //                     () -> turnStickX.value()),
+    //             m_drivebase));
 
     // Press A button -> BRAKE
     driverController
@@ -325,37 +330,37 @@ public class RobotContainer {
             Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
                 .ignoringDisable(true));
 
-    // Press RIGHT BUMPER --> Run the example flywheel
-    driverController
-        .rightBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> m_flywheel.runVelocity(flywheelSpeedInput.get()),
-                m_flywheel::stop,
-                m_flywheel));
+    // Hold RIGHT Trigger --> Run the example flywheel
+    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, 2800));
+
+    // Hold Left Trigger --> Intake
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.20, 0.75));
+
+    // Press Left Bumper --> Retract intake
+    driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
 
     // Press LEFT BUMPER --> Drive to a pose 10 feet closer to the BLUE ALLIANCE wall
-    driverController
-        .leftBumper()
-        .whileTrue(
-            Commands.defer(
-                () -> {
-                  // New pose 2 feet closer to BLUE ALLIANCE wall
-                  Pose2d pose =
-                      m_drivebase
-                          .getPose()
-                          .transformBy(
-                              new Transform2d(Units.feetToMeters(-10.0), 0.0, Rotation2d.kZero));
+    // driverController
+    //     .leftBumper()
+    //     .whileTrue(
+    //         Commands.defer(
+    //             () -> {
+    //               // New pose 2 feet closer to BLUE ALLIANCE wall
+    //               Pose2d pose =
+    //                   m_drivebase
+    //                       .getPose()
+    //                       .transformBy(
+    //                           new Transform2d(Units.feetToMeters(-10.0), 0.0, Rotation2d.kZero));
 
-                  // Alternatively, you could define a pose in a separate module and call it here.
-                  //
-                  // Example from 2025 Reefscape:
-                  // --------
-                  // pose = ReefPoses.kBluePoleE;
+    //               // Alternatively, you could define a pose in a separate module and call it here.
+    //               //
+    //               // Example from 2025 Reefscape:
+    //               // --------
+    //               // pose = ReefPoses.kBluePoleE;
 
-                  return AutopilotCommands.runAutopilot(m_drivebase, pose);
-                },
-                Set.of(m_drivebase)));
+    //               return AutopilotCommands.runAutopilot(m_drivebase, pose);
+    //             },
+    //             Set.of(m_drivebase)));
 
     // Press POV LEFT to nudge the robot left
     driverController

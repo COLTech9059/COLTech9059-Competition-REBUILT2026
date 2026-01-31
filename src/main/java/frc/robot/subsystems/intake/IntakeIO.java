@@ -28,4 +28,6 @@ public interface IntakeIO extends RBSIIO {
   public double getIntakePos();
 
   public boolean isIntakeOut();
+
+  public boolean isIntakeIn();
 }

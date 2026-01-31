@@ -14,7 +14,8 @@ public class FlywheelCommands {
    * @param velocityRPM The velocity setpoint in RPM
    */
   public static Command setVelocity(Flywheel flywheel, double velocityRPM) {
-    return Commands.runOnce(() -> flywheel.runVelocity(velocityRPM), flywheel);
+    return Commands.runOnce(() -> flywheel.runVelocity(velocityRPM), flywheel)
+      .finallyDo(() -> flywheel.stop());
   }
 
   /**
@@ -25,7 +26,8 @@ public class FlywheelCommands {
    */
   public static Command setVelocityRad(Flywheel flywheel, double velocityRadPerSec) {
     return Commands.runOnce(
-        () -> flywheel.runVelocity(Units.radiansToRotations(velocityRadPerSec)), flywheel);
+        () -> flywheel.runVelocity(Units.radiansToRotations(velocityRadPerSec)), flywheel)
+          .finallyDo(() -> flywheel.stop());
   }
 
   /**
@@ -35,7 +37,8 @@ public class FlywheelCommands {
    * @param volts The voltage to run the flywheel at
    */
   public static Command setVolts(Flywheel flywheel, double volts) {
-    return Commands.runOnce(() -> flywheel.runVolts(volts), flywheel);
+    return Commands.runOnce(() -> flywheel.runVolts(volts), flywheel)
+      .finallyDo(() -> flywheel.stop());
   }
 
   /**
