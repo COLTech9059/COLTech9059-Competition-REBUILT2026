@@ -1,7 +1,19 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
+import frc.robot.FieldConstants;
+import frc.robot.commands.AutopilotCommands;
+
+import java.util.function.Supplier;
+
+import com.therekrab.autopilot.*;
 
 class VisionHelpers {
   static int getBestCamera(Vision vision) {
@@ -13,6 +25,10 @@ class VisionHelpers {
 
     return bestCamera;
   }
+
+  static Pose2d translatePoseRelative() {
+    return new Pose2d();
+  }
 }
 
 public class VisionLibrary {
@@ -23,4 +39,21 @@ public class VisionLibrary {
 
     return new Rotation2d();
   }
+
+  // luna wuz here
+  public static Supplier<Command> moveToTargetParallel(Drive driveSubsystem, int targetIndex, double distanceFromTarget) {
+    return () -> {
+      AprilTagFieldLayout aprilTagField = FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
+      Pose3d targetPose = aprilTagField.getTagPose(targetIndex).orElse(new Pose3d());
+
+      // Don't do anything if we don't have a pose (an empty pose is an invalid pose).
+      if (targetPose.equals(new Pose3d())) return Commands.none();
+
+      // targetPose.
+
+      // TODO: calculate new Pose2d and replace the null value
+      return AutopilotCommands.runAutopilot(driveSubsystem, null);
+    };
+  }
+
 }

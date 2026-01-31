@@ -271,6 +271,8 @@ public class RobotContainer {
             () -> -driveStickX.value(),
             () -> -turnStickX.value()));
 
+    // Press Right Bumper -> Focus on the best target available.
+    // TODO: isolate important tags?
     driverController
         .rightBumper()
         .toggleOnTrue(
@@ -282,6 +284,11 @@ public class RobotContainer {
                         () -> -driveStickX.value(),
                         () -> m_vision.getTargetX(0)),
                 m_drivebase));
+    
+    // Press Left Trigger -> Climb Position Mapping
+    // TODO: get the pose we want for climbing
+    driverController.leftTrigger().onTrue(Commands.defer(() -> {return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);}, Set.of(m_drivebase)));
+    
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
