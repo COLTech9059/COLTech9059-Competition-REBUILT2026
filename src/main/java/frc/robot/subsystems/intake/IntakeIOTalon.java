@@ -16,15 +16,15 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 
-// TODO: Add feeding rollers
 public class IntakeIOTalon implements IntakeIO {
 
-  private TalonFX positionMotor = new TalonFX(INTAKE_POSITION_MOTOR.getDeviceNumber());
-  private TalonFX intakeMotor = new TalonFX(INTAKE_MOTOR.getDeviceNumber());
+  private TalonFX positionMotor = new TalonFX(INTAKE_POSITION.getDeviceNumber());
+  private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
+  private TalonFX feedMotor = new TalonFX(INTAKE_FEED.getDeviceNumber());
   private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
   private DigitalInput inLimit = new DigitalInput(INTAKE_IN_LIMIT);
   public final int[] powerPorts = {
-    INTAKE_POSITION_MOTOR.getPowerPort(), INTAKE_MOTOR.getPowerPort()
+    INTAKE_POSITION.getPowerPort(), INTAKE_ROLLER.getPowerPort(), INTAKE_FEED.getPowerPort()
   };
 
   private final StatusSignal<Angle> position = positionMotor.getPosition();
@@ -33,6 +33,7 @@ public class IntakeIOTalon implements IntakeIO {
 
   private final TalonFXConfiguration positionConfig = new TalonFXConfiguration();
   private final TalonFXConfiguration intakeConfig;
+  private final TalonFXConfiguration feedConfig;
 
   public IntakeIOTalon() {
     positionConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -56,8 +57,12 @@ public class IntakeIOTalon implements IntakeIO {
     intakeConfig = positionConfig;
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
+    feedConfig = positionConfig;
+    feedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
     positionMotor.getConfigurator().apply(positionConfig);
     intakeMotor.getConfigurator().apply(intakeConfig);
+    feedMotor.getConfigurator().apply(feedConfig);
 
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, position, positionCurrent, intakeCurrent);
     positionMotor.optimizeBusUtilization();
@@ -78,11 +83,13 @@ public class IntakeIOTalon implements IntakeIO {
   @Override
   public void setVoltage(double volts) {
     intakeMotor.setControl(new VoltageOut(volts));
+    feedMotor.setControl(new VoltageOut(volts));
   }
 
   @Override
   public void setSpeed(double speed) {
     intakeMotor.set(speed);
+    feedMotor.set(speed);
   }
 
   @Override
@@ -101,6 +108,7 @@ public class IntakeIOTalon implements IntakeIO {
   @Override
   public void stopIntake() {
     intakeMotor.stopMotor();
+    feedMotor.stopMotor();
   }
 
   @Override

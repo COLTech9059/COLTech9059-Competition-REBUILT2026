@@ -82,9 +82,17 @@ public class Flywheel extends RBSISubsystem {
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
   }
 
+  public void runFeed(double speed) {
+    io.runFeed(speed);
+  }
+
   /** Stops the flywheel. */
   public void stop() {
     io.stop();
+  }
+
+  public void stopFeed() {
+    io.stopFeed();
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

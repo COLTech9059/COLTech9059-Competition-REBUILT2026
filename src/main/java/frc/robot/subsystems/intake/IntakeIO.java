@@ -13,21 +13,21 @@ public interface IntakeIO extends RBSIIO {
     public double[] currentAmps = new double[] {};
   }
 
-  public void updateInputs(IntakeIOInputs inputs);
+  public default void updateInputs(IntakeIOInputs inputs) {}
 
-  public void setVoltage(double volts);
+  public default void setVoltage(double volts) {}
 
-  public void setSpeed(double speed);
+  public default void setSpeed(double speed) {}
 
-  public void setPosition(double speed, boolean out);
+  public default void setPosition(double speed, boolean out) {}
 
-  public void stopIntake();
+  public default void stopIntake() {}
 
-  public void stopPosition();
+  public default void stopPosition() {}
 
-  public double getIntakePos();
+  public default double getIntakePos() {return 0;}
 
-  public boolean isIntakeOut();
+  public default boolean isIntakeOut() {return false;}
 
-  public boolean isIntakeIn();
+  public default boolean isIntakeIn() {return false;}
 }

@@ -37,9 +37,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       new TalonFX(FLYWHEEL_LEADER.getDeviceNumber(), FLYWHEEL_LEADER.getCANBus());
   private final TalonFX follower =
       new TalonFX(FLYWHEEL_FOLLOWER.getDeviceNumber(), FLYWHEEL_FOLLOWER.getCANBus());
+  private final TalonFX feeder = new TalonFX(FLYWHEEL_FEED.getDeviceNumber());
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {
-    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort()
+    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort(), FLYWHEEL_FEED.getPowerPort()
   };
 
   private final StatusSignal<Angle> leaderPosition = leader.getPosition();
@@ -73,6 +74,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(config);
+    feeder.getConfigurator().apply(config);
     // If follower rotates in the opposite direction, set "MotorAlignmentValue" to Opposed
     follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
 
@@ -106,8 +108,19 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   }
 
   @Override
+  public void runFeed(double speed) {
+    feeder.set(speed);
+  }
+
+  @Override
   public void stop() {
     leader.stopMotor();
+    feeder.stopMotor();
+  }
+
+  @Override
+  public void stopFeed() {
+    feeder.stopMotor();
   }
 
   /**

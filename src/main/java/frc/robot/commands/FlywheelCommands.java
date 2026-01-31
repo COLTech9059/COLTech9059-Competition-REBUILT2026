@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -7,14 +9,20 @@ import frc.robot.subsystems.flywheel.Flywheel;
 
 public class FlywheelCommands {
 
+  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed system logic
   /**
    * Runs the flywheel at the given velocity setpoint; closed loop
    *
    * @param flywheel The Flywheel subsystem to use
    * @param velocityRPM The velocity setpoint in RPM
    */
-  public static Command setVelocity(Flywheel flywheel, double velocityRPM) {
-    return Commands.runOnce(() -> flywheel.runVelocity(velocityRPM), flywheel)
+  public static Command setVelocity(Flywheel flywheel, double velocityRPM, double feedSpeed) {
+    BooleanSupplier canRun = () -> (flywheel.getVelocityRPM() >= velocityRPM * 0.95 && flywheel.getVelocityRPM() <= velocityRPM * 1.05);
+
+    return Commands.run(() -> flywheel.runVelocity(velocityRPM), flywheel)
+      .alongWith(
+        Commands.run(() -> flywheel.runFeed(feedSpeed)).onlyWhile(canRun).finallyDo(() -> flywheel.stopFeed())
+        )
       .finallyDo(() -> flywheel.stop());
   }
 
@@ -47,6 +55,6 @@ public class FlywheelCommands {
    * @param flywheel The Flywheel subsystem to use
    */
   public static Command stop(Flywheel flywheel) {
-    return Commands.runOnce(() -> flywheel.stop(), flywheel);
+    return Commands.runOnce(() -> {flywheel.stop(); flywheel.stopFeed();}, flywheel);
   }
 }

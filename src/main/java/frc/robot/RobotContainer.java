@@ -20,9 +20,6 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -35,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.FieldConstants.AprilTagLayoutType;
-import frc.robot.commands.AutopilotCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FlywheelCommands;
 import frc.robot.commands.IntakeCommands;
@@ -64,7 +60,6 @@ import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.OverrideSwitches;
 import frc.robot.util.RBSIEnum;
 import frc.robot.util.RBSIPowerMonitor;
-import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /** This is the location for defining robot hardware, commands, and controller button bindings. */
@@ -276,31 +271,6 @@ public class RobotContainer {
             () -> -driveStickX.value(),
             () -> -turnStickX.value()));
 
-    // Press Right Bumper -> Focus on the best target available.
-    // TODO: isolate important tags?
-    driverController
-        .rightBumper()
-        .toggleOnTrue(
-            Commands.runOnce(
-                () ->
-                    DriveCommands.fieldRelativeDriveAtAngle(
-                        m_drivebase,
-                        () -> -driveStickY.value(),
-                        () -> -driveStickX.value(),
-                        () -> m_vision.getTargetX(0)),
-                m_drivebase));
-
-    // Press Left Trigger -> Climb Position Mapping
-    // TODO: get the pose we want for climbing
-    // driverController
-    //     .leftTrigger()
-    //     .onTrue(
-    //         Commands.defer(
-    //             () -> {
-    //               return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);
-    //             },
-    //             Set.of(m_drivebase)));
-
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
     // driverController
@@ -331,36 +301,13 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Hold RIGHT Trigger --> Run the example flywheel
-    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, 2800));
+    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, 2800, 0.75));
 
     // Hold Left Trigger --> Intake
     driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.20, 0.75));
 
     // Press Left Bumper --> Retract intake
     driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
-
-    // Press LEFT BUMPER --> Drive to a pose 10 feet closer to the BLUE ALLIANCE wall
-    // driverController
-    //     .leftBumper()
-    //     .whileTrue(
-    //         Commands.defer(
-    //             () -> {
-    //               // New pose 2 feet closer to BLUE ALLIANCE wall
-    //               Pose2d pose =
-    //                   m_drivebase
-    //                       .getPose()
-    //                       .transformBy(
-    //                           new Transform2d(Units.feetToMeters(-10.0), 0.0, Rotation2d.kZero));
-
-    //               // Alternatively, you could define a pose in a separate module and call it here.
-    //               //
-    //               // Example from 2025 Reefscape:
-    //               // --------
-    //               // pose = ReefPoses.kBluePoleE;
-
-    //               return AutopilotCommands.runAutopilot(m_drivebase, pose);
-    //             },
-    //             Set.of(m_drivebase)));
 
     // Press POV LEFT to nudge the robot left
     driverController

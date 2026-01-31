@@ -15,17 +15,17 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: Add feeding rollers
 public class IntakeIOSpark implements IntakeIO {
 
   private SparkMax positionMotor =
-      new SparkMax(INTAKE_POSITION_MOTOR.getDeviceNumber(), MotorType.kBrushless);
-  private SparkMax intakeMotor = new SparkMax(INTAKE_MOTOR.getDeviceNumber(), MotorType.kBrushless);
+      new SparkMax(INTAKE_POSITION.getDeviceNumber(), MotorType.kBrushless);
+  private SparkMax intakeMotor = new SparkMax(INTAKE_ROLLER.getDeviceNumber(), MotorType.kBrushless);
+  private SparkMax feedMotor = new SparkMax(INTAKE_FEED.getDeviceNumber(), MotorType.kBrushless);
   private RelativeEncoder encoder = positionMotor.getEncoder();
   private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
   private DigitalInput inLimit = new DigitalInput(INTAKE_IN_LIMIT);
   public final int[] powerPorts = {
-    INTAKE_POSITION_MOTOR.getPowerPort(), INTAKE_MOTOR.getPowerPort()
+    INTAKE_POSITION.getPowerPort(), INTAKE_ROLLER.getPowerPort(), INTAKE_FEED.getPowerPort()
   };
 
   public IntakeIOSpark() {
@@ -38,14 +38,15 @@ public class IntakeIOSpark implements IntakeIO {
         .openLoopRampRate(kIntakeOpenLoopRampPeriod)
         .closedLoopRampRate(kIntakeClosedLoopRampPeriod);
 
-    var intakeConfig = new SparkMaxConfig();
+    var intakeConfig = positionConfig;
     intakeConfig
         .idleMode(IdleMode.kCoast)
-        .inverted(false)
-        .smartCurrentLimit(kIntakeCurrentLimit)
-        .voltageCompensation(kIntakeOptimalVoltage)
-        .openLoopRampRate(kIntakeOpenLoopRampPeriod)
-        .closedLoopRampRate(kIntakeClosedLoopRampPeriod);
+        .inverted(false);
+
+    var feedConfig = positionConfig;
+    feedConfig
+        .idleMode(IdleMode.kCoast)
+        .inverted(false);
 
     SparkUtil.tryUntilOk(
         positionMotor,
@@ -60,6 +61,13 @@ public class IntakeIOSpark implements IntakeIO {
         () ->
             intakeMotor.configure(
                 intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+    
+    SparkUtil.tryUntilOk(
+        feedMotor,
+        5,
+        () ->
+            feedMotor.configure(
+                feedConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
   }
 
   @Override
@@ -68,7 +76,7 @@ public class IntakeIOSpark implements IntakeIO {
     inputs.positionDegrees = getIntakePos();
     inputs.isIntakeOut = isIntakeOut();
     inputs.currentAmps =
-        new double[] {positionMotor.getOutputCurrent(), intakeMotor.getOutputCurrent()};
+        new double[] {positionMotor.getOutputCurrent(), intakeMotor.getOutputCurrent(), feedMotor.getOutputCurrent()};
 
     // AdvantageKit logging
     Logger.recordOutput("Intake/IntakeSpeed", inputs.intakeSpeed);
@@ -76,16 +84,19 @@ public class IntakeIOSpark implements IntakeIO {
     Logger.recordOutput("Intake/IsIntakeOut", inputs.isIntakeOut);
     Logger.recordOutput("Intake/PositionCurrent", inputs.currentAmps[0]);
     Logger.recordOutput("Intake/IntakeCurrent", inputs.currentAmps[1]);
+    Logger.recordOutput("Intake/FeedCurrent", inputs.currentAmps[2]);
   }
 
   @Override
   public void setVoltage(double volts) {
     intakeMotor.setVoltage(volts);
+    feedMotor.setVoltage(volts);
   }
 
   @Override
   public void setSpeed(double speed) {
     intakeMotor.set(speed);
+    feedMotor.set(speed);
   }
 
   @Override
@@ -104,6 +115,7 @@ public class IntakeIOSpark implements IntakeIO {
   @Override
   public void stopIntake() {
     intakeMotor.stopMotor();
+    feedMotor.stopMotor();
   }
 
   @Override

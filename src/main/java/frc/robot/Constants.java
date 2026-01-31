@@ -195,9 +195,11 @@ public final class Constants {
     // Example:
     public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, "", 8);
     public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, "", 9);
+    public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 10);
 
-    public static final RobotDeviceId INTAKE_POSITION_MOTOR = new RobotDeviceId(16, 10);
-    public static final RobotDeviceId INTAKE_MOTOR = new RobotDeviceId(17, 11);
+    public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 11);
+    public static final RobotDeviceId INTAKE_ROLLER = new RobotDeviceId(18, 12);
+    public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(19, 13);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
