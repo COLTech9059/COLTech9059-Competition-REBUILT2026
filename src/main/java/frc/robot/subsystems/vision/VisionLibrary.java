@@ -10,9 +10,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.FieldConstants;
 import frc.robot.commands.AutopilotCommands;
-
 import java.util.function.Supplier;
-
 import com.therekrab.autopilot.*;
 
 class VisionHelpers {
@@ -32,6 +30,17 @@ class VisionHelpers {
 }
 
 public class VisionLibrary {
+
+  public static int getBestCamera(Vision vision) {
+
+    VisionIOInputs[] allCameras = vision.getAllCameras();
+    int bestCamera = -1;
+
+    for (int i = 0; i < allCameras.length; i++) {}
+
+    return bestCamera;
+  }
+
   public static Rotation2d getRotationPowerToTarget(Vision vision) {
 
     // Get the yaw to target based on the best camera at the moment.

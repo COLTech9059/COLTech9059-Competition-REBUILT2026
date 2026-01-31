@@ -9,6 +9,7 @@
 
 package frc.robot.commands;
 
+import com.therekrab.autopilot.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -35,8 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import com.therekrab.autopilot.*;
 
 public class DriveCommands {
 
@@ -162,7 +161,6 @@ public class DriveCommands {
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getHeading().getRadians()));
   }
-
 
   /** Utility functions needed by commands in this module ****************** */
   /**
