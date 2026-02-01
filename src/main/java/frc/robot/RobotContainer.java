@@ -298,6 +298,9 @@ public class RobotContainer {
         .onTrue(
             Commands.defer(
                 VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagFocusInput.get(), 5),
+//                 () -> {
+//                   return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);
+//                 },
                 Set.of(m_drivebase)));
 
     // ** Example Commands -- Remap, remove, or change as desired **

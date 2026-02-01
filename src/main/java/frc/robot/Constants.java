@@ -193,13 +193,18 @@ public final class Constants {
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(3, "", 8);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(4, "", 9);
+    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, "", 8);
+    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, "", 9);
+
+    public static final RobotDeviceId INTAKE_POSITION_MOTOR = new RobotDeviceId(16, 10);
+    public static final RobotDeviceId INTAKE_MOTOR = new RobotDeviceId(17, 11);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
     // Example:
     // public static final int ELEVATOR_BOTTOM_LIMIT = 3;
+    public static final int INTAKE_OUT_LIMIT = 0;
+    public static final int INTAKE_IN_LIMIT = 1;
 
     /* LINEAR SERVO PWM CHANNELS */
     // This is where PWM-controlled devices (actuators, servos, pneumatics, etc.)
@@ -330,7 +335,32 @@ public final class Constants {
 
   /************************************************************************* */
   /** Place Other Mechanism Constant Classes Here ************************** */
-  // public static class Mechanism1Constants {}
+  public static final class IntakeConstants {
+
+    // Mechanism idle mode
+    public static final MotorIdleMode kIntakeIdleMode = MotorIdleMode.BRAKE;
+
+    // Mechanism gear ratios
+    public static final double kIntakeGearRatio = 1.0;
+    public static final double kIntakePositionGearRatio = 1.0;
+
+    public static final int kIntakeCurrentLimit = 40;
+    public static final int kIntakeOptimalVoltage = 12;
+
+    // Intake motor open-loop and closed-loop ramp periods for current smoothing
+    //   Time from from 0 -> full duty
+    public static final double kIntakeClosedLoopRampPeriod = 0.15; // seconds
+    public static final double kIntakeOpenLoopRampPeriod = 0.25; // seconds
+
+    // MODE == REAL / REPLAY
+    // Feedforward constants
+    public static final double kStaticGainReal = 0.1;
+    public static final double kVelocityGainReal = 0.05;
+
+    // Feedback (PID) constants
+    public static final PIDConstants pid = new PIDConstants(1.0, 0.0, 0.0);
+  }
+
   // public static class Mechanism2Constants {}
   // ...
 
