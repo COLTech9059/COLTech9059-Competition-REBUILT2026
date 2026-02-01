@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DrivebaseConstants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.RBSIEnum.Mode;
@@ -89,42 +90,61 @@ public class Drive extends SubsystemBase {
   public Drive(ImuIO imuIO) {
     this.imuIO = imuIO;
 
-    switch (Constants.getSwerveType()) {
-      case PHOENIX6:
+    switch (Constants.getRobot()) {
+      case SIMBOT:
         // This one is easy because it's all CTRE all the time
         for (int i = 0; i < 4; i++) {
-          modules[i] = new Module(new ModuleIOTalonFX(i), i);
+          modules[i] =
+              new Module(
+                  new ModuleIOSim(
+                      switch (i) {
+                        case 0 -> TunerConstants.FrontLeft;
+                        case 1 -> TunerConstants.FrontRight;
+                        case 2 -> TunerConstants.BackLeft;
+                        case 3 -> TunerConstants.BackRight;
+                        default -> throw new IllegalArgumentException("Invalid module index");
+                      }),
+                  i);
         }
         break;
-
-      case YAGSL:
-        // Then parse the module(s)
-        Byte modType = RBSIParsing.parseModuleType();
-        for (int i = 0; i < 4; i++) {
-          switch (modType) {
-            case 0b00000000: // ALL-CTRE
-              if (kImuType == "navx" || kImuType == "navx_spi") {
-                modules[i] = new Module(new ModuleIOTalonFX(i), i);
-              } else {
-                throw new RuntimeException(
-                    "For an all-CTRE drive base, use Phoenix Tuner X Swerve Generator instead of YAGSL!");
-              }
-            case 0b00010000: // Blended Talon Drive / NEO Steer
-              modules[i] = new Module(new ModuleIOBlended(i), i);
-              break;
-            case 0b01010000: // NEO motors + CANcoder
-              modules[i] = new Module(new ModuleIOSparkCANcoder(i), i);
-              break;
-            case 0b01010100: // NEO motors + analog encoder
-              modules[i] = new Module(new ModuleIOSpark(i), i);
-              break;
-            default:
-              throw new RuntimeException("Invalid swerve module combination");
-          }
-        }
-
       default:
-        throw new RuntimeException("Invalid Swerve Drive Type");
+        switch (Constants.getSwerveType()) {
+          case PHOENIX6:
+            // This one is easy because it's all CTRE all the time
+            for (int i = 0; i < 4; i++) {
+              modules[i] = new Module(new ModuleIOTalonFX(i), i);
+            }
+            break;
+
+          case YAGSL:
+            // Then parse the module(s)
+            Byte modType = RBSIParsing.parseModuleType();
+            for (int i = 0; i < 4; i++) {
+              switch (modType) {
+                case 0b00000000: // ALL-CTRE
+                  if (kImuType == "navx" || kImuType == "navx_spi") {
+                    modules[i] = new Module(new ModuleIOTalonFX(i), i);
+                  } else {
+                    throw new RuntimeException(
+                        "For an all-CTRE drive base, use Phoenix Tuner X Swerve Generator instead of YAGSL!");
+                  }
+                case 0b00010000: // Blended Talon Drive / NEO Steer
+                  modules[i] = new Module(new ModuleIOBlended(i), i);
+                  break;
+                case 0b01010000: // NEO motors + CANcoder
+                  modules[i] = new Module(new ModuleIOSparkCANcoder(i), i);
+                  break;
+                case 0b01010100: // NEO motors + analog encoder
+                  modules[i] = new Module(new ModuleIOSpark(i), i);
+                  break;
+                default:
+                  throw new RuntimeException("Invalid swerve module combination");
+              }
+            }
+
+          default:
+            throw new RuntimeException("Invalid Swerve Drive Type");
+        }
     }
 
     // Usage reporting for swerve template

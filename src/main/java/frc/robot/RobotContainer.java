@@ -53,6 +53,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.subsystems.vision.VisionLibrary;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.GetJoystickValue;
@@ -104,6 +105,8 @@ public class RobotContainer {
   // EXAMPLE TUNABLE FLYWHEEL SPEED INPUT FROM DASHBOARD
   private final LoggedTunableNumber flywheelSpeedInput =
       new LoggedTunableNumber("Flywheel Speed", 1500.0);
+  private final LoggedTunableNumber AprilTagFocusInput =
+      new LoggedTunableNumber("AprilTag Focus", 1);
 
   // Alerts
   private final Alert aprilTagLayoutAlert = new Alert("", AlertType.INFO);
@@ -284,11 +287,18 @@ public class RobotContainer {
                         () -> -driveStickX.value(),
                         () -> m_vision.getTargetX(0)),
                 m_drivebase));
-    
+
     // Press Left Trigger -> Climb Position Mapping
     // TODO: get the pose we want for climbing
-    driverController.leftTrigger().onTrue(Commands.defer(() -> {return AutopilotCommands.runAutopilot(m_drivebase, null, null, null);}, Set.of(m_drivebase)));
-    
+    // driverController.leftTrigger().onTrue(Commands.defer(() -> {return
+    // AutopilotCommands.runAutopilot(m_drivebase, null, null, null);}, Set.of(m_drivebase)));
+
+    driverController
+        .leftTrigger()
+        .onTrue(
+            Commands.defer(
+                VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagFocusInput.get(), 5),
+                Set.of(m_drivebase)));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
