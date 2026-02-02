@@ -17,7 +17,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class IntakeIOTalon implements IntakeIO {
+public class IntakeIOTalonFX implements IntakeIO {
 
   private TalonFX positionMotor = new TalonFX(INTAKE_POSITION.getDeviceNumber());
   private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
@@ -36,7 +36,7 @@ public class IntakeIOTalon implements IntakeIO {
   private final TalonFXConfiguration intakeConfig;
   private final TalonFXConfiguration feedConfig;
 
-  public IntakeIOTalon() {
+  public IntakeIOTalonFX() {
     positionConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     positionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -90,8 +90,8 @@ public class IntakeIOTalon implements IntakeIO {
 
   @Override
   public void setVoltage(double volts) {
-    intakeMotor.setControl(new VoltageOut(volts));
-    feedMotor.setControl(new VoltageOut(volts));
+    intakeMotor.setVoltage(volts);
+    feedMotor.setVoltage(volts);
   }
 
   @Override
