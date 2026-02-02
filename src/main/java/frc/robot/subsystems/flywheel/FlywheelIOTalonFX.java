@@ -21,6 +21,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
@@ -30,6 +31,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 
+// TODO: Add hybrid hardware file
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   // Define the leader / follower motors from the Ports section of RobotContainer
@@ -50,6 +52,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Current> followerCurrent = follower.getSupplyCurrent();
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
+  private final TalonFXConfiguration followerConfig;
+  private final TalonFXConfiguration feedConfig; 
+
 
   public FlywheelIOTalonFX() {
     config.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -70,11 +75,22 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     closedRamps.TorqueClosedLoopRampPeriod = kFlywheelClosedLoopRampPeriod;
     // Apply the open- and closed-loop ramp configuration for current smoothing
     config.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
+    
+    if (kFlywheelLeaderInverted) config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+
+    followerConfig = config;
+    if (kFlywheelFollowerInverted) followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+    
+    feedConfig = config;
+    if (kFlywheelFeedInverted) feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
-    follower.getConfigurator().apply(config);
-    feeder.getConfigurator().apply(config);
+    follower.getConfigurator().apply(followerConfig);
+    feeder.getConfigurator().apply(feedConfig);
     // If follower rotates in the opposite direction, set "MotorAlignmentValue" to Opposed
     follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
 

@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
 import frc.robot.util.RBSISubsystem;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 // TODO: Add hybrid hardware file
@@ -44,19 +43,16 @@ public class Intake extends RBSISubsystem {
     io.stopPosition();
   }
 
-  @AutoLogOutput(key = "Mechanism/Intake")
   public double getIntakePos() {
-    return io.getIntakePos();
+    return inputs.positionDegrees;
   }
 
-  @AutoLogOutput(key = "Mechanism/Intake")
   public boolean isIntakeOut() {
-    return io.isIntakeOut();
+    return inputs.isIntakeOut;
   }
 
-  @AutoLogOutput(key = "Mechanism/Intake")
   public boolean isIntakeIn() {
-    return io.isIntakeIn();
+    return inputs.isIntakeIn;
   }
 
   @Override

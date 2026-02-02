@@ -201,12 +201,16 @@ public final class Constants {
     public static final RobotDeviceId INTAKE_ROLLER = new RobotDeviceId(18, 12);
     public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(19, 13);
 
+    public static final RobotDeviceId CLIMBER_MOTOR = new RobotDeviceId(20, 14);
+
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
     // Example:
     // public static final int ELEVATOR_BOTTOM_LIMIT = 3;
     public static final int INTAKE_OUT_LIMIT = 0;
     public static final int INTAKE_IN_LIMIT = 1;
+    public static final int CLIMBER_UP_LIMIT = 2;
+    public static final int CLIMBER_DOWN_LIMIT = 3;
 
     /* LINEAR SERVO PWM CHANNELS */
     // This is where PWM-controlled devices (actuators, servos, pneumatics, etc.)
@@ -312,6 +316,11 @@ public final class Constants {
     // Mechanism idle mode
     public static final MotorIdleMode kFlywheelIdleMode = MotorIdleMode.COAST; // BRAKE, COAST
 
+    // Inversions
+    public static final boolean kFlywheelLeaderInverted = false;
+    public static final boolean kFlywheelFollowerInverted = false;
+    public static final boolean kFlywheelFeedInverted = false;
+
     // Mechanism motor gear ratio
     public static final double kFlywheelGearRatio = 1.5;
 
@@ -342,6 +351,11 @@ public final class Constants {
     // Mechanism idle mode
     public static final MotorIdleMode kIntakeIdleMode = MotorIdleMode.BRAKE;
 
+    // Inversions
+    public static final boolean kIntakeInverted = false;
+    public static final boolean kIntakePositionInverted = false;
+    public static final boolean kIntakeFeedInverted = false;
+
     // Mechanism gear ratios
     public static final double kIntakeGearRatio = 1.0;
     public static final double kIntakePositionGearRatio = 1.0;
@@ -353,17 +367,26 @@ public final class Constants {
     //   Time from from 0 -> full duty
     public static final double kIntakeClosedLoopRampPeriod = 0.15; // seconds
     public static final double kIntakeOpenLoopRampPeriod = 0.25; // seconds
-
-    // MODE == REAL / REPLAY
-    // Feedforward constants
-    public static final double kStaticGainReal = 0.1;
-    public static final double kVelocityGainReal = 0.05;
-
-    // Feedback (PID) constants
-    public static final PIDConstants pid = new PIDConstants(1.0, 0.0, 0.0);
   }
 
-  // public static class Mechanism2Constants {}
+  public static class ClimberConstants {
+    // Mechanism idle mode
+    public static final MotorIdleMode kClimberIdleMode = MotorIdleMode.BRAKE;
+
+    // Inversions
+    public static final boolean kClimberInverted = false;
+
+    // Mechanism gear ratios
+    public static final double kClimberRotationsToInchesRatio = 1.0; // Instead of gear ratio, use this
+
+    public static final int kClimberCurrentLimit = 40;
+    public static final int kClimberOptimalVoltage = 12;
+
+    // Intake motor open-loop and closed-loop ramp periods for current smoothing
+    //   Time from from 0 -> full duty
+    public static final double kClimberClosedLoopRampPeriod = 0.15; // seconds
+    public static final double kClimberOpenLoopRampPeriod = 0.25; // seconds
+  }
   // ...
 
   /************************************************************************* */

@@ -10,6 +10,7 @@ public interface IntakeIO extends RBSIIO {
     public double positionDegrees = 0.0;
     public double intakeSpeed = 0.0;
     public boolean isIntakeOut = false;
+    public boolean isIntakeIn = false;
     public double[] currentAmps = new double[] {};
   }
 
@@ -24,10 +25,4 @@ public interface IntakeIO extends RBSIIO {
   public default void stopIntake() {}
 
   public default void stopPosition() {}
-
-  public default double getIntakePos() {return 0;}
-
-  public default boolean isIntakeOut() {return false;}
-
-  public default boolean isIntakeIn() {return false;}
 }

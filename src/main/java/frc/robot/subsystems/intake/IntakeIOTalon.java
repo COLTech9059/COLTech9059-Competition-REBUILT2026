@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -39,6 +40,8 @@ public class IntakeIOTalon implements IntakeIO {
     positionConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     positionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    if (kIntakePositionInverted) positionConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else positionConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Build the OpenLoopRampsConfigs and ClosedLoopRampsConfigs for current smoothing
     OpenLoopRampsConfigs openRamps = new OpenLoopRampsConfigs();
@@ -56,9 +59,13 @@ public class IntakeIOTalon implements IntakeIO {
 
     intakeConfig = positionConfig;
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    if (kIntakeInverted) intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else intakeConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     feedConfig = positionConfig;
     feedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    if (kIntakeFeedInverted) feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     positionMotor.getConfigurator().apply(positionConfig);
     intakeMotor.getConfigurator().apply(intakeConfig);
@@ -72,10 +79,11 @@ public class IntakeIOTalon implements IntakeIO {
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     BaseStatusSignal.refreshAll(position, positionCurrent, intakeCurrent);
-    inputs.intakeSpeed = intakeMotor.get();
+    inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees =
         Units.rotationsToDegrees(position.getValueAsDouble()) / kIntakePositionGearRatio;
-    inputs.isIntakeOut = isIntakeOut();
+    inputs.isIntakeOut = outLimit.get();
+    inputs.isIntakeIn = inLimit.get();
     inputs.currentAmps =
         new double[] {positionCurrent.getValueAsDouble(), intakeCurrent.getValueAsDouble()};
   }
@@ -114,21 +122,5 @@ public class IntakeIOTalon implements IntakeIO {
   @Override
   public void stopPosition() {
     positionMotor.stopMotor();
-  }
-
-  @Override
-  public double getIntakePos() {
-    return Units.rotationsToDegrees(positionMotor.getPosition().getValueAsDouble())
-        / kIntakePositionGearRatio;
-  }
-
-  @Override
-  public boolean isIntakeOut() {
-    return outLimit.get();
-  }
-
-  @Override
-  public boolean isIntakeIn() {
-    return inLimit.get();
   }
 }

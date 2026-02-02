@@ -59,6 +59,7 @@ public class FlywheelIOSpark implements FlywheelIO {
 
     // Configure leader motor
     var leaderConfig = new SparkFlexConfig();
+    leaderConfig.inverted(kFlywheelLeaderInverted);
     leaderConfig
         .idleMode(
             switch (kFlywheelIdleMode) {
@@ -91,6 +92,7 @@ public class FlywheelIOSpark implements FlywheelIO {
 
     var followerConfig = leaderConfig;
     followerConfig.follow(leader.getDeviceId());
+    followerConfig.inverted(kFlywheelFollowerInverted);
 
     SparkUtil.tryUntilOk(
         leader,
