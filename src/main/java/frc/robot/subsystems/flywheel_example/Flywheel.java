@@ -7,7 +7,7 @@
 // license that can be found in the AdvantageKit-License.md file
 // at the root directory of this project.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.flywheel_example;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FlywheelConstants.*;
