@@ -3,23 +3,20 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.intake.Intake;
-import java.util.function.BooleanSupplier;
 
 public class IntakeCommands {
 
   public static Command extendIntake(Intake intake, double speed) {
-    BooleanSupplier canRun = () -> !intake.isIntakeOut();
     return Commands.run(() -> intake.setPosition(speed, true), intake)
-        .onlyIf(canRun)
-        .until(() -> intake.isIntakeOut())
+        .unless(intake::isIntakeOut)
+        .until(intake::isIntakeOut)
         .finallyDo(() -> intake.stopPosition());
   }
 
   public static Command retractIntake(Intake intake, double speed) {
-    BooleanSupplier canRun = () -> !intake.isIntakeIn();
     return Commands.run(() -> intake.setPosition(speed, false), intake)
-        .onlyIf(canRun)
-        .until(() -> intake.isIntakeIn())
+        .unless(intake::isIntakeIn)
+        .until(intake::isIntakeIn)
         .finallyDo(() -> intake.stopPosition());
   }
 

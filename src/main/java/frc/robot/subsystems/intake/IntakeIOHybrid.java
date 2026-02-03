@@ -105,7 +105,7 @@ public class IntakeIOHybrid implements IntakeIO {
           positionMotor.getOutputCurrent(),
           intakeCurrent.getValueAsDouble(),
           feedMotor.getOutputCurrent()
-        };
+  };
 
     // AdvantageKit logging
     Logger.recordOutput("Intake/IntakeSpeed", inputs.intakeSpeed);

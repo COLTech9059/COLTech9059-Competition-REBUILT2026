@@ -8,8 +8,7 @@ import java.util.function.BooleanSupplier;
 
 public class FlywheelCommands {
 
-  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed
-  // system logic
+  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed system logic
   /**
    * Runs the flywheel at the given velocity setpoint; closed loop
    *
