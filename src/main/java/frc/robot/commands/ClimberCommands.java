@@ -8,12 +8,22 @@ import frc.robot.subsystems.climber.Climber;
 
 public class ClimberCommands {
   
+  /**
+   * Move the climber to the extended position at the given speed
+   * @param climber The climber subsystem to use
+   * @param speed The speed to run the climber at
+   */
   public static Command extendClimber(Climber climber, double speed) {
     return Commands.run(() -> climber.setPosition(speed, true), climber)
       .until(climber::isClimberUp)
       .finallyDo(() -> climber.stop());
   }
 
+  /**
+   * Move the climber to the retracted position at the given speed
+   * @param climber The climber subsystem to use
+   * @param speed The speed to run the climber at
+   */
   public static Command retractClimber(Climber climber, double speed) {
     return Commands.run(() -> climber.setPosition(-speed, false), climber)
       .until(climber::isClimberDown)
@@ -31,6 +41,10 @@ public class ClimberCommands {
     else return retractClimber(climber, speed);
   }
 
+  /**
+   * Stop the climber
+   * @param climber The climber subsystem to use
+   */
   public static Command stopClimber(Climber climber) {
     return Commands.runOnce(() -> climber.stop(), climber);
   }

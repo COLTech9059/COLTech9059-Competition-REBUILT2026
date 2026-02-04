@@ -20,6 +20,7 @@ import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+/** Flywheel subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility; open & closed-loop control */
 public class Flywheel extends RBSISubsystem {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
@@ -80,6 +81,7 @@ public class Flywheel extends RBSISubsystem {
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
   }
 
+  /** Run the feed system at the specified speed */
   public void runFeed(double speed) {
     io.runFeed(speed);
   }
@@ -89,6 +91,7 @@ public class Flywheel extends RBSISubsystem {
     io.stop();
   }
 
+  /** Stop the feed system */
   public void stopFeed() {
     io.stopFeed();
   }
