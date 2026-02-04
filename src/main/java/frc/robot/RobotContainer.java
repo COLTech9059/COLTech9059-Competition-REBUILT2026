@@ -14,7 +14,9 @@
 package frc.robot;
 
 import static frc.robot.Constants.Cameras.*;
-
+import static frc.robot.Constants.OperatorConstants.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -32,10 +34,13 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.FieldConstants.AprilTagLayoutType;
+import frc.robot.commands.ClimberCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FlywheelCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -71,14 +76,16 @@ public class RobotContainer {
 
   final CommandXboxController operatorController = new CommandXboxController(1); // Second Operator
   final OverrideSwitches overrides = new OverrideSwitches(2); // Console toggle switches
+  private BooleanSupplier climbSelector = () -> false;
+  private DoubleSupplier flywheelVelocityRPM = () -> 2800;
 
   /** Declare the robot subsystems here ************************************ */
   // These are the "Active Subsystems" that the robot controls
   private final Drive m_drivebase;
-
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
   private final Intake intake = new Intake(new IntakeIOSpark());
+  private final Climber climber = new Climber(new ClimberIOSpark());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -300,14 +307,23 @@ public class RobotContainer {
             Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
                 .ignoringDisable(true));
 
-    // Hold RIGHT Trigger --> Run the example flywheel
-    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, 2800, 0.75));
+    // Hold RIGHT Trigger --> Run the flywheel
+    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
     // Hold Left Trigger --> Intake
     driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.20, 0.75));
 
     // Press Left Bumper --> Retract intake
     driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
+
+    // Press Right Bumper --> Toggle climber
+    driverController.rightBumper().onTrue(Commands.runOnce(() -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
+    driverController.rightBumper().onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
+
+    // Press Dpad up --> Max flywheel velocity
+    driverController.pov(0).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MAX_RPM));
+    driverController.pov(90).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM));
+    driverController.pov(180).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MIN_RPM));
 
     // Press POV LEFT to nudge the robot left
     driverController

@@ -3,7 +3,6 @@ package frc.robot.subsystems.intake;
 import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: Add hybrid hardware file
 public class Intake extends RBSISubsystem {
 
   private final IntakeIO io;

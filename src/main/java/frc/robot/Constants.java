@@ -251,6 +251,11 @@ public final class Constants {
     public static final int OPERATOR_SWITCH_4 = 12;
 
     public static final int[] MULTI_TOGGLE = {4, 5};
+
+    // TODO: Temp flywheel velocity values, replace with real
+    public static final double FLYWHEEL_MIN_RPM = 2600;
+    public static final double FLYWHEEL_MID_RPM = 2800;
+    public static final double FLYWHEEL_MAX_RPM = 3000;
   }
 
   /************************************************************************* */

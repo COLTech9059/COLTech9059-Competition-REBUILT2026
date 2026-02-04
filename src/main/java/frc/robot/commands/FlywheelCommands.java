@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.flywheel.Flywheel;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class FlywheelCommands {
 
@@ -15,13 +16,13 @@ public class FlywheelCommands {
    * @param flywheel The Flywheel subsystem to use
    * @param velocityRPM The velocity setpoint in RPM
    */
-  public static Command setVelocity(Flywheel flywheel, double velocityRPM, double feedSpeed) {
+  public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM, double feedSpeed) {
     BooleanSupplier canRun =
         () ->
-            (flywheel.getVelocityRPM() >= velocityRPM * 0.95
-                && flywheel.getVelocityRPM() <= velocityRPM * 1.05);
+            (flywheel.getVelocityRPM() >= velocityRPM.getAsDouble() * 0.95
+                && flywheel.getVelocityRPM() <= velocityRPM.getAsDouble() * 1.05);
 
-    return Commands.run(() -> flywheel.runVelocity(velocityRPM), flywheel)
+    return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
         .alongWith(
             Commands.run(() -> flywheel.runFeed(feedSpeed))
                 .onlyWhile(canRun)
