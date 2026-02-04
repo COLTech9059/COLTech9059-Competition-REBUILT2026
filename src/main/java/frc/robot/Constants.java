@@ -63,7 +63,7 @@ public final class Constants {
    * Define the various multiple robots that use this same code (e.g., COMPBOT, DEVBOT, SIMBOT,
    * etc.) and the operating modes of the code (REAL, SIM, or REPLAY)
    */
-  private static RobotType robotType = RobotType.COMPBOT;
+  private static RobotType robotType = RobotType.SIMBOT;
 
   // Define swerve, auto, and vision types being used
   // NOTE: Only PHOENIX6 swerve base has been tested at this point!!!
@@ -387,10 +387,10 @@ public final class Constants {
     // Motion profile for drive to pose
     private static final APProfile kAPProfile =
         new APProfile(kAPConstraints)
-            .withErrorXY(Centimeters.of(2))
-            .withErrorTheta(Degrees.of(0.5))
-            .withBeelineRadius(Centimeters.of(8));
-
+            .withErrorXY(Centimeters.of(8))
+            .withErrorTheta(Degrees.of(2))
+            .withBeelineRadius(Centimeters.of(20));
+    // ORIGINAL TOLERANCE: xy -> 2cm, theta -> 0.5 deg, beeline -> 8cm
     // Autopilot object to be used for specific commands
     public static final Autopilot kAutopilot = new Autopilot(kAPProfile);
   }

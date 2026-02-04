@@ -57,6 +57,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.subsystems.vision.VisionLibrary;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.GetJoystickValue;
@@ -116,6 +117,8 @@ public class RobotContainer {
   // EXAMPLE TUNABLE FLYWHEEL SPEED INPUT FROM DASHBOARD
   private final LoggedTunableNumber flywheelSpeedInput =
       new LoggedTunableNumber("Flywheel Speed", 1500.0);
+  private final LoggedTunableNumber AprilTagTargetInput =
+      new LoggedTunableNumber("AprilTag Target", 2.0);
 
   // Alerts
   private final Alert aprilTagLayoutAlert = new Alert("", AlertType.INFO);
@@ -306,19 +309,28 @@ public class RobotContainer {
             () -> -driveStickX.value(),
             () -> -turnStickX.value()));
 
-    // ** Example Commands -- Remap, remove, or change as desired **
-    // Press B button while driving --> ROBOT-CENTRIC
     driverController
         .b()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    DriveCommands.robotRelativeDrive(
-                        m_drivebase,
-                        () -> -driveStickY.value(),
-                        () -> -driveStickX.value(),
-                        () -> turnStickX.value()),
-                m_drivebase));
+        .toggleOnTrue(
+            DriveCommands.fieldRelativeDriveAtAngle(
+                m_drivebase,
+                () -> -driveStickY.value(),
+                () -> -driveStickX.value(),
+                () -> VisionLibrary.getRotationToTarget(m_drivebase, 10)));
+
+    // ** Example Commands -- Remap, remove, or change as desired **
+    // Press B button while driving --> ROBOT-CENTRIC
+    // driverController
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 DriveCommands.robotRelativeDrive(
+    //                     m_drivebase,
+    //                     () -> -driveStickY.value(),
+    //                     () -> -driveStickX.value(),
+    //                     () -> turnStickX.value()),
+    //             m_drivebase));
 
     // Press A button -> BRAKE
     driverController
@@ -365,6 +377,14 @@ public class RobotContainer {
 
                   return AutopilotCommands.runAutopilot(m_drivebase, pose);
                 },
+                Set.of(m_drivebase)));
+
+    // Press LEFT TRIGGER -> map to given april tag given an offset in front
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            Commands.defer(
+                VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
                 Set.of(m_drivebase)));
 
     // Press POV LEFT to nudge the robot left
