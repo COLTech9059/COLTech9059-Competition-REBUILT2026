@@ -22,8 +22,11 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,7 +43,7 @@ import frc.robot.commands.FlywheelCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIOSpark;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -52,7 +55,7 @@ import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIOSpark;
+import frc.robot.subsystems.intake.IntakeIOHybrid;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -73,19 +76,18 @@ public class RobotContainer {
   /** Define the Driver and, optionally, the Operator/Co-Driver Controllers */
   // Replace with ``CommandPS4Controller`` or ``CommandJoystick`` if needed
   final CommandXboxController driverController = new CommandXboxController(0); // Main Driver
-
   final CommandXboxController operatorController = new CommandXboxController(1); // Second Operator
   final OverrideSwitches overrides = new OverrideSwitches(2); // Console toggle switches
   private BooleanSupplier climbSelector = () -> false;
-  private DoubleSupplier flywheelVelocityRPM = () -> 2800;
+  private DoubleSupplier flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM;
 
   /** Declare the robot subsystems here ************************************ */
   // These are the "Active Subsystems" that the robot controls
   private final Drive m_drivebase;
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
-  private final Intake intake = new Intake(new IntakeIOSpark());
-  private final Climber climber = new Climber(new ClimberIOSpark());
+  private final Intake intake = new Intake(new IntakeIOHybrid());
+  private final Climber climber = new Climber(new ClimberIOTalonFX());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -246,6 +248,11 @@ public class RobotContainer {
     // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
   }
 
+  private Rotation2d getBumpAngle() {
+    Rotation2d bumpAngle = new Rotation2d(BUMP_ANGLE);
+    return bumpAngle;
+  }
+
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -253,6 +260,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureBindings() {
+
+    double invertX = -1; // 1, -1
+    double invertY = -1; // 1, -1
+    double invertTheta = -1; // 1, -1
 
     // Send the proper joystick input based on driver preference -- Set this in `Constants.java`
     GetJoystickValue driveStickY;
@@ -274,28 +285,21 @@ public class RobotContainer {
     m_drivebase.setDefaultCommand(
         DriveCommands.fieldRelativeDrive(
             m_drivebase,
-            () -> -driveStickY.value(),
-            () -> -driveStickX.value(),
-            () -> -turnStickX.value()));
+            () -> driveStickY.value() * invertX,
+            () -> driveStickX.value() * invertY,
+            () -> turnStickX.value() * invertTheta));
 
-    // ** Example Commands -- Remap, remove, or change as desired **
-    // Press B button while driving --> ROBOT-CENTRIC
-    // driverController
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 DriveCommands.robotRelativeDrive(
-    //                     m_drivebase,
-    //                     () -> -driveStickY.value(),
-    //                     () -> -driveStickX.value(),
-    //                     () -> turnStickX.value()),
-    //             m_drivebase));
+    // Hold B button --> Drive at the angle required to go over the bump
+    driverController.b().whileTrue(DriveCommands.fieldRelativeDriveAtAngle(
+      m_drivebase, 
+      () -> driveStickX.value() * invertX, 
+      () -> driveStickY.value() * invertY, 
+      this::getBumpAngle)); 
 
     // Press A button -> BRAKE
-    driverController
-        .a()
-        .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
+    // driverController
+    //     .a()
+    //     .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
 
     // Press X button --> Stop with wheels in X-Lock position
     driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
@@ -307,7 +311,7 @@ public class RobotContainer {
             Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
                 .ignoringDisable(true));
 
-    // Hold RIGHT Trigger --> Run the flywheel
+    // Hold Right Trigger --> Run the flywheel
     driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
     // Hold Left Trigger --> Intake
@@ -322,7 +326,11 @@ public class RobotContainer {
 
     // Press Dpad up --> Max flywheel velocity
     driverController.pov(0).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MAX_RPM));
+
+    // Press Dpad right --> Mid flywheel velocity
     driverController.pov(90).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM));
+
+    // Press Dpad down --> Min flywheel velocity
     driverController.pov(180).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MIN_RPM));
 
     // Press POV LEFT to nudge the robot left

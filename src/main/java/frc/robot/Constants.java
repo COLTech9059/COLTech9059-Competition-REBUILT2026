@@ -256,6 +256,9 @@ public final class Constants {
     public static final double FLYWHEEL_MIN_RPM = 2600;
     public static final double FLYWHEEL_MID_RPM = 2800;
     public static final double FLYWHEEL_MAX_RPM = 3000;
+
+    // TODO: Temp bump angle value, replace with real
+    public static final double BUMP_ANGLE = 45;
   }
 
   /************************************************************************* */
