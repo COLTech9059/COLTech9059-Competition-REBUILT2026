@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.commands.AutopilotCommands;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class VisionLibrary {
@@ -55,7 +53,40 @@ public class VisionLibrary {
 
     Logger.recordOutput("VisionLibrary/RotationToTarget", rotation.getRadians());
 
-    //TODO: figure out why drive doesn't accept the rotation value despite returning a real value.
+    // TODO: figure out why drive doesn't accept the rotation value despite returning a real value.
+    return rotation;
+  }
+
+  /**
+   * Returns the rotation value that maps robot orientation to point at the target
+   *
+   * @author Lunaradical
+   * @param driveSubsystem The main Drive subsystem used to drive the robot.
+   * @param targetIndex The index of the AprilTag you want to focus on.
+   * @return The rotation between the target and the robot's current position.
+   */
+  public static Rotation2d pointToTarget(Drive driveSubsystem, int targetIndex) {
+
+    // Get pose of the target
+    Pose2d targetPose = VisionHelpers.getTargetPosition(targetIndex).toPose2d();
+
+    // Return no rotation if target is invalid.
+    if (targetPose.equals(Pose2d.kZero)) return Rotation2d.kZero;
+
+    // Make the pose relative to the Robot (make the Robot the origin)
+    Pose2d RelativePose = targetPose.relativeTo(driveSubsystem.getPose());
+
+    // Use trigonometry to get the rotation to the point.
+    double Angle = Math.atan(RelativePose.getY() / RelativePose.getX());
+    Rotation2d absoluteRotation = Rotation2d.fromRadians(Angle);
+
+    // Get the rotation between the poses. (surely subtracting them will get me the rotation,
+    // right?)
+    Rotation2d rotation = absoluteRotation.minus(driveSubsystem.getHeading());
+
+    Logger.recordOutput("VisionLibrary/RotationToTarget", rotation.getRadians());
+
+    // TODO: monitor oscillation of function (does the simulation cause it to oscillate or does there need to be rotation damping)?
     return rotation;
   }
 

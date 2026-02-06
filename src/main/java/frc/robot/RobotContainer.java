@@ -316,7 +316,7 @@ public class RobotContainer {
                 m_drivebase,
                 () -> -driveStickY.value(),
                 () -> -driveStickX.value(),
-                () -> VisionLibrary.getRotationToTarget(m_drivebase, 10)));
+                () -> VisionLibrary.pointToTarget(m_drivebase, 10)));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
