@@ -13,7 +13,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.flywheel_example;
 
 import static frc.robot.Constants.FlywheelConstants.*;
 import static frc.robot.Constants.RobotDevices.*;
@@ -75,7 +75,6 @@ public class FlywheelIOSpark implements FlywheelIO {
         .feedForward
         .kS(kStaticGainReal)
         .kV(kVelocityGainReal);
-    leaderConfig.closedLoop.maxMotion.cruiseVelocity(0).maxAcceleration(0).allowedProfileError(0);
     leaderConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -88,23 +87,12 @@ public class FlywheelIOSpark implements FlywheelIO {
     leaderConfig
         .openLoopRampRate(DrivebaseConstants.kDriveOpenLoopRampPeriod)
         .closedLoopRampRate(DrivebaseConstants.kDriveClosedLoopRampPeriod);
-
-    var followerConfig = leaderConfig;
-    followerConfig.follow(leader.getDeviceId());
-
     SparkUtil.tryUntilOk(
         leader,
         5,
         () ->
             leader.configure(
                 leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    SparkUtil.tryUntilOk(
-        follower,
-        5,
-        () ->
-            follower.configure(
-                followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-
     SparkUtil.tryUntilOk(leader, 5, () -> encoder.setPosition(0.0));
   }
 

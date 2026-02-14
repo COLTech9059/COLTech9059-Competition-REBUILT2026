@@ -9,7 +9,6 @@
 
 package frc.robot.commands;
 
-import com.therekrab.autopilot.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;

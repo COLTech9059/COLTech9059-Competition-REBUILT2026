@@ -18,7 +18,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.util.RBSIEnum.*;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -38,7 +37,15 @@ import frc.robot.FieldConstants.AprilTagLayoutType;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.util.Alert;
+import frc.robot.util.RBSIEnum.AutoType;
+import frc.robot.util.RBSIEnum.CTREPro;
+import frc.robot.util.RBSIEnum.DriveStyle;
+import frc.robot.util.RBSIEnum.Mode;
+import frc.robot.util.RBSIEnum.MotorIdleMode;
+import frc.robot.util.RBSIEnum.SwerveType;
+import frc.robot.util.RBSIEnum.VisionType;
 import frc.robot.util.RobotDeviceId;
+import org.photonvision.simulation.SimCameraProperties;
 import swervelib.math.Matter;
 
 /**
@@ -56,7 +63,7 @@ public final class Constants {
    * Define the various multiple robots that use this same code (e.g., COMPBOT, DEVBOT, SIMBOT,
    * etc.) and the operating modes of the code (REAL, SIM, or REPLAY)
    */
-  private static RobotType robotType = RobotType.COMPBOT;
+  private static RobotType robotType = RobotType.SIMBOT;
 
   // Define swerve, auto, and vision types being used
   // NOTE: Only PHOENIX6 swerve base has been tested at this point!!!
@@ -64,9 +71,9 @@ public final class Constants {
   //       under strict caveat emptor -- and submit any error and bugfixes
   //       via GitHub issues.
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
-  private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
-  private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.PHOTON; // PHOTON, LIMELIGHT, NONE
+  private static CTREPro phoenixPro = CTREPro.UNLICENSED; // LICENSED, UNLICENSED
+  private static AutoType autoType = AutoType.MANUAL; // MANUAL, PATHPLANNER, CHOREO
+  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -102,7 +109,7 @@ public final class Constants {
   /** Physical Constants for Robot Operation ******************************* */
   public static final class RobotConstants {
 
-    public static final Mass kRobotMass = Kilograms.of(100.);
+    public static final Mass kRobotMass = Pounds.of(100.);
     public static final Matter kChassis =
         new Matter(new Translation3d(0, 0, Inches.of(8).in(Meters)), kRobotMass.in(Kilograms));
     // Robot moment of intertial; this can be obtained from a CAD model of your drivetrain. Usually,
@@ -111,6 +118,10 @@ public final class Constants {
 
     // Wheel coefficient of friction
     public static final double kWheelCOF = 1.2;
+
+    // Maximum torque applied by wheel
+    // Kraken X60 stall torque ~7.09 Nm; MK4i L3 gear ratio 6.12:1
+    public static final double kMaxWheelTorque = 43.4; // Nm
 
     // Insert here the orientation (CCW == +) of the Rio and IMU from the robot
     // An angle of "0." means the x-y-z markings on the device match the robot's intrinsic reference
@@ -193,18 +204,13 @@ public final class Constants {
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, "", 8);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, "", 9);
-
-    public static final RobotDeviceId INTAKE_POSITION_MOTOR = new RobotDeviceId(16, 10);
-    public static final RobotDeviceId INTAKE_MOTOR = new RobotDeviceId(17, 11);
+    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(3, "", 8);
+    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(4, "", 9);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
     // Example:
     // public static final int ELEVATOR_BOTTOM_LIMIT = 3;
-    public static final int INTAKE_OUT_LIMIT = 0;
-    public static final int INTAKE_IN_LIMIT = 1;
 
     /* LINEAR SERVO PWM CHANNELS */
     // This is where PWM-controlled devices (actuators, servos, pneumatics, etc.)
@@ -335,32 +341,7 @@ public final class Constants {
 
   /************************************************************************* */
   /** Place Other Mechanism Constant Classes Here ************************** */
-  public static final class IntakeConstants {
-
-    // Mechanism idle mode
-    public static final MotorIdleMode kIntakeIdleMode = MotorIdleMode.BRAKE;
-
-    // Mechanism gear ratios
-    public static final double kIntakeGearRatio = 1.0;
-    public static final double kIntakePositionGearRatio = 1.0;
-
-    public static final int kIntakeCurrentLimit = 40;
-    public static final int kIntakeOptimalVoltage = 12;
-
-    // Intake motor open-loop and closed-loop ramp periods for current smoothing
-    //   Time from from 0 -> full duty
-    public static final double kIntakeClosedLoopRampPeriod = 0.15; // seconds
-    public static final double kIntakeOpenLoopRampPeriod = 0.25; // seconds
-
-    // MODE == REAL / REPLAY
-    // Feedforward constants
-    public static final double kStaticGainReal = 0.1;
-    public static final double kVelocityGainReal = 0.05;
-
-    // Feedback (PID) constants
-    public static final PIDConstants pid = new PIDConstants(1.0, 0.0, 0.0);
-  }
-
+  // public static class Mechanism1Constants {}
   // public static class Mechanism2Constants {}
   // ...
 
@@ -406,10 +387,10 @@ public final class Constants {
     // Motion profile for drive to pose
     private static final APProfile kAPProfile =
         new APProfile(kAPConstraints)
-            .withErrorXY(Centimeters.of(2))
-            .withErrorTheta(Degrees.of(0.5))
-            .withBeelineRadius(Centimeters.of(8));
-
+            .withErrorXY(Centimeters.of(8))
+            .withErrorTheta(Degrees.of(2))
+            .withBeelineRadius(Centimeters.of(20));
+    // ORIGINAL TOLERANCE: xy -> 2cm, theta -> 0.5 deg, beeline -> 8cm
     // Autopilot object to be used for specific commands
     public static final Autopilot kAutopilot = new Autopilot(kAPProfile);
   }
@@ -451,10 +432,19 @@ public final class Constants {
 
     // Robot to camera transforms
     // (ONLY USED FOR PHOTONVISION -- Limelight: configure in web UI instead)
+    // Example Cameras are mounted in the back corners, 18" up from the floor, facing sideways
     public static Transform3d robotToCamera0 =
-        new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
+        new Transform3d(
+            Inches.of(-13.0),
+            Inches.of(13.0),
+            Inches.of(12.0),
+            new Rotation3d(0.0, 0.0, Math.PI / 2));
     public static Transform3d robotToCamera1 =
-        new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
+        new Transform3d(
+            Inches.of(-13.0),
+            Inches.of(-13.0),
+            Inches.of(12.0),
+            new Rotation3d(0.0, 0.0, -Math.PI / 2));
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
@@ -462,6 +452,32 @@ public final class Constants {
         new double[] {
           1.0, // Camera 0
           1.0 // Camera 1
+        };
+  }
+
+  /************************************************************************* */
+  /** Simulation Camera Properties ***************************************** */
+  public static class SimCameras {
+    public static final SimCameraProperties kSimCamera1Props =
+        new SimCameraProperties() {
+          {
+            setCalibration(1280, 800, Rotation2d.fromDegrees(120));
+            setCalibError(0.25, 0.08);
+            setFPS(30);
+            setAvgLatencyMs(20);
+            setLatencyStdDevMs(5);
+          }
+        };
+
+    public static final SimCameraProperties kSimCamera2Props =
+        new SimCameraProperties() {
+          {
+            setCalibration(1280, 800, Rotation2d.fromDegrees(120));
+            setCalibError(0.25, 0.08);
+            setFPS(30);
+            setAvgLatencyMs(20);
+            setLatencyStdDevMs(5);
+          }
         };
   }
 
