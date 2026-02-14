@@ -1,18 +1,18 @@
 package frc.robot.subsystems.climber;
 
-import static frc.robot.Constants.RobotDevices.*;
 import static frc.robot.Constants.ClimberConstants.*;
+import static frc.robot.Constants.RobotDevices.*;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import org.littletonrobotics.junction.Logger;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.SparkUtil;
+import org.littletonrobotics.junction.Logger;
 
 public class ClimberIOSpark implements ClimberIO {
 
@@ -20,9 +20,7 @@ public class ClimberIOSpark implements ClimberIO {
   private RelativeEncoder encoder = climbMotor.getEncoder();
   private DigitalInput upLimit = new DigitalInput(CLIMBER_UP_LIMIT);
   private DigitalInput downLimit = new DigitalInput(CLIMBER_DOWN_LIMIT);
-  public final int[] powerPorts = {
-    CLIMBER_MOTOR.getPowerPort()
-  };
+  public final int[] powerPorts = {CLIMBER_MOTOR.getPowerPort()};
 
   public ClimberIOSpark() {
     SparkMaxConfig config = new SparkMaxConfig();
@@ -33,14 +31,15 @@ public class ClimberIOSpark implements ClimberIO {
       case COAST:
         config.idleMode(IdleMode.kCoast);
         break;
-    };
+    }
+    ;
 
     config
-    .inverted(kClimberInverted)
-    .smartCurrentLimit(kClimberCurrentLimit)
-    .voltageCompensation(kClimberOptimalVoltage)
-    .openLoopRampRate(kClimberOpenLoopRampPeriod)
-    .closedLoopRampRate(kClimberClosedLoopRampPeriod);
+        .inverted(kClimberInverted)
+        .smartCurrentLimit(kClimberCurrentLimit)
+        .voltageCompensation(kClimberOptimalVoltage)
+        .openLoopRampRate(kClimberOpenLoopRampPeriod)
+        .closedLoopRampRate(kClimberClosedLoopRampPeriod);
 
     SparkUtil.tryUntilOk(
         climbMotor,
@@ -74,12 +73,11 @@ public class ClimberIOSpark implements ClimberIO {
   @Override
   public void setPosition(double speed, boolean up) {
     speed = Math.abs(speed);
-    
+
     if (up) {
       if (upLimit.get()) stop();
       else setSpeed(speed);
-    }
-    else {
+    } else {
       if (downLimit.get()) stop();
       else setSpeed(-speed);
     }

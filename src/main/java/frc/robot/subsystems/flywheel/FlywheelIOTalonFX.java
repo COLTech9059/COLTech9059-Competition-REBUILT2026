@@ -53,8 +53,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final TalonFXConfiguration followerConfig;
-  private final TalonFXConfiguration feedConfig; 
-
+  private final TalonFXConfiguration feedConfig;
 
   public FlywheelIOTalonFX() {
     config.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -75,16 +74,19 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     closedRamps.TorqueClosedLoopRampPeriod = kFlywheelClosedLoopRampPeriod;
     // Apply the open- and closed-loop ramp configuration for current smoothing
     config.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
-    
-    if (kFlywheelLeaderInverted) config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+
+    if (kFlywheelLeaderInverted)
+      config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     followerConfig = config;
-    if (kFlywheelFollowerInverted) followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kFlywheelFollowerInverted)
+      followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-    
+
     feedConfig = config;
-    if (kFlywheelFeedInverted) feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kFlywheelFeedInverted)
+      feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Apply the configurations to the flywheel motors
@@ -110,7 +112,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
     inputs.currentAmps =
-        new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble(), feederCurrent.getValueAsDouble()};
+        new double[] {
+          leaderCurrent.getValueAsDouble(),
+          followerCurrent.getValueAsDouble(),
+          feederCurrent.getValueAsDouble()
+        };
   }
 
   @Override

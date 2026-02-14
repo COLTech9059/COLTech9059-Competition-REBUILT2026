@@ -11,6 +11,7 @@ package frc.robot.subsystems.flywheel;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FlywheelConstants.*;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,7 +21,10 @@ import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-/** Flywheel subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility; open & closed-loop control */
+/**
+ * Flywheel subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility; open &
+ * closed-loop control
+ */
 public class Flywheel extends RBSISubsystem {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();

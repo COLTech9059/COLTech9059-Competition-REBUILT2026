@@ -9,14 +9,16 @@ import java.util.function.DoubleSupplier;
 
 public class FlywheelCommands {
 
-  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed system logic
+  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed
+  // system logic
   /**
    * Runs the flywheel at the given velocity setpoint; closed loop
    *
    * @param flywheel The Flywheel subsystem to use
    * @param velocityRPM The velocity setpoint in RPM
    */
-  public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM, double feedSpeed) {
+  public static Command setVelocity(
+      Flywheel flywheel, DoubleSupplier velocityRPM, double feedSpeed) {
     BooleanSupplier canRun =
         () ->
             (flywheel.getVelocityRPM() >= velocityRPM.getAsDouble() * 0.95

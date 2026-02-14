@@ -3,7 +3,9 @@ package frc.robot.subsystems.intake;
 import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.Logger;
 
-/** Intake subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility
+/**
+ * Intake subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility
+ *
  * @author DevAspen
  */
 public class Intake extends RBSISubsystem {

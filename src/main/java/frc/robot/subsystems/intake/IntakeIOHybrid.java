@@ -1,8 +1,7 @@
 package frc.robot.subsystems.intake;
 
-import static frc.robot.Constants.RobotDevices.*;
 import static frc.robot.Constants.IntakeConstants.*;
-import org.littletonrobotics.junction.Logger;
+import static frc.robot.Constants.RobotDevices.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -23,12 +22,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.SparkUtil;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeIOHybrid implements IntakeIO {
   private SparkMax positionMotor =
       new SparkMax(INTAKE_POSITION.getDeviceNumber(), MotorType.kBrushless);
-  private TalonFX intakeMotor =
-      new TalonFX(INTAKE_ROLLER.getDeviceNumber());
+  private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
   private SparkMax feedMotor = new SparkMax(INTAKE_FEED.getDeviceNumber(), MotorType.kBrushless);
   private RelativeEncoder encoder = positionMotor.getEncoder();
   private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
@@ -67,11 +66,12 @@ public class IntakeIOHybrid implements IntakeIO {
         () ->
             feedMotor.configure(
                 feedConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-  
+
     intakeConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    if (kIntakeInverted) intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kIntakeInverted)
+      intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else intakeConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Build the OpenLoopRampsConfigs and ClosedLoopRampsConfigs for current smoothing
@@ -105,7 +105,7 @@ public class IntakeIOHybrid implements IntakeIO {
           positionMotor.getOutputCurrent(),
           intakeCurrent.getValueAsDouble(),
           feedMotor.getOutputCurrent()
-  };
+        };
 
     // AdvantageKit logging
     Logger.recordOutput("Intake/IntakeSpeed", inputs.intakeSpeed);

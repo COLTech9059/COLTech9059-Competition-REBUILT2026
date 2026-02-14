@@ -385,7 +385,8 @@ public final class Constants {
     public static final boolean kClimberInverted = false;
 
     // Mechanism gear ratios
-    public static final double kClimberRotationsToInchesRatio = 1.0; // Instead of gear ratio, use this
+    public static final double kClimberRotationsToInchesRatio =
+        1.0; // Instead of gear ratio, use this
 
     public static final int kClimberCurrentLimit = 40;
     public static final int kClimberOptimalVoltage = 12;
@@ -395,6 +396,7 @@ public final class Constants {
     public static final double kClimberClosedLoopRampPeriod = 0.15; // seconds
     public static final double kClimberOpenLoopRampPeriod = 0.25; // seconds
   }
+
   // ...
 
   /************************************************************************* */

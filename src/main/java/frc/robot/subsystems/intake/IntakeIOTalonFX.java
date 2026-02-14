@@ -39,7 +39,8 @@ public class IntakeIOTalonFX implements IntakeIO {
     positionConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     positionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    if (kIntakePositionInverted) positionConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kIntakePositionInverted)
+      positionConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else positionConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Build the OpenLoopRampsConfigs and ClosedLoopRampsConfigs for current smoothing
@@ -58,12 +59,14 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     intakeConfig = positionConfig;
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    if (kIntakeInverted) intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kIntakeInverted)
+      intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else intakeConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     feedConfig = positionConfig;
     feedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    if (kIntakeFeedInverted) feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kIntakeFeedInverted)
+      feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     positionMotor.getConfigurator().apply(positionConfig);

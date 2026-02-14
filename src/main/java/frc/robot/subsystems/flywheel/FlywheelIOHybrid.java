@@ -2,6 +2,7 @@ package frc.robot.subsystems.flywheel;
 
 import static frc.robot.Constants.FlywheelConstants.*;
 import static frc.robot.Constants.RobotDevices.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
@@ -14,12 +15,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -31,12 +32,13 @@ import frc.robot.util.PhoenixUtil;
 import frc.robot.util.SparkUtil;
 
 public class FlywheelIOHybrid implements FlywheelIO {
-    // Define the leader / follower motors from the Ports section of RobotContainer
+  // Define the leader / follower motors from the Ports section of RobotContainer
   private final TalonFX leader =
       new TalonFX(FLYWHEEL_LEADER.getDeviceNumber(), FLYWHEEL_LEADER.getCANBus());
   private final TalonFX follower =
       new TalonFX(FLYWHEEL_FOLLOWER.getDeviceNumber(), FLYWHEEL_FOLLOWER.getCANBus());
-  private final SparkMax feeder = new SparkMax(FLYWHEEL_FEED.getDeviceNumber(), MotorType.kBrushless);
+  private final SparkMax feeder =
+      new SparkMax(FLYWHEEL_FEED.getDeviceNumber(), MotorType.kBrushless);
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {
     FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort(), FLYWHEEL_FEED.getPowerPort()
@@ -80,19 +82,21 @@ public class FlywheelIOHybrid implements FlywheelIO {
     closedRamps.TorqueClosedLoopRampPeriod = kFlywheelClosedLoopRampPeriod;
     // Apply the open- and closed-loop ramp configuration for current smoothing
     config.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
-    
-    if (kFlywheelLeaderInverted) config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+
+    if (kFlywheelLeaderInverted)
+      config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     followerConfig = config;
-    if (kFlywheelFollowerInverted) followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    if (kFlywheelFollowerInverted)
+      followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(followerConfig);
 
-     SparkUtil.tryUntilOk(
+    SparkUtil.tryUntilOk(
         feeder,
         5,
         () ->
@@ -118,7 +122,11 @@ public class FlywheelIOHybrid implements FlywheelIO {
         Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
     inputs.currentAmps =
-        new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble(), feeder.getOutputCurrent()};
+        new double[] {
+          leaderCurrent.getValueAsDouble(),
+          followerCurrent.getValueAsDouble(),
+          feeder.getOutputCurrent()
+        };
   }
 
   @Override

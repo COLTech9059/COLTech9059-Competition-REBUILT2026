@@ -1,10 +1,11 @@
 package frc.robot.subsystems.climber;
 
-import org.littletonrobotics.junction.Logger;
 import frc.robot.util.RBSISubsystem;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * Climber subsystem, driven by a single motor; Kraken and NEO compatibility
+ *
  * @author DevAspen
  */
 public class Climber extends RBSISubsystem {

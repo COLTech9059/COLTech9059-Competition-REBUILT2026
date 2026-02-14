@@ -15,18 +15,15 @@ package frc.robot;
 
 import static frc.robot.Constants.Cameras.*;
 import static frc.robot.Constants.OperatorConstants.*;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -68,6 +65,8 @@ import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.OverrideSwitches;
 import frc.robot.util.RBSIEnum;
 import frc.robot.util.RBSIPowerMonitor;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /** This is the location for defining robot hardware, commands, and controller button bindings. */
@@ -76,6 +75,7 @@ public class RobotContainer {
   /** Define the Driver and, optionally, the Operator/Co-Driver Controllers */
   // Replace with ``CommandPS4Controller`` or ``CommandJoystick`` if needed
   final CommandXboxController driverController = new CommandXboxController(0); // Main Driver
+
   final CommandXboxController operatorController = new CommandXboxController(1); // Second Operator
   final OverrideSwitches overrides = new OverrideSwitches(2); // Console toggle switches
   private BooleanSupplier climbSelector = () -> false;
@@ -84,6 +84,7 @@ public class RobotContainer {
   /** Declare the robot subsystems here ************************************ */
   // These are the "Active Subsystems" that the robot controls
   private final Drive m_drivebase;
+
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
   private final Intake intake = new Intake(new IntakeIOHybrid());
@@ -290,11 +291,14 @@ public class RobotContainer {
             () -> turnStickX.value() * invertTheta));
 
     // Hold B button --> Drive at the angle required to go over the bump
-    driverController.b().whileTrue(DriveCommands.fieldRelativeDriveAtAngle(
-      m_drivebase, 
-      () -> driveStickX.value() * invertX, 
-      () -> driveStickY.value() * invertY, 
-      this::getBumpAngle)); 
+    driverController
+        .b()
+        .whileTrue(
+            DriveCommands.fieldRelativeDriveAtAngle(
+                m_drivebase,
+                () -> driveStickX.value() * invertX,
+                () -> driveStickY.value() * invertY,
+                this::getBumpAngle));
 
     // Press A button -> BRAKE
     // driverController
@@ -312,7 +316,9 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Hold Right Trigger --> Run the flywheel
-    driverController.rightTrigger().whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
+    driverController
+        .rightTrigger()
+        .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
     // Hold Left Trigger --> Intake
     driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.20, 0.75));
@@ -321,17 +327,29 @@ public class RobotContainer {
     driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
 
     // Press Right Bumper --> Toggle climber
-    driverController.rightBumper().onTrue(Commands.runOnce(() -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
-    driverController.rightBumper().onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
+    driverController
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
+    driverController
+        .rightBumper()
+        .onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
 
     // Press Dpad up --> Max flywheel velocity
-    driverController.pov(0).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MAX_RPM));
+    driverController
+        .pov(0)
+        .onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MAX_RPM));
 
     // Press Dpad right --> Mid flywheel velocity
-    driverController.pov(90).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM));
+    driverController
+        .pov(90)
+        .onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM));
 
     // Press Dpad down --> Min flywheel velocity
-    driverController.pov(180).onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MIN_RPM));
+    driverController
+        .pov(180)
+        .onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MIN_RPM));
 
     // Press POV LEFT to nudge the robot left
     driverController

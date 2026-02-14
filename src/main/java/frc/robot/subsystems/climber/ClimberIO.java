@@ -17,7 +17,7 @@ public interface ClimberIO extends RBSIIO {
   public default void updateInputs(ClimberIOInputs inputs) {}
 
   public default void setSpeed(double speed) {}
-  
+
   public default void setPosition(double speed, boolean up) {}
 
   public default void stop() {}

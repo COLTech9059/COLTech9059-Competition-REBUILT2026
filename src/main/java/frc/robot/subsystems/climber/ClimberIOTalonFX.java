@@ -1,7 +1,8 @@
 package frc.robot.subsystems.climber;
 
-import static frc.robot.Constants.RobotDevices.*;
 import static frc.robot.Constants.ClimberConstants.*;
+import static frc.robot.Constants.RobotDevices.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
@@ -18,9 +19,7 @@ public class ClimberIOTalonFX implements ClimberIO {
   private TalonFX climbMotor = new TalonFX(CLIMBER_MOTOR.getDeviceNumber());
   private DigitalInput upLimit = new DigitalInput(CLIMBER_UP_LIMIT);
   private DigitalInput downLimit = new DigitalInput(CLIMBER_DOWN_LIMIT);
-  public final int[] powerPorts = {
-    CLIMBER_MOTOR.getPowerPort()
-  };
+  public final int[] powerPorts = {CLIMBER_MOTOR.getPowerPort()};
 
   private final StatusSignal<Angle> position = climbMotor.getPosition();
   private final StatusSignal<Current> climberCurrent = climbMotor.getSupplyCurrent();
@@ -46,7 +45,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     closedRamps.TorqueClosedLoopRampPeriod = kClimberClosedLoopRampPeriod;
     // Apply the open- and closed-loop ramp configuration for current smoothing
     config.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
-    
+
     if (kClimberInverted) config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
@@ -82,12 +81,11 @@ public class ClimberIOTalonFX implements ClimberIO {
   @Override
   public void setPosition(double speed, boolean up) {
     speed = Math.abs(speed);
-    
+
     if (up) {
       if (upLimit.get()) stop();
       else setSpeed(speed);
-    }
-    else {
+    } else {
       if (downLimit.get()) stop();
       else setSpeed(-speed);
     }
