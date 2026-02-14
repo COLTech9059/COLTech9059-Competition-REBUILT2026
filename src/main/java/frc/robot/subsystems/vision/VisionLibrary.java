@@ -86,7 +86,8 @@ public class VisionLibrary {
 
     Logger.recordOutput("VisionLibrary/RotationToTarget", rotation.getRadians());
 
-    // TODO: monitor oscillation of function (does the simulation cause it to oscillate or does there need to be rotation damping)?
+    // TODO: monitor oscillation of function (does the simulation cause it to oscillate or does
+    // there need to be rotation damping)?
     return rotation;
   }
 
