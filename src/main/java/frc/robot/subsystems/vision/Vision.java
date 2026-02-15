@@ -24,6 +24,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Cameras;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
@@ -54,6 +55,10 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
+
+    // Log the robot-to-camera transformations
+    Logger.recordOutput("Vision/RobotToCamera0", Cameras.robotToCamera0);
+    Logger.recordOutput("Vision/RobotToCamera1", Cameras.robotToCamera1);
   }
 
   /**
@@ -65,14 +70,8 @@ public class Vision extends SubsystemBase {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
-  // obtain data from a specific camera.
-  public VisionIOInputs getCameraData(int cameraIndex) {
-    return inputs[cameraIndex];
-  }
-
-  // get all cameras
   public VisionIOInputs[] getAllCameras() {
-    return inputs;
+    return this.inputs;
   }
 
   @Override

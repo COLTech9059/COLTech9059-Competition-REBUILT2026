@@ -1,4 +1,0 @@
-Template: AZ-First/Az-RBSI
-Template Branch: main
-Template Commit: 16a0e3b41fa1aae544a46fb9e847578e62f26053
-Recorded At (UTC): 2026-01-19T05:05:25Z

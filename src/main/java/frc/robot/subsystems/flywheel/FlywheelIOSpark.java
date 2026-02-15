@@ -76,7 +76,6 @@ public class FlywheelIOSpark implements FlywheelIO {
         .feedForward
         .kS(kStaticGainReal)
         .kV(kVelocityGainReal);
-    leaderConfig.closedLoop.maxMotion.cruiseVelocity(0).maxAcceleration(0).allowedProfileError(0);
     leaderConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -100,13 +99,6 @@ public class FlywheelIOSpark implements FlywheelIO {
         () ->
             leader.configure(
                 leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    SparkUtil.tryUntilOk(
-        follower,
-        5,
-        () ->
-            follower.configure(
-                followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-
     SparkUtil.tryUntilOk(leader, 5, () -> encoder.setPosition(0.0));
   }
 
