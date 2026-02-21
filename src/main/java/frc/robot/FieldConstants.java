@@ -25,6 +25,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -79,4 +81,28 @@ public class FieldConstants {
     private final AprilTagFieldLayout layout;
     private final String layoutString;
   }
+
+  /** Odometry Zones ************************************************ */
+
+  public enum ZoneName {ALLIANCE, RAMP_RIGHT, RAMP_LEFT}
+
+  private static final Pose2d[][] odometryZones = {
+    {new Pose2d(), new Pose2d()},
+    {new Pose2d(3.3, 1.2, Rotation2d.kZero), new Pose2d(6.0, 3.9, Rotation2d.kZero)},
+    {new Pose2d(3.3, 4.2, Rotation2d.kZero), new Pose2d(6.0, 7.2, Rotation2d.kZero)},
+  };
+
+  public static Pose2d[] getOdometryZone(ZoneName zone) {
+    switch(zone) {
+      case ALLIANCE:
+        return odometryZones[0];
+      case RAMP_RIGHT:
+        return odometryZones[1];
+      case RAMP_LEFT:
+        return odometryZones[2];
+      default:
+        return new Pose2d[] {Pose2d.kZero, Pose2d.kZero};
+    }
+  }
+
 }

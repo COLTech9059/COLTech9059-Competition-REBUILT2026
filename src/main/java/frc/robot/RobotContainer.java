@@ -44,9 +44,9 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
-import frc.robot.subsystems.flywheel_example.Flywheel;
-import frc.robot.subsystems.flywheel_example.FlywheelIO;
-import frc.robot.subsystems.flywheel_example.FlywheelIOSim;
+import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.FlywheelIO;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
@@ -316,7 +316,7 @@ public class RobotContainer {
                 m_drivebase,
                 () -> -driveStickY.value(),
                 () -> -driveStickX.value(),
-                () -> VisionLibrary.pointToTarget(m_drivebase, 10)));
+                () -> VisionLibrary.pointToTarget(m_drivebase, (int) AprilTagTargetInput.get())));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
