@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.FieldConstants;
+import static frc.robot.FieldConstants.*;
 import frc.robot.commands.AutopilotCommands;
 import frc.robot.subsystems.drive.Drive;
 import java.util.function.Supplier;
@@ -24,11 +24,36 @@ public class VisionLibrary {
     }
 
     public static Pose3d getTargetPosition(int targetIndex) {
-      AprilTagFieldLayout aprilTagField = FieldConstants.AprilTagLayoutType.OFFICIAL.getLayout();
+      AprilTagFieldLayout aprilTagField = AprilTagLayoutType.OFFICIAL.getLayout();
       Pose3d targetPose = aprilTagField.getTagPose(targetIndex).orElse(Pose3d.kZero);
 
       return targetPose;
     }
+  }
+
+  public static boolean isRobotInZone(Drive driveSubsystem, ZoneName zone) {
+    // Get the bounds.
+    Pose2d[] zoneBounds = getOdometryZone(zone);
+
+    // Break if it's a point at the origin.
+    if (zoneBounds.equals(new Pose2d[]{Pose2d.kZero, Pose2d.kZero})) return false;
+
+    // Separate the points
+    Pose2d pointLeft = zoneBounds[0];
+    Pose2d pointRight = zoneBounds[1];
+    
+    // Robot Pose
+    Pose2d robotPose = driveSubsystem.getPose();
+
+    // Determine position
+    boolean isLeftOfBounds = (Math.signum((robotPose.getX() - pointLeft.getX())) == -1.0);
+    boolean isRightOfBounds = (Math.signum((robotPose.getX() - pointRight.getX())) == 1.0);
+    boolean isAboveBounds = (Math.signum((robotPose.getY() - pointLeft.getY())) == 1.0);
+    boolean isBelowBounds = (Math.signum((robotPose.getY() - pointLeft.getY())) == -1.0);
+
+    if (isLeftOfBounds || isRightOfBounds || isAboveBounds || isBelowBounds) return false;
+
+    return true;
   }
 
   /**
