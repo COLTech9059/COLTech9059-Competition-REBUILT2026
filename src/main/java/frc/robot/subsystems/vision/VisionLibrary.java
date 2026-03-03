@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.FieldConstants.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import static frc.robot.FieldConstants.*;
 import frc.robot.commands.AutopilotCommands;
 import frc.robot.subsystems.drive.Drive;
 import java.util.function.Supplier;
@@ -36,12 +36,12 @@ public class VisionLibrary {
     Pose2d[] zoneBounds = getOdometryZone(zone);
 
     // Break if it's a point at the origin.
-    if (zoneBounds.equals(new Pose2d[]{Pose2d.kZero, Pose2d.kZero})) return false;
+    if (zoneBounds.equals(new Pose2d[] {Pose2d.kZero, Pose2d.kZero})) return false;
 
     // Separate the points
     Pose2d pointLeft = zoneBounds[0];
     Pose2d pointRight = zoneBounds[1];
-    
+
     // Robot Pose
     Pose2d robotPose = driveSubsystem.getPose();
 

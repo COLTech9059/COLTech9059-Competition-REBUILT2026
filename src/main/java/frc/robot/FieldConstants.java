@@ -83,8 +83,11 @@ public class FieldConstants {
   }
 
   /** Odometry Zones ************************************************ */
-
-  public enum ZoneName {ALLIANCE, RAMP_RIGHT, RAMP_LEFT}
+  public enum ZoneName {
+    ALLIANCE,
+    RAMP_RIGHT,
+    RAMP_LEFT
+  }
 
   private static final Pose2d[][] odometryZones = {
     {new Pose2d(), new Pose2d()},
@@ -93,7 +96,7 @@ public class FieldConstants {
   };
 
   public static Pose2d[] getOdometryZone(ZoneName zone) {
-    switch(zone) {
+    switch (zone) {
       case ALLIANCE:
         return odometryZones[0];
       case RAMP_RIGHT:
@@ -104,5 +107,4 @@ public class FieldConstants {
         return new Pose2d[] {Pose2d.kZero, Pose2d.kZero};
     }
   }
-
 }
