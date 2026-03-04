@@ -291,7 +291,15 @@ public class RobotContainer {
 
     // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
 
-    NamedCommands.registerCommand("Climb", ClimberCommands.);
+    NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
+
+    NamedCommands.registerCommand("Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.75));
+
+    NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
+
+    NamedCommands.registerCommand("Start Intake", IntakeCommands.intakeSequence(intake, 0.45, 0.8));
+
+    NamedCommands.registerCommand("Stop Intake", IntakeCommands.retractIntake(intake, 0.4));
   }
 
   private Rotation2d getBumpAngle() {
@@ -366,7 +374,7 @@ public class RobotContainer {
         .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
     // Hold Left Trigger --> Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.20, 0.75));
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
 
     // Press Left Bumper --> Retract intake
     driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
