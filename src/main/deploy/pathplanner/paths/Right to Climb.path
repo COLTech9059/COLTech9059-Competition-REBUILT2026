@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 9.35,
-        "y": 6.18
+        "x": 3.5,
+        "y": 2.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.141987426415538,
-        "y": 6.318675049056306
+        "x": 2.0111749211006984,
+        "y": 2.789397393876021
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Start"
     },
     {
       "anchor": {
-        "x": 8.18,
-        "y": 6.18
+        "x": 1.65,
+        "y": 4.65
       },
       "prevControl": {
-        "x": 8.56,
-        "y": 6.17
+        "x": 2.153336079082422,
+        "y": 4.1080239237124765
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Climb Point"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Tests",
+  "folder": "General Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -119.99999999999999
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

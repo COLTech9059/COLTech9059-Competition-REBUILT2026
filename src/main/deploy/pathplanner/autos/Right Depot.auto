@@ -1,0 +1,111 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right to Depot"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Start Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Start Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot to Middle Shoot"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Start Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle Shoot to Climb"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Actual Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Depot Autos",
+  "choreoAuto": false
+}

@@ -21,6 +21,8 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -288,6 +290,8 @@ public class RobotContainer {
   private void defineAutoCommands() {
 
     // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
+
+    NamedCommands.registerCommand("Climb", ClimberCommands.);
   }
 
   private Rotation2d getBumpAngle() {
