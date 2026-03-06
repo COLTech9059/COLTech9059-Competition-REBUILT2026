@@ -547,6 +547,12 @@ public final class Constants {
   }
 
   /************************************************************************* */
+  /** Miscellaneous/Recreational Constants *********************************** */
+  public static final class MiscConstants {
+    public static final String[] songFilepaths = {"src/main/deploy/OdeToJoy.chrp", "src/main/deploy/DevilWentDownToGeorgia.chrp", "src/main/deploy/CaliforniaGirls.chrp", "src/main/deploy/DuelOfTheFates.chrp"};
+  }
+
+  /************************************************************************* */
   /** Deploy Directoy Location Constants *********************************** */
   public static final class DeployConstants {
     public static final String apriltagDir = "apriltags";

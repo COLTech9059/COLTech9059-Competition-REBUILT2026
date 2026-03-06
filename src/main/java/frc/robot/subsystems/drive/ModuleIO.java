@@ -63,4 +63,8 @@ public interface ModuleIO {
 
   /** Simulation-only update hook */
   default void simulationPeriodic() {}
+
+  public default void playSong(String filepath) {}
+
+  public default void stopSong() {}
 }

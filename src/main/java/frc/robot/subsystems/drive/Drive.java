@@ -633,4 +633,16 @@ public class Drive extends SubsystemBase {
     stdDevs.set(2, 0, Math.toRadians(2)); // rotation standard deviation (radians)
     return stdDevs;
   }
+
+  public void playSong(String filepath) {
+    for (Module module : modules) {
+      module.playSong(filepath);
+    }
+  }
+
+  public void stopSong() {
+    for (Module module : modules) {
+      module.stopSong();
+    }
+  }
 }

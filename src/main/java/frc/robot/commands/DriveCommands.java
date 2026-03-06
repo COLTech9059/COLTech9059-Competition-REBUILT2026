@@ -9,6 +9,7 @@
 
 package frc.robot.commands;
 
+import static frc.robot.Constants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -35,6 +36,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import com.google.flatbuffers.Constants;
 
 public class DriveCommands {
 
@@ -188,6 +191,19 @@ public class DriveCommands {
   private static double getOmega(double omega) {
     omega = MathUtil.applyDeadband(omega, OperatorConstants.kDeadband);
     return Math.copySign(omega * omega, omega);
+  }
+
+  public static Command playSong(Drive drive, String filepath) {
+    return Commands.runOnce(() -> drive.playSong(filepath));
+  }
+
+  public static Command cycleSong(Drive drive, Supplier<Integer> selector) {
+    int select = selector.get() % MiscConstants.songFilepaths.length;
+    return playSong(drive, MiscConstants.songFilepaths[select]);
+  }
+
+  public static Command stopSong(Drive drive) {
+    return Commands.runOnce(() -> drive.stopSong());
   }
 
   /***************************************************************************/

@@ -78,6 +78,8 @@ import frc.robot.util.RBSIPowerMonitor;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -94,6 +96,7 @@ public class RobotContainer {
   final OverrideSwitches overrides = new OverrideSwitches(2); // Console toggle switches
   private BooleanSupplier climbSelector = () -> false;
   private DoubleSupplier flywheelVelocityRPM = () -> FLYWHEEL_MID_RPM;
+  private Supplier<Integer> songSelector = () -> 0;
 
   // These two are needed for the Sweep evaluator for camera FOV simulation
   final CommandJoystick joystick3 = new CommandJoystick(3); //  Joystick for CamersSweepEvaluator
@@ -428,18 +431,21 @@ public class RobotContainer {
                 VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
                 Set.of(m_drivebase)));
 
+    driverController.povLeft().onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
+    driverController.povLeft().onTrue(DriveCommands.cycleSong(m_drivebase, songSelector));
+
     // Press POV LEFT to nudge the robot left
-    driverController
-        .povLeft()
-        .whileTrue(
-            Commands.startEnd(
-                () -> {
-                  m_drivebase.runVelocity(
-                      new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0), 0.));
-                },
-                // Stop when command ended
-                m_drivebase::stop,
-                m_drivebase));
+    // driverController
+    //     .povLeft()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> {
+    //               m_drivebase.runVelocity(
+    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0), 0.));
+    //             },
+    //             // Stop when command ended
+    //             m_drivebase::stop,
+    //             m_drivebase));
 
     if (Constants.getMode() == Mode.SIM) {
       // IN SIMULATION ONLY:

@@ -142,4 +142,12 @@ public class Module {
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
+
+  public void playSong(String filepath) {
+    io.playSong(filepath);
+  }
+
+  public void stopSong() {
+    io.stopSong();
+  }
 }

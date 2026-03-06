@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.subsystems.drive.SwerveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
@@ -75,6 +76,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         case LICENSED -> ClosedLoopOutputType.TorqueCurrentFOC;
         case UNLICENSED -> ClosedLoopOutputType.Voltage;
       };
+
+  private final Orchestra orchestra = new Orchestra();
 
   // Voltage control requests
   private final VoltageOut voltageRequest = new VoltageOut(0);
@@ -242,6 +245,21 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnAppliedVolts,
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+
+    orchestra.addInstrument(driveTalon);
+    orchestra.addInstrument(turnTalon);
+    orchestra.loadMusic("src/main/deploy/OdeToJoy");
+  }
+
+  @Override
+  public void playSong(String filepath) {
+    orchestra.loadMusic(filepath);
+    orchestra.play();
+  }
+
+  @Override
+  public void stopSong() {
+    orchestra.stop();
   }
 
   @Override
