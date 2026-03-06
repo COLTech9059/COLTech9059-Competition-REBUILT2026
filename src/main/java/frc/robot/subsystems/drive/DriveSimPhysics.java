@@ -90,6 +90,9 @@ public class DriveSimPhysics {
     // Integrate angular velocity
     omegaRadPerSec += (torque / moiKgMetersSq) * dtSeconds;
 
+    if (moduleStates[0].speedMetersPerSecond < 0.1 && moduleStates[0].speedMetersPerSecond > -0.1)
+      omegaRadPerSec = 0;
+
     // Integrate yaw
     Rotation2d newYaw = pose.getRotation().plus(new Rotation2d(omegaRadPerSec * dtSeconds));
 

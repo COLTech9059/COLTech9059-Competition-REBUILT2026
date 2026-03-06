@@ -90,7 +90,7 @@ public class FieldConstants {
   }
 
   private static final Pose2d[][] odometryZones = {
-    {new Pose2d(), new Pose2d()},
+    {new Pose2d(0, 0, Rotation2d.kZero), new Pose2d(3.6, 8.07, Rotation2d.kZero)},
     {new Pose2d(3.3, 1.2, Rotation2d.kZero), new Pose2d(6.0, 3.9, Rotation2d.kZero)},
     {new Pose2d(3.3, 4.2, Rotation2d.kZero), new Pose2d(6.0, 7.2, Rotation2d.kZero)},
   };

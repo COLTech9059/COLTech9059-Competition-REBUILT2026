@@ -24,7 +24,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -58,6 +57,7 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.subsystems.vision.VisionLibrary;
+import frc.robot.subsystems.vision.VisionLibrary.VisionHelpers;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 import frc.robot.util.GetJoystickValue;
@@ -118,7 +118,7 @@ public class RobotContainer {
   private final LoggedTunableNumber flywheelSpeedInput =
       new LoggedTunableNumber("Flywheel Speed", 1500.0);
   private final LoggedTunableNumber AprilTagTargetInput =
-      new LoggedTunableNumber("AprilTag Target", 2.0);
+      new LoggedTunableNumber("AprilTag Target", 1.0);
 
   // Alerts
   private final Alert aprilTagLayoutAlert = new Alert("", AlertType.INFO);
@@ -307,16 +307,69 @@ public class RobotContainer {
             m_drivebase,
             () -> -driveStickY.value(),
             () -> -driveStickX.value(),
-            () -> -turnStickX.value()));
+            () ->
+                VisionLibrary.VisionHelpers.getRotationPower(
+                    m_drivebase, 10, -turnStickX.value())));
 
+    // driverController
+    //     .y()
+    //     .toggleOnTrue(
+    //         DriveCommands.fieldRelativeDriveAtAngle(
+    //             m_drivebase,
+    //             () -> -driveStickY.value(),
+    //             () -> -driveStickX.value(),
+    //             () ->
+    //                 Rotation2d.fromRadians(
+    //                     VisionLibrary.pointToTargetWithPID(
+    //                         m_drivebase, (int) AprilTagTargetInput.get()))));
     driverController
-        .b()
+        .y()
         .toggleOnTrue(
-            DriveCommands.fieldRelativeDriveAtAngle(
+            DriveCommands.fieldRelativeDrive(
                 m_drivebase,
                 () -> -driveStickY.value(),
                 () -> -driveStickX.value(),
-                () -> VisionLibrary.pointToTarget(m_drivebase, (int) AprilTagTargetInput.get())));
+                () -> VisionLibrary.getRotationPowerToTarget(m_drivebase, 10)));
+
+    // Toggle Alliance Strafing
+    driverController
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  VisionHelpers.toggleStrafing();
+                },
+                m_vision));
+
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKP(VisionLibrary.getPointKP() + 0.01)));
+
+    // driverController
+    //     .povDown()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKP(VisionLibrary.getPointKP() - 0.01)));
+
+    // driverController
+    //     .povRight()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKI(VisionLibrary.getPointKI() + 0.01)));
+
+    // driverController
+    //     .povLeft()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKI(VisionLibrary.getPointKI() - 0.01)));
+
+    // driverController
+    //     .x()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKD(VisionLibrary.getPointKD() + 0.01)));
+
+    // driverController
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(() -> VisionLibrary.setPointKD(VisionLibrary.getPointKD() - 0.01)));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
@@ -338,14 +391,14 @@ public class RobotContainer {
         .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
 
     // Press X button --> Stop with wheels in X-Lock position
-    driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
+    // driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
 
     // Press Y button --> Manually Re-Zero the Gyro
-    driverController
-        .y()
-        .onTrue(
-            Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
-                .ignoringDisable(true));
+    // driverController
+    //     .y()
+    //     .onTrue(
+    //         Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
+    //             .ignoringDisable(true));
 
     // Press RIGHT BUMPER --> Run the example flywheel
     driverController
@@ -388,17 +441,18 @@ public class RobotContainer {
                 Set.of(m_drivebase)));
 
     // Press POV LEFT to nudge the robot left
-    driverController
-        .povLeft()
-        .whileTrue(
-            Commands.startEnd(
-                () -> {
-                  m_drivebase.runVelocity(
-                      new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0), 0.));
-                },
-                // Stop when command ended
-                m_drivebase::stop,
-                m_drivebase));
+    // driverController
+    //     .povLeft()
+    //     .whileTrue(
+    //         Commands.startEnd(
+    //             () -> {
+    //               m_drivebase.runVelocity(
+    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0),
+    // 0.));
+    //             },
+    //             // Stop when command ended
+    //             m_drivebase::stop,
+    //             m_drivebase));
 
     if (Constants.getMode() == Mode.SIM) {
       // IN SIMULATION ONLY:
