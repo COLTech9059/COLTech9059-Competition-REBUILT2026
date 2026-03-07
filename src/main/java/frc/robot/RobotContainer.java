@@ -21,13 +21,8 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -41,30 +36,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SimCameras;
 import frc.robot.FieldConstants.AprilTagLayoutType;
-import frc.robot.commands.ClimberCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.FlywheelCommands;
-import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
-import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO;
-import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIOHybrid;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
-import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.subsystems.vision.VisionLibrary;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -73,13 +53,10 @@ import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.OverrideSwitches;
 import frc.robot.util.RBSIEnum.AutoType;
 import frc.robot.util.RBSIEnum.Mode;
-import frc.robot.util.RBSIPowerMonitor;
-
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -107,9 +84,10 @@ public class RobotContainer {
   private final Drive m_drivebase;
 
   private final ImuIO m_imu;
-  private final Flywheel m_flywheel;
-  private final Intake intake = new Intake(new IntakeIOHybrid());
-  private final Climber climber = new Climber(new ClimberIOTalonFX());
+
+  // private final Flywheel m_flywheel;
+  // private final Intake intake = new Intake(new IntakeIOHybrid());
+  // private final Climber climber = new Climber(new ClimberIOTalonFX());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -117,11 +95,11 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Accelerometer m_accel;
 
-  @SuppressWarnings("unused")
-  private final RBSIPowerMonitor m_power;
+  // @SuppressWarnings("unused")
+  // private final RBSIPowerMonitor m_power;
 
-  @SuppressWarnings("unused")
-  private final Vision m_vision;
+  // @SuppressWarnings("unused")
+  // private final Vision m_vision;
 
   /** Dashboard inputs ***************************************************** */
   // AutoChoosers for both supported path planning types
@@ -167,24 +145,24 @@ public class RobotContainer {
         }
 
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOSim()); // new Flywheel(new FlywheelIOTalonFX());
-        m_vision =
-            switch (Constants.getVisionType()) {
-              case PHOTON ->
-                  new Vision(
-                      m_drivebase::addVisionMeasurement,
-                      new VisionIOPhotonVision(camera0Name, robotToCamera0),
-                      new VisionIOPhotonVision(camera1Name, robotToCamera1));
-              case LIMELIGHT ->
-                  new Vision(
-                      m_drivebase::addVisionMeasurement,
-                      new VisionIOLimelight(camera0Name, m_drivebase::getHeading),
-                      new VisionIOLimelight(camera1Name, m_drivebase::getHeading));
-              case NONE ->
-                  new Vision(
-                      m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-              default -> null;
-            };
+        // m_flywheel = new Flywheel(new FlywheelIOSim()); // new Flywheel(new FlywheelIOTalonFX());
+        // m_vision =
+        // switch (Constants.getVisionType()) {
+        //   case PHOTON ->
+        //       new Vision(
+        //           m_drivebase::addVisionMeasurement,
+        //           new VisionIOPhotonVision(camera0Name, robotToCamera0),
+        //           new VisionIOPhotonVision(camera1Name, robotToCamera1));
+        //   case LIMELIGHT ->
+        //       new Vision(
+        //           m_drivebase::addVisionMeasurement,
+        //           new VisionIOLimelight(camera0Name, m_drivebase::getHeading),
+        //           new VisionIOLimelight(camera1Name, m_drivebase::getHeading));
+        //   case NONE ->
+        //       new Vision(
+        //           m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        //   default -> null;
+        // };
         m_accel = new Accelerometer(m_imu);
         sweep = null;
         break;
@@ -193,12 +171,12 @@ public class RobotContainer {
         // Sim robot, instantiate physics sim IO implementations
         m_imu = new ImuIOSim();
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOSim() {});
-        m_vision =
-            new Vision(
-                m_drivebase::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, m_drivebase::getPose),
-                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, m_drivebase::getPose));
+        // m_flywheel = new Flywheel(new FlywheelIOSim() {});
+        // m_vision =
+        //     new Vision(
+        //         m_drivebase::addVisionMeasurement,
+        //         new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, m_drivebase::getPose),
+        //         new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, m_drivebase::getPose));
         m_accel = new Accelerometer(m_imu);
 
         // CameraSweepEvaluator Construct
@@ -227,9 +205,9 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         m_imu = new ImuIOSim();
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIO() {});
-        m_vision =
-            new Vision(m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        // m_flywheel = new Flywheel(new FlywheelIO() {});
+        // m_vision =
+        // new Vision(m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         m_accel = new Accelerometer(m_imu);
         sweep = null;
         break;
@@ -238,7 +216,7 @@ public class RobotContainer {
     // In addition to the initial battery capacity from the Dashbaord, ``RBSIPowerMonitor`` takes
     // all the non-drivebase subsystems for which you wish to have power monitoring; DO NOT
     // include ``m_drivebase``, as that is automatically monitored.
-    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel);
+    // m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel);
 
     // Set up the SmartDashboard Auto Chooser based on auto type
     switch (Constants.getAutoType()) {
@@ -294,15 +272,17 @@ public class RobotContainer {
 
     // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
 
-    NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
+    // NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
 
-    NamedCommands.registerCommand("Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.75));
+    // NamedCommands.registerCommand(
+    // "Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.75));
 
-    NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
+    // NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
 
-    NamedCommands.registerCommand("Start Intake", IntakeCommands.intakeSequence(intake, 0.45, 0.8));
+    // NamedCommands.registerCommand("Start Intake", IntakeCommands.intakeSequence(intake, 0.45,
+    // 0.8));
 
-    NamedCommands.registerCommand("Stop Intake", IntakeCommands.retractIntake(intake, 0.4));
+    // NamedCommands.registerCommand("Stop Intake", IntakeCommands.retractIntake(intake, 0.4));
   }
 
   private Rotation2d getBumpAngle() {
@@ -339,12 +319,12 @@ public class RobotContainer {
     }
 
     // SET STANDARD DRIVING AS DEFAULT COMMAND FOR THE DRIVEBASE
-    m_drivebase.setDefaultCommand(
-        DriveCommands.fieldRelativeDrive(
-            m_drivebase,
-            () -> driveStickY.value() * invertX,
-            () -> driveStickX.value() * invertY,
-            () -> turnStickX.value() * invertTheta));
+    // m_drivebase.setDefaultCommand(
+    //     DriveCommands.fieldRelativeDrive(
+    //         m_drivebase,
+    //         () -> driveStickY.value() * invertX,
+    //         () -> driveStickX.value() * invertY,
+    //         () -> turnStickX.value() * invertTheta));
 
     // Hold B button --> Drive at the angle required to go over the bump
     driverController
@@ -372,15 +352,15 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Hold Right Trigger --> Run the flywheel
-    driverController
-        .rightTrigger()
-        .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
+    // driverController
+    //     .rightTrigger()
+    //     .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
     // Hold Left Trigger --> Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
+    // driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
 
     // Press Left Bumper --> Retract intake
-    driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
+    // driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
 
     // Press Right Bumper --> Toggle climber
     driverController
@@ -388,9 +368,9 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
-    driverController
-        .rightBumper()
-        .onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
+    // driverController
+    //     .rightBumper()
+    //     .onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
 
     // Press Dpad up --> Max flywheel velocity
     driverController
@@ -431,7 +411,9 @@ public class RobotContainer {
                 VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
                 Set.of(m_drivebase)));
 
-    driverController.povLeft().onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
+    driverController
+        .povLeft()
+        .onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
     driverController.povLeft().onTrue(DriveCommands.cycleSong(m_drivebase, songSelector));
 
     // Press POV LEFT to nudge the robot left
@@ -441,7 +423,8 @@ public class RobotContainer {
     //         Commands.startEnd(
     //             () -> {
     //               m_drivebase.runVelocity(
-    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0), 0.));
+    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0),
+    // 0.));
     //             },
     //             // Stop when command ended
     //             m_drivebase::stop,
@@ -560,18 +543,18 @@ public class RobotContainer {
           m_drivebase.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
       // Example Flywheel SysId Characterization
-      autoChooserPathPlanner.addOption(
-          "Flywheel SysId (Quasistatic Forward)",
-          m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooserPathPlanner.addOption(
-          "Flywheel SysId (Quasistatic Reverse)",
-          m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooserPathPlanner.addOption(
-          "Flywheel SysId (Dynamic Forward)",
-          m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooserPathPlanner.addOption(
-          "Flywheel SysId (Dynamic Reverse)",
-          m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // autoChooserPathPlanner.addOption(
+      //     "Flywheel SysId (Quasistatic Forward)",
+      //     m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      // autoChooserPathPlanner.addOption(
+      //     "Flywheel SysId (Quasistatic Reverse)",
+      //     m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // autoChooserPathPlanner.addOption(
+      //     "Flywheel SysId (Dynamic Forward)",
+      //     m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // autoChooserPathPlanner.addOption(
+      //     "Flywheel SysId (Dynamic Reverse)",
+      //     m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
   }
 

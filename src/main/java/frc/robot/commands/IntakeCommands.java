@@ -29,7 +29,11 @@ public class IntakeCommands {
     return Commands.run(() -> intake.setPosition(speed, false), intake)
         .unless(intake::isIntakeIn)
         .until(intake::isIntakeIn)
-        .finallyDo(() -> {intake.stopPosition(); intake.stopIntake();});
+        .finallyDo(
+            () -> {
+              intake.stopPosition();
+              intake.stopIntake();
+            });
   }
 
   /**

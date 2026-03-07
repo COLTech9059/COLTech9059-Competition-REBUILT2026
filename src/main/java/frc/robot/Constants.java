@@ -511,12 +511,12 @@ public final class Constants {
             Inches.of(-7.145),
             Inches.of(19.0),
             new Rotation3d(0.0, 0.0, -Math.PI / 2));
-    public static Transform3d robotToCamera2 = 
+    public static Transform3d robotToCamera2 =
         new Transform3d(
-          Inches.of(0.0),
-          Inches.of(2.179),
-          Inches.of(23.396),
-          new Rotation3d(0.0, -Math.PI/12, 0));
+            Inches.of(0.0),
+            Inches.of(2.179),
+            Inches.of(23.396),
+            new Rotation3d(0.0, -Math.PI / 12, 0));
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
@@ -556,7 +556,12 @@ public final class Constants {
   /************************************************************************* */
   /** Miscellaneous/Recreational Constants *********************************** */
   public static final class MiscConstants {
-    public static final String[] songFilepaths = {"src/main/deploy/OdeToJoy.chrp", "src/main/deploy/DevilWentDownToGeorgia.chrp", "src/main/deploy/CaliforniaGirls.chrp", "src/main/deploy/DuelOfTheFates.chrp"};
+    public static final String[] songFilepaths = {
+      "src/main/deploy/OdeToJoy.chrp",
+      "src/main/deploy/DevilWentDownToGeorgia.chrp",
+      "src/main/deploy/CaliforniaGirls.chrp",
+      "src/main/deploy/DuelOfTheFates.chrp"
+    };
   }
 
   /************************************************************************* */
