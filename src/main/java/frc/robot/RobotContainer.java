@@ -307,9 +307,7 @@ public class RobotContainer {
             m_drivebase,
             () -> -driveStickY.value(),
             () -> -driveStickX.value(),
-            () ->
-                VisionLibrary.VisionHelpers.getRotationPower(
-                    m_drivebase, 10, -turnStickX.value())));
+            () -> VisionLibrary.VisionHelpers.getRotationPower(m_drivebase, -turnStickX.value())));
 
     // driverController
     //     .y()

@@ -27,6 +27,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -89,22 +91,72 @@ public class FieldConstants {
     RAMP_LEFT
   }
 
+  public enum PointName {
+    HUB
+  }
+
+  private static final Pose2d FIELD_SIZE = new Pose2d(fieldLength, fieldWidth, Rotation2d.kZero);
+
   private static final Pose2d[][] odometryZones = {
-    {new Pose2d(0, 0, Rotation2d.kZero), new Pose2d(3.6, 8.07, Rotation2d.kZero)},
+    {new Pose2d(0, 0, Rotation2d.kZero), new Pose2d(3.6, fieldWidth, Rotation2d.kZero)},
     {new Pose2d(3.3, 1.2, Rotation2d.kZero), new Pose2d(6.0, 3.9, Rotation2d.kZero)},
     {new Pose2d(3.3, 4.2, Rotation2d.kZero), new Pose2d(6.0, 7.2, Rotation2d.kZero)},
   };
 
+  private static final Pose2d[] pointPoses = {new Pose2d(4.626, 4.035, Rotation2d.kZero)};
+
+  private static Pose2d[] convertPoseToRedAllianceSide(Pose2d[] boxBounds) {
+    return new Pose2d[] {
+      new Pose2d(
+          (FIELD_SIZE.getX() - boxBounds[1].getX()),
+          (FIELD_SIZE.getY() - boxBounds[1].getY()),
+          Rotation2d.kZero),
+      new Pose2d(
+          (FIELD_SIZE.getX() - boxBounds[0].getX()),
+          (FIELD_SIZE.getY() - boxBounds[0].getY()),
+          Rotation2d.kZero)
+    };
+  }
+
+  private static Pose2d convertPoseToRedAllianceSide(Pose2d pointPose) {
+    return new Pose2d(
+        (FIELD_SIZE.getX() - pointPose.getX()),
+        (FIELD_SIZE.getY() - pointPose.getY()),
+        Rotation2d.kZero);
+  }
+
   public static Pose2d[] getOdometryZone(ZoneName zone) {
+
+    boolean isFlipped =
+        (DriverStation.getAlliance().isPresent()
+            && (DriverStation.getAlliance().get() == Alliance.Red));
+
     switch (zone) {
       case ALLIANCE:
+        if (isFlipped) return convertPoseToRedAllianceSide(odometryZones[0]);
         return odometryZones[0];
       case RAMP_RIGHT:
+        if (isFlipped) return convertPoseToRedAllianceSide(odometryZones[1]);
         return odometryZones[1];
       case RAMP_LEFT:
+        if (isFlipped) return convertPoseToRedAllianceSide(odometryZones[2]);
         return odometryZones[2];
       default:
         return new Pose2d[] {Pose2d.kZero, Pose2d.kZero};
+    }
+  }
+
+  public static Pose2d getPointPose(PointName point) {
+    boolean isFlipped =
+        (DriverStation.getAlliance().isPresent()
+            && (DriverStation.getAlliance().get() == Alliance.Red));
+
+    switch (point) {
+      case HUB:
+        if (isFlipped) return convertPoseToRedAllianceSide(pointPoses[0]);
+        return pointPoses[0];
+      default:
+        return Pose2d.kZero;
     }
   }
 }

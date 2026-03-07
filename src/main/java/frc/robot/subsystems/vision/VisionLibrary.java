@@ -2,7 +2,6 @@ package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.FieldConstants.*;
-import static frc.robot.subsystems.drive.SwerveConstants.driveEncoderPositionFactor;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
@@ -10,6 +9,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.AutopilotCommands;
@@ -33,6 +34,12 @@ public class VisionLibrary {
     private static final int IDEAL_ANGLE = 45;
     private static final int ANGLE_ERROR_BOUND = 3;
 
+    // Alliance Checking
+    public static boolean isAlliance(Alliance alliance) {
+      return (DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get() == alliance);
+    }
+
     // Strafing
     private static final double STRAFE_RADIAN_ERROR_BOUND = Math.PI / 180.0;
     private static boolean strafeEnabled = false;
@@ -42,6 +49,16 @@ public class VisionLibrary {
     }
 
     public static Pose3d getTargetPosition(int targetIndex) {
+      AprilTagFieldLayout aprilTagField = AprilTagLayoutType.OFFICIAL.getLayout();
+
+      int realIndex = isAlliance(Alliance.Blue) ? targetIndex += 16 : targetIndex;
+
+      Pose3d targetPose = aprilTagField.getTagPose(realIndex).orElse(Pose3d.kZero);
+
+      return targetPose;
+    }
+
+    public static Pose3d getTrueTargetPosition(int targetIndex) {
       AprilTagFieldLayout aprilTagField = AprilTagLayoutType.OFFICIAL.getLayout();
       Pose3d targetPose = aprilTagField.getTagPose(targetIndex).orElse(Pose3d.kZero);
 
@@ -104,23 +121,23 @@ public class VisionLibrary {
     }
 
     public static double getRotationPowerWithStrafeConsideration(
-        Drive DriveSubsystem, int targetID, double stickPower) {
+        Drive DriveSubsystem, double stickPower) {
       Logger.recordOutput(
-          "VisionLibrary/Strafing/inAllianceZone", (isRobotInZone(DriveSubsystem, ZoneName.ALLIANCE)));
+          "VisionLibrary/Strafing/inAllianceZone",
+          (isRobotInZone(DriveSubsystem, ZoneName.ALLIANCE)));
       if (!isRobotInZone(DriveSubsystem, ZoneName.ALLIANCE)) return stickPower;
-      return getRotationPowerToTarget(DriveSubsystem, targetID);
+      return getRotationPowerToTarget(DriveSubsystem, getPointPose(PointName.HUB));
     }
 
-    public static double getRotationPower(Drive DriveSubsystem, int targetID, double stickPower) {
+    public static double getRotationPower(Drive DriveSubsystem, double stickPower) {
 
-      Logger.recordOutput(
-        "VisionLibrary/Strafing/strafeEnabled", (strafeEnabled));
+      Logger.recordOutput("VisionLibrary/Strafing/strafeEnabled", (strafeEnabled));
 
       double turnPower =
           strafeEnabled
-              ? getRotationPowerWithStrafeConsideration(DriveSubsystem, targetID, stickPower)
+              ? getRotationPowerWithStrafeConsideration(DriveSubsystem, stickPower)
               : stickPower;
-      
+
       // Ramps automatically override turn power input.
       turnPower = getRotationPowerWithRampConsideration(DriveSubsystem, turnPower);
 
@@ -183,40 +200,55 @@ public class VisionLibrary {
    *
    * @author Lunaradical
    * @param driveSubsystem The main Drive subsystem used to drive the robot.
-   * @param targetIndex The index of the AprilTag you want to focus on.
-   * @return The rotation between the target and the robot's current position.
+   * @param targetPose The pose you want the robot to look at.
+   * @return The rotation to point at the target.
    */
+  public static double getRotationPowerToTarget(Drive driveSubsystem, Pose2d targetPose) {
+    // Return no rotation if target is invalid.
+    if (targetPose.equals(Pose2d.kZero)) return 0.0;
+
+    // Make the pose relative to the Robot (make the Robot the origin)
+    Pose2d robotPose = driveSubsystem.getPose();
+
+    // Use trigonometry to get the rotation to the point.
+    double desiredAngle =
+        Math.atan((targetPose.getY() - robotPose.getY()) / (targetPose.getX() - robotPose.getX()));
+
+    double currentRobotRotation = driveSubsystem.getHeading().getRadians();
+
+    // This math is true.
+    if (VisionHelpers.isAlliance(Alliance.Red)) desiredAngle = (Math.PI + desiredAngle);
+    if (desiredAngle > Math.PI) desiredAngle = (-Math.PI + (desiredAngle - Math.PI));
+
+    // Angle from setpoint, however does not give power with respect to PI in the red alliance.
+    double angleFromSetpoint = desiredAngle - currentRobotRotation;
+
+    if (VisionHelpers.isAlliance(Alliance.Red) && Math.signum(currentRobotRotation) != Math.signum(desiredAngle))
+      angleFromSetpoint = currentRobotRotation - desiredAngle;
+
+    Logger.recordOutput("VisionLibrary/Strafing/AngleToTarget", desiredAngle);
+    Logger.recordOutput("VisionLibrary/Strafing/AngleFromSetpoint", angleFromSetpoint);
+    Logger.recordOutput(
+        "VisionLibrary/Strafing/TurnPowerFromTarget",
+        Math.min(Math.sqrt(Math.abs(angleFromSetpoint / (Math.PI / 4))), 1));
+
+    if (Math.abs(angleFromSetpoint) < VisionHelpers.STRAFE_RADIAN_ERROR_BOUND) return 0.0;
+
+    // Proportion angle to power
+    double basePower = Math.min(Math.sqrt(Math.abs(angleFromSetpoint / (Math.PI / 4))), 1);
+    double sign = 1;
+
+    if (Math.signum(angleFromSetpoint) == -1.0) sign = -1;
+
+    return Math.max(.125, basePower) * sign;
+  }
+
   public static double getRotationPowerToTarget(Drive driveSubsystem, int targetIndex) {
 
     // Get pose of the target
     Pose2d targetPose = VisionHelpers.getTargetPosition(targetIndex).toPose2d();
 
-    // Return no rotation if target is invalid.
-    if (targetPose.equals(Pose2d.kZero)) return 0.0;
-
-    // Make the pose relative to the Robot (make the Robot the origin)
-    Pose2d RelativePose = targetPose.relativeTo(driveSubsystem.getPose());
-    Pose2d robotPose = driveSubsystem.getPose();
-
-    // Use trigonometry to get the rotation to the point.
-    double Angle = Math.atan((targetPose.getY() - robotPose.getY()) / (targetPose.getX() - robotPose.getX()));
-    double desiredAngle = Math.atan((targetPose.getY() - robotPose.getY()) / (targetPose.getX() - robotPose.getX()));
-
-    // TODO: use the angle to the desired angle to determine rotation power. Using the angle between the robot and the target will make the robot face the angle 0.
-    double currentRobotRotation = driveSubsystem.getHeading().getRadians();
-
-    Logger.recordOutput("VisionLibrary/Strafing/AngleToTarget", Angle);
-    Logger.recordOutput("VisionLibrary/Strafing/TurnPowerFromTarget", Math.min(Math.sqrt(Math.abs(Angle / (Math.PI/4))), 1));
-
-    if (Math.abs(Angle) < VisionHelpers.STRAFE_RADIAN_ERROR_BOUND) return 0.0;
-
-    // Proportion angle to power
-    double basePower = Math.min(Math.sqrt(Math.abs(Angle / (Math.PI/4))), 1);
-    double sign = 1;
-
-    if (Math.signum(Angle) == -1.0) sign = -1;
-
-    return Math.max(.125, basePower) * sign;
+    return getRotationPowerToTarget(driveSubsystem, targetPose);
   }
 
   /**
