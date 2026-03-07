@@ -129,8 +129,8 @@ public final class Constants {
     // NOTE: It is assumed that both the Rio and the IMU are mounted such that +Z is UP
     public static final Rotation2d kRioOrientation =
         switch (getRobot()) {
-          case COMPBOT -> Rotation2d.fromDegrees(-90.);
-          case DEVBOT -> Rotation2d.fromDegrees(0.);
+          case COMPBOT -> Rotation2d.fromDegrees(90.);
+          case DEVBOT -> Rotation2d.fromDegrees(90.);
           default -> Rotation2d.fromDegrees(0.);
         };
     // IMU can be one of Pigeon2 or NavX
@@ -491,8 +491,9 @@ public final class Constants {
   /** Vision Camera Posses ************************************************* */
   public static class Cameras {
     // Camera names, must match names configured on coprocessor
-    public static String camera0Name = "camera_0";
-    public static String camera1Name = "camera_1";
+    public static String camera0Name = "left_camera";
+    public static String camera1Name = "right_camera";
+    public static String camera2Name = "center_camera";
     // ... And more, if needed
 
     // Robot to camera transforms
@@ -500,16 +501,22 @@ public final class Constants {
     // Example Cameras are mounted in the back corners, 18" up from the floor, facing sideways
     public static Transform3d robotToCamera0 =
         new Transform3d(
-            Inches.of(-13.0),
-            Inches.of(13.0),
-            Inches.of(12.0),
+            Inches.of(-14.691),
+            Inches.of(-7.145),
+            Inches.of(19.0),
             new Rotation3d(0.0, 0.0, Math.PI / 2));
     public static Transform3d robotToCamera1 =
         new Transform3d(
-            Inches.of(-13.0),
-            Inches.of(-13.0),
-            Inches.of(12.0),
+            Inches.of(14.691),
+            Inches.of(-7.145),
+            Inches.of(19.0),
             new Rotation3d(0.0, 0.0, -Math.PI / 2));
+    public static Transform3d robotToCamera2 = 
+        new Transform3d(
+          Inches.of(0.0),
+          Inches.of(2.179),
+          Inches.of(23.396),
+          new Rotation3d(0.0, -Math.PI/12, 0));
 
     // Standard deviation multipliers for each camera
     // (Adjust to trust some cameras more than others)
