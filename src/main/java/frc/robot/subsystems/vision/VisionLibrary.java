@@ -223,7 +223,8 @@ public class VisionLibrary {
     // Angle from setpoint, however does not give power with respect to PI in the red alliance.
     double angleFromSetpoint = desiredAngle - currentRobotRotation;
 
-    if (VisionHelpers.isAlliance(Alliance.Red) && Math.signum(currentRobotRotation) != Math.signum(desiredAngle))
+    if (VisionHelpers.isAlliance(Alliance.Red)
+        && Math.signum(currentRobotRotation) != Math.signum(desiredAngle))
       angleFromSetpoint = currentRobotRotation - desiredAngle;
 
     Logger.recordOutput("VisionLibrary/Strafing/AngleToTarget", desiredAngle);

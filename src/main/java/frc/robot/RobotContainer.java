@@ -22,11 +22,8 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -74,12 +71,10 @@ import frc.robot.util.OverrideSwitches;
 import frc.robot.util.RBSIEnum.AutoType;
 import frc.robot.util.RBSIEnum.Mode;
 import frc.robot.util.RBSIPowerMonitor;
-
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -296,7 +291,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
 
-    NamedCommands.registerCommand("Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.75));
+    NamedCommands.registerCommand(
+        "Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.75));
 
     NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
 
@@ -514,7 +510,9 @@ public class RobotContainer {
                 VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
                 Set.of(m_drivebase)));
 
-    driverController.povLeft().onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
+    driverController
+        .povLeft()
+        .onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
     driverController.povLeft().onTrue(DriveCommands.cycleSong(m_drivebase, songSelector));
 
     // Press POV LEFT to nudge the robot left
@@ -524,7 +522,8 @@ public class RobotContainer {
     //         Commands.startEnd(
     //             () -> {
     //               m_drivebase.runVelocity(
-    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0), 0.));
+    //                   new ChassisSpeeds(Units.inchesToMeters(0.), Units.inchesToMeters(11.0),
+    // 0.));
     //             },
     //             // Stop when command ended
     //             m_drivebase::stop,
