@@ -44,6 +44,7 @@ import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
+import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
 import frc.robot.subsystems.vision.VisionLibrary;
 import frc.robot.util.Alert;
@@ -82,6 +83,8 @@ public class RobotContainer {
   /** Declare the robot subsystems here ************************************ */
   // These are the "Active Subsystems" that the robot controls
   private final Drive m_drivebase;
+
+  private final Vision m_vision;
 
   private final ImuIO m_imu;
 
@@ -146,23 +149,23 @@ public class RobotContainer {
 
         m_drivebase = new Drive(m_imu);
         // m_flywheel = new Flywheel(new FlywheelIOSim()); // new Flywheel(new FlywheelIOTalonFX());
-        // m_vision =
-        // switch (Constants.getVisionType()) {
-        //   case PHOTON ->
-        //       new Vision(
-        //           m_drivebase::addVisionMeasurement,
-        //           new VisionIOPhotonVision(camera0Name, robotToCamera0),
-        //           new VisionIOPhotonVision(camera1Name, robotToCamera1));
-        //   case LIMELIGHT ->
-        //       new Vision(
-        //           m_drivebase::addVisionMeasurement,
-        //           new VisionIOLimelight(camera0Name, m_drivebase::getHeading),
-        //           new VisionIOLimelight(camera1Name, m_drivebase::getHeading));
-        //   case NONE ->
-        //       new Vision(
-        //           m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        //   default -> null;
-        // };
+        m_vision =
+            switch (Constants.getVisionType()) {
+              case PHOTON ->
+                  new Vision(
+                      m_drivebase::addVisionMeasurement,
+                      new VisionIOPhotonVision(camera0Name, robotToCamera0),
+                      new VisionIOPhotonVision(camera1Name, robotToCamera1));
+              case LIMELIGHT ->
+                  new Vision(
+                      m_drivebase::addVisionMeasurement,
+                      new VisionIOLimelight(camera0Name, m_drivebase::getHeading),
+                      new VisionIOLimelight(camera1Name, m_drivebase::getHeading));
+              case NONE ->
+                  new Vision(
+                      m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+              default -> null;
+            };
         m_accel = new Accelerometer(m_imu);
         sweep = null;
         break;
@@ -172,11 +175,11 @@ public class RobotContainer {
         m_imu = new ImuIOSim();
         m_drivebase = new Drive(m_imu);
         // m_flywheel = new Flywheel(new FlywheelIOSim() {});
-        // m_vision =
-        //     new Vision(
-        //         m_drivebase::addVisionMeasurement,
-        //         new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, m_drivebase::getPose),
-        //         new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, m_drivebase::getPose));
+        m_vision =
+            new Vision(
+                m_drivebase::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, m_drivebase::getPose),
+                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, m_drivebase::getPose));
         m_accel = new Accelerometer(m_imu);
 
         // CameraSweepEvaluator Construct
@@ -206,8 +209,8 @@ public class RobotContainer {
         m_imu = new ImuIOSim();
         m_drivebase = new Drive(m_imu);
         // m_flywheel = new Flywheel(new FlywheelIO() {});
-        // m_vision =
-        // new Vision(m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        m_vision =
+            new Vision(m_drivebase::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         m_accel = new Accelerometer(m_imu);
         sweep = null;
         break;
@@ -319,12 +322,12 @@ public class RobotContainer {
     }
 
     // SET STANDARD DRIVING AS DEFAULT COMMAND FOR THE DRIVEBASE
-    // m_drivebase.setDefaultCommand(
-    //     DriveCommands.fieldRelativeDrive(
-    //         m_drivebase,
-    //         () -> driveStickY.value() * invertX,
-    //         () -> driveStickX.value() * invertY,
-    //         () -> turnStickX.value() * invertTheta));
+    m_drivebase.setDefaultCommand(
+        DriveCommands.fieldRelativeDrive(
+            m_drivebase,
+            () -> -driveStickY.value(),
+            () -> -driveStickX.value(),
+            () -> -turnStickX.value()));
 
     // Hold B button --> Drive at the angle required to go over the bump
     driverController
