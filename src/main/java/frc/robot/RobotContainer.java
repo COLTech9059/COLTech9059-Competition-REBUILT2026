@@ -43,17 +43,20 @@ import frc.robot.commands.FlywheelCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIOEmpty;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
+import frc.robot.subsystems.flywheel.FlywheelIOEmpty;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOEmpty;
 import frc.robot.subsystems.intake.IntakeIOHybrid;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
 import frc.robot.subsystems.vision.Vision;
@@ -103,8 +106,8 @@ public class RobotContainer {
 
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
-  private final Intake intake = new Intake(new IntakeIOHybrid());
-  private final Climber climber = new Climber(new ClimberIOTalonFX());
+  private final Intake intake = new Intake(new IntakeIOEmpty());
+  private final Climber climber = new Climber(new ClimberIOEmpty());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -162,7 +165,7 @@ public class RobotContainer {
         }
 
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOSim()); // new Flywheel(new FlywheelIOTalonFX());
+        m_flywheel = new Flywheel(new FlywheelIOEmpty()); // new Flywheel(new FlywheelIOTalonFX());
         m_vision =
             switch (Constants.getVisionType()) {
               case PHOTON ->
@@ -338,9 +341,9 @@ public class RobotContainer {
     m_drivebase.setDefaultCommand(
         DriveCommands.fieldRelativeDrive(
             m_drivebase,
-            () -> -driveStickY.value(),
-            () -> -driveStickX.value(),
-            () -> VisionLibrary.VisionHelpers.getRotationPower(m_drivebase, -turnStickX.value())));
+            () -> driveStickY.value() * invertX,
+            () -> driveStickX.value() * invertY,
+            () -> VisionLibrary.VisionHelpers.getRotationPower(m_drivebase, turnStickX.value() * invertTheta)));
 
     // driverController
     //     .y()
@@ -353,15 +356,6 @@ public class RobotContainer {
     //                 Rotation2d.fromRadians(
     //                     VisionLibrary.pointToTargetWithPID(
     //                         m_drivebase, (int) AprilTagTargetInput.get()))));
-    // Hold B button --> Drive at the angle required to go over the bump
-    driverController
-        .y()
-        .toggleOnTrue(
-            DriveCommands.fieldRelativeDrive(
-                m_drivebase,
-                () -> -driveStickY.value(),
-                () -> -driveStickX.value(),
-                () -> VisionLibrary.getRotationPowerToTarget(m_drivebase, 10)));
 
     // Toggle Alliance Strafing
     driverController
@@ -372,36 +366,6 @@ public class RobotContainer {
                   VisionHelpers.toggleStrafing();
                 },
                 m_vision));
-
-    // driverController
-    //     .povUp()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKP(VisionLibrary.getPointKP() + 0.01)));
-
-    // driverController
-    //     .povDown()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKP(VisionLibrary.getPointKP() - 0.01)));
-
-    // driverController
-    //     .povRight()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKI(VisionLibrary.getPointKI() + 0.01)));
-
-    // driverController
-    //     .povLeft()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKI(VisionLibrary.getPointKI() - 0.01)));
-
-    // driverController
-    //     .x()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKD(VisionLibrary.getPointKD() + 0.01)));
-
-    // driverController
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(() -> VisionLibrary.setPointKD(VisionLibrary.getPointKD() - 0.01)));
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
@@ -418,12 +382,12 @@ public class RobotContainer {
     //             m_drivebase));
 
     // Press A button -> BRAKE
-    // driverController
-    //     .a()
-    //     .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
+    driverController
+        .a()
+        .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
 
     // Press X button --> Stop with wheels in X-Lock position
-    // driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
+    driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
 
     // Press Y button --> Manually Re-Zero the Gyro
     driverController
@@ -455,21 +419,12 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.75));
 
-    // Hold Left Trigger --> Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
-
-    // Press Left Bumper --> Retract intake
-    driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
-
     // Press Right Bumper --> Toggle climber
     driverController
         .rightBumper()
         .onTrue(
             Commands.runOnce(
                 () -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
-    driverController
-        .rightBumper()
-        .onTrue(ClimberCommands.toggleClimber(climber, 0.5, climbSelector));
 
     // Press Dpad up --> Max flywheel velocity
     driverController
@@ -487,28 +442,13 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> flywheelVelocityRPM = () -> FLYWHEEL_MIN_RPM));
 
     // Press LEFT TRIGGER -> map to given april tag given an offset in front
-    driverController
-        .leftTrigger()
-        .whileTrue(
-            Commands.defer(
-                VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
-                Set.of(m_drivebase)));
+    // driverController
+    //     .leftTrigger()
+    //     .whileTrue(
+    //         Commands.defer(
+    //             VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
+    //             Set.of(m_drivebase)));
 
-    // Press LEFT TRIGGER -> map to given april tag given an offset in front
-    driverController
-        .leftTrigger()
-        .whileTrue(
-            Commands.defer(
-                VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
-                Set.of(m_drivebase)));
-
-    // Press LEFT TRIGGER -> map to given april tag given an offset in front
-    driverController
-        .leftTrigger()
-        .whileTrue(
-            Commands.defer(
-                VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
-                Set.of(m_drivebase)));
 
     driverController
         .povLeft()
