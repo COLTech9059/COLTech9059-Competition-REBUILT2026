@@ -71,7 +71,7 @@ public final class Constants {
   //       under strict caveat emptor -- and submit any error and bugfixes
   //       via GitHub issues.
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
-  private static CTREPro phoenixPro = CTREPro.UNLICENSED; // LICENSED, UNLICENSED
+  private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
   private static AutoType autoType = AutoType.MANUAL; // MANUAL, PATHPLANNER, CHOREO
   private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
 
@@ -209,10 +209,11 @@ public final class Constants {
     public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 10);
 
     public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 11);
-    public static final RobotDeviceId INTAKE_ROLLER = new RobotDeviceId(18, 12);
-    public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(19, 13);
+    public static final RobotDeviceId INTAKE_POSITION_FOLLOWER = new RobotDeviceId(18, 12);
+    public static final RobotDeviceId INTAKE_ROLLER = new RobotDeviceId(19, 13);
+    public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(20, 14);
 
-    public static final RobotDeviceId CLIMBER_MOTOR = new RobotDeviceId(20, 14);
+    public static final RobotDeviceId CLIMBER_MOTOR = new RobotDeviceId(21, 15);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
@@ -241,12 +242,11 @@ public final class Constants {
     public static final DriveStyle kDriveStyle = DriveStyle.TANK; // TANK, GAMER
 
     // Joystick Deadbands
-    public static final double kDeadband = 0.1;
+    public static final double kDeadband = 0.2;
     public static final double kTurnConstant = 6;
 
     // Joystick slew rate limiters to smooth erratic joystick motions, measured in units per second
     public static final double kJoystickSlewLimit = 0.5;
-
     // Override and Console Toggle Switches
     // Assumes this controller: https://www.amazon.com/gp/product/B00UUROWWK
     // Example from:
@@ -307,7 +307,8 @@ public final class Constants {
     // Drive motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
     public static final double kDriveClosedLoopRampPeriod = 0.15; // seconds
-    public static final double kDriveOpenLoopRampPeriod = 0.25; // seconds
+
+    public static final double kDriveOpenLoopRampPeriod = 0.05; // seconds
 
     public static final double kOptimalVoltage = 12.0; // Volts
     public static final double kNominalFFVolts = 2.0; // Volts
@@ -317,15 +318,15 @@ public final class Constants {
     //
     // IMPORTANT:: These values are valid only for CTRE LICENSED operation!!
     //             Adjust these downward until your modules behave correctly
-    public static final double kDriveP = 40.0;
-    public static final double kDriveD = 0.03;
-    public static final double kDriveV = 0.83;
-    public static final double kDriveA = 0.0;
-    public static final double kDriveS = 0.21;
+    public static final double kDriveP = 0.9945475;
+    public static final double kDriveD = 0.0;
+    public static final double kDriveV = 0.1210375;
+    public static final double kDriveA = 0.001816195;
+    public static final double kDriveS = 0.10265;
     public static final double kDriveT =
         SwerveConstants.kDriveGearRatio / DCMotor.getKrakenX60Foc(1).KtNMPerAmp;
-    public static final double kSteerP = 400.0;
-    public static final double kSteerD = 20.0;
+    public static final double kSteerP = 400; // 0.011298825
+    public static final double kSteerD = 20; // 0
   }
 
   /************************************************************************* */
@@ -377,10 +378,14 @@ public final class Constants {
 
     // Mechanism gear ratios
     public static final double kIntakeGearRatio = 1.0;
-    public static final double kIntakePositionGearRatio = 1.0;
+    public static final double kIntakePositionGearRatio = 16.0;
 
     public static final int kIntakeCurrentLimit = 40;
     public static final int kIntakeOptimalVoltage = 12;
+
+    // Encoder constants
+    public static final double extendedPositionInRadians = Math.PI/2; // TODO: Heuristic; Replace with measured value
+    public static final double extendedPositionDeadbandInRadians = 0.0;
 
     // Intake motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty

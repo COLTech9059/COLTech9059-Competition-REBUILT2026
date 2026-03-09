@@ -18,7 +18,7 @@ public interface IntakeIO extends RBSIIO {
 
   public default void setVoltage(double volts) {}
 
-  public default void setSpeed(double speed) {}
+  public default void setSpeed(double baseSpeed) {}
 
   public default void setPosition(double speed, boolean out) {}
 

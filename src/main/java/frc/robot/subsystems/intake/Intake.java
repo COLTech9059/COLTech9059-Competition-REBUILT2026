@@ -34,8 +34,8 @@ public class Intake extends RBSISubsystem {
   }
 
   /** Set the position of the intake, either extended or retracted */
-  public void setPosition(double speed, boolean out) {
-    io.setPosition(speed, out);
+  public void setPosition(double baseSpeed, boolean out) {
+    io.setPosition(baseSpeed, out);
 
     Logger.recordOutput("Intake/setpointPosition", out);
   }

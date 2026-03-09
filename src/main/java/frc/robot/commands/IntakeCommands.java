@@ -12,8 +12,8 @@ public class IntakeCommands {
    * @param intake The intake subsystem to use
    * @param speed The speed to run the motor at
    */
-  public static Command extendIntake(Intake intake, double speed) {
-    return Commands.run(() -> intake.setPosition(speed, true), intake)
+  public static Command extendIntake(Intake intake, double baseSpeed) {
+    return Commands.run(() -> intake.setPosition(baseSpeed, true), intake)
         .unless(intake::isIntakeOut)
         .until(intake::isIntakeOut)
         .finallyDo(() -> intake.stopPosition());

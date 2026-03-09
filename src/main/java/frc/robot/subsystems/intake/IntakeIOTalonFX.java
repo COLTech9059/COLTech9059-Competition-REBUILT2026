@@ -10,7 +10,9 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.controls.Follower;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class IntakeIOTalonFX implements IntakeIO {
 
   private TalonFX positionMotor = new TalonFX(INTAKE_POSITION.getDeviceNumber());
+  private TalonFX positionMotorFollower = new TalonFX(INTAKE_POSITION_FOLLOWER.getDeviceNumber());
   private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
   private TalonFX feedMotor = new TalonFX(INTAKE_FEED.getDeviceNumber());
   private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
@@ -27,7 +30,8 @@ public class IntakeIOTalonFX implements IntakeIO {
     INTAKE_POSITION.getPowerPort(), INTAKE_ROLLER.getPowerPort(), INTAKE_FEED.getPowerPort()
   };
 
-  private final StatusSignal<Angle> position = positionMotor.getPosition();
+  private final StatusSignal<Angle> positionLeader = positionMotor.getPosition();
+  private final StatusSignal<Angle> positionFollower = positionMotorFollower.getPosition();
   private final StatusSignal<Current> positionCurrent = positionMotor.getSupplyCurrent();
   private final StatusSignal<Current> intakeCurrent = intakeMotor.getSupplyCurrent();
 
@@ -57,13 +61,13 @@ public class IntakeIOTalonFX implements IntakeIO {
     // Apply the open & closed-loop ramp configuration for current smoothing
     positionConfig.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
 
-    intakeConfig = positionConfig;
+    intakeConfig = positionConfig.clone();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     if (kIntakeInverted)
       intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else intakeConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    feedConfig = positionConfig;
+    feedConfig = positionConfig.clone();
     feedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     if (kIntakeFeedInverted)
       feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
@@ -73,21 +77,24 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeMotor.getConfigurator().apply(intakeConfig);
     feedMotor.getConfigurator().apply(feedConfig);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, position, positionCurrent, intakeCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, positionLeader, positionFollower, positionCurrent, intakeCurrent);
     positionMotor.optimizeBusUtilization();
+    positionMotorFollower.setControl(new Follower(positionMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     intakeMotor.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    BaseStatusSignal.refreshAll(position, positionCurrent, intakeCurrent);
+    BaseStatusSignal.refreshAll(positionLeader, positionFollower, positionCurrent, intakeCurrent);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
-    inputs.positionDegrees =
-        Units.rotationsToDegrees(position.getValueAsDouble()) / kIntakePositionGearRatio;
+    inputs.positionDegrees = getRotationsInDegrees();
     inputs.isIntakeOut = outLimit.get();
     inputs.isIntakeIn = inLimit.get();
     inputs.currentAmps =
         new double[] {positionCurrent.getValueAsDouble(), intakeCurrent.getValueAsDouble()};
+    
+    // Reset position encoder.
+    if (inLimit.get()) setEncoderRotations(0);
   }
 
   @Override
@@ -102,17 +109,35 @@ public class IntakeIOTalonFX implements IntakeIO {
     feedMotor.set(speed);
   }
 
+  // @Override
+  // public void setPosition(double speed, boolean out) {
+  //   speed = Math.abs(speed);
+
+  //   if (out) {
+  //     if (outLimit.get()) stopPosition();
+  //     else positionMotor.set(speed);
+  //   } else {
+  //     if (inLimit.get()) stopPosition();
+  //     else positionMotor.set(-speed);
+  //   }
+  // }
+
   @Override
-  public void setPosition(double speed, boolean out) {
-    speed = Math.abs(speed);
+  public void setPosition(double baseSpeed, boolean out) {
+    double currentAngle = getRotationsInRadians();
+    baseSpeed = Math.abs(baseSpeed);
+    double appliedSpeed = baseSpeed;
 
     if (out) {
-      if (outLimit.get()) stopPosition();
-      else positionMotor.set(speed);
-    } else {
-      if (inLimit.get()) stopPosition();
-      else positionMotor.set(-speed);
+      double angleDifference = extendedPositionInRadians - currentAngle;
+      if (angleDifference < extendedPositionDeadbandInRadians) appliedSpeed = 0;
+      else appliedSpeed = Math.max(baseSpeed, 0.5 * Math.sin(angleDifference));
     }
+    else {
+      if (!inLimit.get()) appliedSpeed = -baseSpeed;
+      else appliedSpeed = 0;
+    }
+    positionMotor.set(appliedSpeed);
   }
 
   @Override
@@ -124,5 +149,25 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void stopPosition() {
     positionMotor.stopMotor();
+  }
+
+  // Encoder Positioning
+  private double getAverageRotations() {
+    return (positionLeader.getValueAsDouble() - positionFollower.getValueAsDouble()) / 2;
+  }
+
+  private void setEncoderRotations(double rotations) {
+    positionMotor.setPosition(rotations);
+    positionMotorFollower.setPosition(-rotations);
+  }
+
+  private double getRotationsInRadians() {
+    double motorRotationInRadians = Units.rotationsToRadians(getAverageRotations());
+    return motorRotationInRadians / kIntakePositionGearRatio;
+  }
+
+  private double getRotationsInDegrees() {
+    double motorRotationInDegrees = Units.rotationsToDegrees(getAverageRotations());
+    return motorRotationInDegrees / kIntakePositionGearRatio;
   }
 }

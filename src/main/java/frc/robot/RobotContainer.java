@@ -44,7 +44,6 @@ import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOEmpty;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -57,7 +56,6 @@ import frc.robot.subsystems.imu.ImuIOPigeon2;
 import frc.robot.subsystems.imu.ImuIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOEmpty;
-import frc.robot.subsystems.intake.IntakeIOHybrid;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -74,7 +72,6 @@ import frc.robot.util.OverrideSwitches;
 import frc.robot.util.RBSIEnum.AutoType;
 import frc.robot.util.RBSIEnum.Mode;
 import frc.robot.util.RBSIPowerMonitor;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -343,7 +340,9 @@ public class RobotContainer {
             m_drivebase,
             () -> driveStickY.value() * invertX,
             () -> driveStickX.value() * invertY,
-            () -> VisionLibrary.VisionHelpers.getRotationPower(m_drivebase, turnStickX.value() * invertTheta)));
+            () ->
+                VisionLibrary.VisionHelpers.getRotationPower(
+                    m_drivebase, turnStickX.value() * invertTheta)));
 
     // driverController
     //     .y()
@@ -446,9 +445,9 @@ public class RobotContainer {
     //     .leftTrigger()
     //     .whileTrue(
     //         Commands.defer(
-    //             VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(), 1),
+    //             VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(),
+    // 1),
     //             Set.of(m_drivebase)));
-
 
     driverController
         .povLeft()
