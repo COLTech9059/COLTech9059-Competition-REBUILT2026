@@ -30,8 +30,8 @@ public class IntakeIOHybrid implements IntakeIO {
   private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
   private SparkMax feedMotor = new SparkMax(INTAKE_FEED.getDeviceNumber(), MotorType.kBrushless);
   private RelativeEncoder encoder = positionMotor.getEncoder();
-  private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
-  private DigitalInput inLimit = new DigitalInput(INTAKE_IN_LIMIT);
+  private DigitalInput inLimitLeft = new DigitalInput(INTAKE_IN_LEFT_LIMIT);
+  private DigitalInput inLimitRight = new DigitalInput(INTAKE_IN_RIGHT_LIMIT);
   public final int[] powerPorts = {
     INTAKE_POSITION.getPowerPort(), INTAKE_ROLLER.getPowerPort(), INTAKE_FEED.getPowerPort()
   };
@@ -98,8 +98,8 @@ public class IntakeIOHybrid implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = Units.rotationsToDegrees(encoder.getPosition()) / kIntakeGearRatio;
-    inputs.isIntakeOut = outLimit.get();
-    inputs.isIntakeIn = inLimit.get();
+    inputs.isIntakeInLeft = inLimitLeft.get();
+    inputs.isIntakeInRight = inLimitRight.get();
     inputs.currentAmps =
         new double[] {
           positionMotor.getOutputCurrent(),
@@ -110,8 +110,8 @@ public class IntakeIOHybrid implements IntakeIO {
     // AdvantageKit logging
     Logger.recordOutput("Intake/IntakeSpeed", inputs.intakeSpeed);
     Logger.recordOutput("Intake/PositionDegrees", inputs.positionDegrees);
-    Logger.recordOutput("Intake/IsIntakeOut", inputs.isIntakeOut);
-    Logger.recordOutput("Intake/IsIntakeIn", inputs.isIntakeIn);
+    Logger.recordOutput("Intake/IsIntakeInLeft", inputs.isIntakeInLeft);
+    Logger.recordOutput("Intake/IsIntakeInRight", inputs.isIntakeInRight);
     Logger.recordOutput("Intake/PositionCurrent", inputs.currentAmps[0]);
     Logger.recordOutput("Intake/IntakeCurrent", inputs.currentAmps[1]);
     Logger.recordOutput("Intake/FeedCurrent", inputs.currentAmps[2]);
@@ -133,13 +133,13 @@ public class IntakeIOHybrid implements IntakeIO {
   public void setPosition(double speed, boolean out) {
     speed = Math.abs(speed);
 
-    if (out) {
-      if (outLimit.get()) stopPosition();
-      else setSpeed(speed);
-    } else {
-      if (inLimit.get()) stopPosition();
-      else setSpeed(-speed);
-    }
+    // if (out) {
+    //   if (outLimit.get()) stopPosition();
+    //   else setSpeed(speed);
+    // } else {
+    //   if (inLimit.get()) stopPosition();
+    //   else setSpeed(-speed);
+    // }
   }
 
   @Override

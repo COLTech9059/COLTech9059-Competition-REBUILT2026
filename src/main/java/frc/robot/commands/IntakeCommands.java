@@ -25,8 +25,8 @@ public class IntakeCommands {
    * @param intake The intake subsystem to use
    * @param speed The speed to run the motor at
    */
-  public static Command retractIntake(Intake intake, double speed) {
-    return Commands.run(() -> intake.setPosition(speed, false), intake)
+  public static Command retractIntake(Intake intake, double baseSpeed) {
+    return Commands.run(() -> intake.setPosition(baseSpeed, false), intake)
         .unless(intake::isIntakeIn)
         .until(intake::isIntakeIn)
         .finallyDo(

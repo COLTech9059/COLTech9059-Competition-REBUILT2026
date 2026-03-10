@@ -85,6 +85,11 @@ public class Flywheel extends RBSISubsystem {
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
   }
 
+  /** Run flywheel using a given distance. Used for shooting at the Hub. */
+  public void runVelocityBasedOnDistance(double inputDistance) {
+
+  }
+
   /** Run the feed system at the specified speed */
   public void runFeed(double speed) {
     io.runFeed(speed);
@@ -119,6 +124,11 @@ public class Flywheel extends RBSISubsystem {
   /** Returns the current velocity in radians per second. */
   public double getCharacterizationVelocity() {
     return inputs.velocityRadPerSec;
+  }
+
+  public boolean isFlywheelUpToSpeed(double setpointRPM, double tolerance) {
+    double velocityRotationsPerSec = Units.radiansToRotations(inputs.velocityRadPerSec);
+    return velocityRotationsPerSec <= setpointRPM * (1 + tolerance) && velocityRotationsPerSec >= (1 - tolerance);
   }
 
   @Override

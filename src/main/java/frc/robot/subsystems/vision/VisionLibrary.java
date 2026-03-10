@@ -1,6 +1,5 @@
 package frc.robot.subsystems.vision;
 
-import static edu.wpi.first.units.Units.*;
 import static frc.robot.FieldConstants.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -143,6 +142,17 @@ public class VisionLibrary {
 
       return turnPower;
     }
+
+    // Distance Calculations
+    public static double getDistanceFromPoint(Drive driveSubsystem, Pose2d pointPose) {
+      Pose2d drivePose = driveSubsystem.getPose();
+      
+      double x = Math.abs(pointPose.getX() - drivePose.getX());
+      double y = Math.abs(pointPose.getY() - drivePose.getY());
+
+      return Math.sqrt((x*x) + (y*y));
+    }
+
   }
 
   /**

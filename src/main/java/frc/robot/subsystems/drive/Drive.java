@@ -11,6 +11,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.drive.SwerveConstants.*;
+import static frc.robot.Constants.DrivebaseConstants.*;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -89,6 +90,9 @@ public class Drive extends SubsystemBase {
               DrivebaseConstants.kMaxAngularSpeed, DrivebaseConstants.kMaxAngularAccel));
 
   private DriveSimPhysics simPhysics;
+  
+  // Speed Modulation
+  private double speedMultiplier = 1.0;
 
   // Constructor
   public Drive(ImuIO imuIO) {
@@ -645,4 +649,21 @@ public class Drive extends SubsystemBase {
       module.stopSong();
     }
   }
+
+  public double getSpeedMultiplier() {
+    return speedMultiplier;
+  }
+
+  public void increaseSpeed() {
+    speedMultiplier = Math.min(speedMultiplier + speedIncrement, maxSpeedMultiplier);
+  }
+
+  public void decreaseSpeed() {
+    speedMultiplier = Math.max(speedMultiplier - speedIncrement, minSpeedMultiplier);
+  }
+
+  public void setSpeed(double multiplier) {
+    speedMultiplier = Math.min(maxSpeedMultiplier, Math.max(minSpeedMultiplier, multiplier * maxSpeedMultiplier));
+  }
+
 }

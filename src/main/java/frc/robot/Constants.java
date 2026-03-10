@@ -63,7 +63,7 @@ public final class Constants {
    * Define the various multiple robots that use this same code (e.g., COMPBOT, DEVBOT, SIMBOT,
    * etc.) and the operating modes of the code (REAL, SIM, or REPLAY)
    */
-  private static RobotType robotType = RobotType.SIMBOT;
+  private static RobotType robotType = RobotType.COMPBOT;
 
   // Define swerve, auto, and vision types being used
   // NOTE: Only PHOENIX6 swerve base has been tested at this point!!!
@@ -72,8 +72,8 @@ public final class Constants {
   //       via GitHub issues.
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
   private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
-  private static AutoType autoType = AutoType.MANUAL; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
+  private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
+  private static VisionType visionType = VisionType.PHOTON; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -109,7 +109,7 @@ public final class Constants {
   /** Physical Constants for Robot Operation ******************************* */
   public static final class RobotConstants {
 
-    public static final Mass kRobotMass = Pounds.of(100.);
+    public static final Mass kRobotMass = Pounds.of(115.);
     public static final Matter kChassis =
         new Matter(new Translation3d(0, 0, Inches.of(8).in(Meters)), kRobotMass.in(Kilograms));
     // Robot moment of intertial; this can be obtained from a CAD model of your drivetrain. Usually,
@@ -204,8 +204,8 @@ public final class Constants {
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, "", 8);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, "", 9);
+    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, 8);
+    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, 9);
     public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 10);
 
     public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 11);
@@ -219,8 +219,8 @@ public final class Constants {
     // This is where digital I/O feedback devices are defined
     // Example:
     // public static final int ELEVATOR_BOTTOM_LIMIT = 3;
-    public static final int INTAKE_OUT_LIMIT = 0;
-    public static final int INTAKE_IN_LIMIT = 1;
+    public static final int INTAKE_IN_LEFT_LIMIT = 0;
+    public static final int INTAKE_IN_RIGHT_LIMIT = 1;
     public static final int CLIMBER_UP_LIMIT = 2;
     public static final int CLIMBER_DOWN_LIMIT = 3;
 
@@ -264,17 +264,18 @@ public final class Constants {
     public static final int[] MULTI_TOGGLE = {4, 5};
 
     // TODO: Temp flywheel velocity values, replace with real
-    public static final double FLYWHEEL_MIN_RPM = 2600;
-    public static final double FLYWHEEL_MID_RPM = 2800;
-    public static final double FLYWHEEL_MAX_RPM = 3000;
-
-    // TODO: Temp bump angle value, replace with real
-    public static final double BUMP_ANGLE = 45;
+    public static final double FLYWHEEL_MIN_RPM = 2000;
+    public static final double FLYWHEEL_MID_RPM = 2100;
+    public static final double FLYWHEEL_MAX_RPM = 2200;
   }
 
   /************************************************************************* */
   /** Drive Base Constants ************************************************* */
   public static final class DrivebaseConstants {
+
+    public static final double maxSpeedMultiplier = 0.9;
+    public static final double minSpeedMultiplier = 0.2;
+    public static final double speedIncrement = 0.1;
 
     // Theoretical free speed (m/s) at 12v applied output;
     // IMPORTANT: Follow the AdvantageKit instructions for measuring the ACTUAL maximum linear speed
@@ -342,7 +343,7 @@ public final class Constants {
     public static final boolean kFlywheelFeedInverted = false;
 
     // Mechanism motor gear ratio
-    public static final double kFlywheelGearRatio = 1.5;
+    public static final double kFlywheelGearRatio = 1.0;
 
     // Flywheel motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
@@ -377,15 +378,16 @@ public final class Constants {
     public static final boolean kIntakeFeedInverted = false;
 
     // Mechanism gear ratios
-    public static final double kIntakeGearRatio = 1.0;
-    public static final double kIntakePositionGearRatio = 16.0;
+    public static final double kIntakeGearRatio = 2.0; // 2:1
+    public static final double kIntakePositionGearRatio = 16.0; // 16:1
 
     public static final int kIntakeCurrentLimit = 40;
     public static final int kIntakeOptimalVoltage = 12;
 
     // Encoder constants
-    public static final double extendedPositionInRadians = Math.PI/2; // TODO: Heuristic; Replace with measured value
-    public static final double extendedPositionDeadbandInRadians = 0.0;
+    public static final double extendedPositionInRadians =
+        Math.PI / 2; // TODO: Heuristic; Replace with measured value
+    public static final double extendedPositionDeadbandInRadians = Math.PI / 18;
 
     // Intake motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty

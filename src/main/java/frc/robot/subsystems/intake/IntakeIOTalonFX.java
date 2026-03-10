@@ -8,11 +8,11 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.controls.Follower;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -24,17 +24,20 @@ public class IntakeIOTalonFX implements IntakeIO {
   private TalonFX positionMotorFollower = new TalonFX(INTAKE_POSITION_FOLLOWER.getDeviceNumber());
   private TalonFX intakeMotor = new TalonFX(INTAKE_ROLLER.getDeviceNumber());
   private TalonFX feedMotor = new TalonFX(INTAKE_FEED.getDeviceNumber());
-  private DigitalInput outLimit = new DigitalInput(INTAKE_OUT_LIMIT);
-  private DigitalInput inLimit = new DigitalInput(INTAKE_IN_LIMIT);
+  private DigitalInput inLimitLeft = new DigitalInput(INTAKE_IN_LEFT_LIMIT);
+  private DigitalInput inLimitRight = new DigitalInput(INTAKE_IN_RIGHT_LIMIT);
   public final int[] powerPorts = {
     INTAKE_POSITION.getPowerPort(), INTAKE_ROLLER.getPowerPort(), INTAKE_FEED.getPowerPort()
   };
 
   private final StatusSignal<Angle> positionLeader = positionMotor.getPosition();
   private final StatusSignal<Angle> positionFollower = positionMotorFollower.getPosition();
+  
   private final StatusSignal<Current> positionCurrent = positionMotor.getSupplyCurrent();
+  private final StatusSignal<Current> positionFollowerCurrent = positionMotorFollower.getSupplyCurrent();
   private final StatusSignal<Current> intakeCurrent = intakeMotor.getSupplyCurrent();
-
+  private final StatusSignal<Current> feedCurrent = feedMotor.getSupplyCurrent();
+  
   private final TalonFXConfiguration positionConfig = new TalonFXConfiguration();
   private final TalonFXConfiguration intakeConfig;
   private final TalonFXConfiguration feedConfig;
@@ -77,24 +80,26 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeMotor.getConfigurator().apply(intakeConfig);
     feedMotor.getConfigurator().apply(feedConfig);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, positionLeader, positionFollower, positionCurrent, intakeCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, positionLeader, positionFollower, positionCurrent, intakeCurrent, feedCurrent, positionFollowerCurrent);
     positionMotor.optimizeBusUtilization();
-    positionMotorFollower.setControl(new Follower(positionMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+    positionMotorFollower.setControl(
+        new Follower(positionMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     intakeMotor.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    BaseStatusSignal.refreshAll(positionLeader, positionFollower, positionCurrent, intakeCurrent);
+    BaseStatusSignal.refreshAll(positionLeader, positionFollower, positionCurrent, intakeCurrent, feedCurrent, positionFollowerCurrent);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = getRotationsInDegrees();
-    inputs.isIntakeOut = outLimit.get();
-    inputs.isIntakeIn = inLimit.get();
+    inputs.isIntakeInLeft = inLimitLeft.get();
+    inputs.isIntakeInRight = inLimitRight.get();
     inputs.currentAmps =
-        new double[] {positionCurrent.getValueAsDouble(), intakeCurrent.getValueAsDouble()};
-    
+        new double[] {positionCurrent.getValueAsDouble(), intakeCurrent.getValueAsDouble(), feedCurrent.getValueAsDouble(), positionFollowerCurrent.getValueAsDouble()};
+
     // Reset position encoder.
-    if (inLimit.get()) setEncoderRotations(0);
+    if (inLimitLeft.get() || inLimitRight.get()) setEncoderRotations(0);
   }
 
   @Override
@@ -109,18 +114,11 @@ public class IntakeIOTalonFX implements IntakeIO {
     feedMotor.set(speed);
   }
 
-  // @Override
-  // public void setPosition(double speed, boolean out) {
-  //   speed = Math.abs(speed);
-
-  //   if (out) {
-  //     if (outLimit.get()) stopPosition();
-  //     else positionMotor.set(speed);
-  //   } else {
-  //     if (inLimit.get()) stopPosition();
-  //     else positionMotor.set(-speed);
-  //   }
-  // }
+  @Override
+  public void setSpeed(double baseIntakeSpeed, double baseFeedSpeed) {
+    intakeMotor.set(baseIntakeSpeed);
+    feedMotor.set(baseFeedSpeed);
+  }
 
   @Override
   public void setPosition(double baseSpeed, boolean out) {
@@ -132,9 +130,9 @@ public class IntakeIOTalonFX implements IntakeIO {
       double angleDifference = extendedPositionInRadians - currentAngle;
       if (angleDifference < extendedPositionDeadbandInRadians) appliedSpeed = 0;
       else appliedSpeed = Math.max(baseSpeed, 0.5 * Math.sin(angleDifference));
-    }
-    else {
-      if (!inLimit.get()) appliedSpeed = -baseSpeed;
+    } else {
+      if (!(inLimitLeft.get() || inLimitRight.get()))
+        appliedSpeed = -Math.max(baseSpeed, 0.5 * Math.sin(currentAngle));
       else appliedSpeed = 0;
     }
     positionMotor.set(appliedSpeed);

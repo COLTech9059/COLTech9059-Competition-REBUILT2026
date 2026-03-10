@@ -63,6 +63,6 @@ public class RBSIEnum {
 
   public static enum DriveStyle {
     TANK, // Left stick = drive, Right stick = turn
-    GAMER, // Right stick = drive, Left stick = turn
+    GAMER // Right stick = drive, Left stick = turn
   }
 }
