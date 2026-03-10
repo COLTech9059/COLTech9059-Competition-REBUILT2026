@@ -73,7 +73,7 @@ public final class Constants {
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
   private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
   private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.PHOTON; // PHOTON, LIMELIGHT, NONE
+  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -287,7 +287,7 @@ public final class Constants {
 
     // Maximum chassis accelerations desired for robot motion  -- metric / radians
     // TODO: Compute the maximum linear acceleration given the PHYSICS of the ROBOT!
-    public static final double kMaxLinearAccel = 4.0; // m/s/s
+    public static final double kMaxLinearAccel = 8.0; // m/s/s
     public static final double kMaxAngularAccel = Degrees.of(720).in(Radians);
 
     // For Profiled PID Motion, these are the rotational PID Constants:
@@ -340,7 +340,7 @@ public final class Constants {
     // Inversions
     public static final boolean kFlywheelLeaderInverted = false;
     public static final boolean kFlywheelFollowerInverted = false;
-    public static final boolean kFlywheelFeedInverted = false;
+    public static final boolean kFlywheelFeedInverted = true;
 
     // Mechanism motor gear ratio
     public static final double kFlywheelGearRatio = 1.0;
@@ -376,8 +376,8 @@ public final class Constants {
 
     // Inversions
     public static final boolean kIntakeInverted = false;
-    public static final boolean kIntakePositionInverted = false;
-    public static final boolean kIntakeFeedInverted = false;
+    public static final boolean kIntakePositionInverted = true;
+    public static final boolean kIntakeFeedInverted = true;
 
     // Mechanism gear ratios
     public static final double kIntakeGearRatio = 2.0; // 2:1

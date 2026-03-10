@@ -10,8 +10,8 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.subsystems.drive.SwerveConstants.*;
 import static frc.robot.Constants.DrivebaseConstants.*;
+import static frc.robot.subsystems.drive.SwerveConstants.*;
 
 import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -90,7 +90,7 @@ public class Drive extends SubsystemBase {
               DrivebaseConstants.kMaxAngularSpeed, DrivebaseConstants.kMaxAngularAccel));
 
   private DriveSimPhysics simPhysics;
-  
+
   // Speed Modulation
   private double speedMultiplier = 1.0;
 
@@ -220,6 +220,7 @@ public class Drive extends SubsystemBase {
         Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
         Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
       }
+      Logger.recordOutput("Drive/SpeedMultiplier", speedMultiplier);
     }
 
     // Update the IMU inputs -- logging happens automatically
@@ -663,7 +664,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void setSpeed(double multiplier) {
-    speedMultiplier = Math.min(maxSpeedMultiplier, Math.max(minSpeedMultiplier, multiplier * maxSpeedMultiplier));
+    speedMultiplier =
+        Math.min(maxSpeedMultiplier, Math.max(minSpeedMultiplier, multiplier * maxSpeedMultiplier));
   }
-
 }

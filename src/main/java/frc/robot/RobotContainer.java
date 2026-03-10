@@ -48,8 +48,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
-import frc.robot.subsystems.flywheel.FlywheelIOEmpty;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.imu.ImuIO;
 import frc.robot.subsystems.imu.ImuIONavX;
 import frc.robot.subsystems.imu.ImuIOPigeon2;
@@ -165,7 +165,8 @@ public class RobotContainer {
         }
 
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOEmpty()); // new Flywheel(new FlywheelIOTalonFX());
+        m_flywheel =
+            new Flywheel(new FlywheelIOTalonFX()); // new Flywheel(new FlywheelIOTalonFX());
         m_vision =
             switch (Constants.getVisionType()) {
               case PHOTON ->
@@ -295,7 +296,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
 
     NamedCommands.registerCommand(
-        "Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.05, 0.75));
+        "Start Shoot",
+        FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_MID_RPM, 0.05, 0.75));
 
     NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
 
@@ -329,7 +331,9 @@ public class RobotContainer {
       turnStickX = () -> driverController.getRawAxis(3);
 
       // Bottom Axis --> Change speed
-      driverController.axisGreaterThan(4, -1.1).whileTrue(Commands.run(() -> m_drivebase.setSpeed(driverController.getRawAxis(4))));
+      driverController
+          .axisGreaterThan(4, -1.1)
+          .whileTrue(Commands.run(() -> m_drivebase.setSpeed(driverController.getRawAxis(4))));
 
       // Thumb Button --> Toggle Strafing
       driverController
@@ -342,9 +346,10 @@ public class RobotContainer {
                   m_vision));
 
       // Front Trigger --> Run the Flywheel
-      driverController.button(1).whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
-    }
-    else {
+      driverController
+          .button(1)
+          .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
+    } else {
       switch (OperatorConstants.kDriveStyle) {
         case GAMER:
           driveStickY = driverController::getRightY;
@@ -396,9 +401,11 @@ public class RobotContainer {
       //             m_drivebase));
 
       // Press A button -> BRAKE
-      driverController
-          .a()
-          .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
+      // driverController
+      //     .a()
+      //     .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
+
+      driverController.a().onTrue(IntakeCommands.retractIntake(intake, 0.1));
 
       // Press X button --> Stop with wheels in X-Lock position
       driverController.x().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
@@ -411,51 +418,74 @@ public class RobotContainer {
                   .ignoringDisable(true));
 
       // Hold Right Trigger --> Run the flywheel
-      driverController
-          .rightTrigger()
-          .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
+      // driverController
+      //     .rightTrigger()
+      //     .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
 
       // Hold Left Trigger --> Intake
-      driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
+      // driverController.leftTrigger().whileTrue(IntakeCommands.intakeSequence(intake, 0.4, 0.8));
+      driverController.leftTrigger().whileTrue(IntakeCommands.runIntakeSpeed(intake, 0.50));
 
       // Press Left Bumper --> Retract intake
-      driverController.leftBumper().onTrue(IntakeCommands.retractIntake(intake, 0.20));
+      driverController.leftBumper().whileTrue(IntakeCommands.retractIntake(intake, 0.20));
 
-      // Press Right Bumper --> Toggle climber
-      driverController
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
-                  .ignoringDisable(true));
+      driverController.rightBumper().whileTrue(IntakeCommands.extendIntake(intake, 0.40));
+
+      // driverController
+      //     .rightBumper()
+      //     .onTrue(
+      //         Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
+      //             .ignoringDisable(true));
 
       // Hold Right Trigger --> Run the flywheel
+      // driverController
+      //     .rightTrigger()
+      //     .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
+
+      driverController.rightTrigger().onTrue(FlywheelCommands.setSpeed(m_flywheel, 0.75));
       driverController
-          .rightTrigger()
-          .whileTrue(FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.05, 0.75));
+          .x()
+          .and(
+              driverController
+                  .rightTrigger()
+                  .onTrue(
+                      FlywheelCommands.setVelocity(m_flywheel, flywheelVelocityRPM, 0.20, 0.80)));
+      driverController.rightTrigger().onFalse(FlywheelCommands.stop(m_flywheel));
 
       // Press Right Bumper --> Toggle climber
-      driverController
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(
-                  () -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () -> true));
+      // driverController
+      //     .rightBumper()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () -> climbSelector = (climbSelector.getAsBoolean()) ? () -> false : () ->
+      // true));
 
-      driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
-      driverController.povDown().onTrue(Commands.runOnce(m_drivebase::decreaseSpeed, m_drivebase));
+      driverController.povRight().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
+      driverController.povLeft().onTrue(Commands.runOnce(m_drivebase::decreaseSpeed, m_drivebase));
+
+      driverController
+          .povUp()
+          .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.80))
+          .onFalse(FlywheelCommands.runFeed(m_flywheel, 0));
+      driverController
+          .povDown()
+          .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.35))
+          .onFalse(FlywheelCommands.runFeed(m_flywheel, 0));
 
       // Press LEFT TRIGGER -> map to given april tag given an offset in front
       // driverController
       //     .leftTrigger()
       //     .whileTrue(
       //         Commands.defer(
-      //             VisionLibrary.moveToTargetParallel(m_drivebase, (int) AprilTagTargetInput.get(),
+      //             VisionLibrary.moveToTargetParallel(m_drivebase, (int)
+      // AprilTagTargetInput.get(),
       // 1),
       //             Set.of(m_drivebase)));
 
-      driverController
-          .povLeft()
-          .onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
-      driverController.povLeft().onTrue(DriveCommands.cycleSong(m_drivebase, songSelector));
+      // driverController
+      //     .povLeft()
+      //     .onTrue(Commands.runOnce(() -> songSelector = () -> songSelector.get() + 1));
+      // driverController.povLeft().onTrue(DriveCommands.cycleSong(m_drivebase, songSelector));
 
       // Press POV LEFT to nudge the robot left
       // driverController
@@ -472,15 +502,15 @@ public class RobotContainer {
       //             m_drivebase));
     }
 
-  // SET STANDARD DRIVING AS DEFAULT COMMAND FOR THE DRIVEBASE
-      m_drivebase.setDefaultCommand(
-          DriveCommands.fieldRelativeDrive(
-              m_drivebase,
-              () -> driveStickY.value() * invertX,
-              () -> driveStickX.value() * invertY,
-              () ->
-                  VisionLibrary.VisionHelpers.getRotationPower(
-                      m_drivebase, turnStickX.value() * invertTheta)));
+    // SET STANDARD DRIVING AS DEFAULT COMMAND FOR THE DRIVEBASE
+    m_drivebase.setDefaultCommand(
+        DriveCommands.fieldRelativeDrive(
+            m_drivebase,
+            () -> driveStickY.value() * invertX,
+            () -> driveStickX.value() * invertY,
+            () ->
+                VisionLibrary.VisionHelpers.getRotationPower(
+                    m_drivebase, turnStickX.value() * invertTheta)));
 
     /*****OPERATOR CONTROLS*****/
 

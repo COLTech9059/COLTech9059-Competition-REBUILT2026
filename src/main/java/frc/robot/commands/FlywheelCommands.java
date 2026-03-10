@@ -18,10 +18,12 @@ public class FlywheelCommands {
    *
    * @param flywheel The Flywheel subsystem to use
    * @param velocityRPM The velocity setpoint in RPM
-   * @param tolerance The tolerance of the setpoint in either direction, expressed as a decimal multiplier (i.e. 5% tolerance = 0.05)
+   * @param tolerance The tolerance of the setpoint in either direction, expressed as a decimal
+   *     multiplier (i.e. 5% tolerance = 0.05)
    * @param feedSpeed The speed to run the feed system at
    */
-  public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM, double tolerance, double feedSpeed) {
+  public static Command setVelocity(
+      Flywheel flywheel, DoubleSupplier velocityRPM, double tolerance, double feedSpeed) {
 
     return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
         .alongWith(
@@ -54,14 +56,18 @@ public class FlywheelCommands {
         .finallyDo(() -> flywheel.stop());
   }
 
-/**
- * Runs the vertical feed system at the given speed
- * 
- * @param flywheel The Flywheel subsystem to use
- * @param speed The speed to run the feed system at
- */
+  /**
+   * Runs the vertical feed system at the given speed
+   *
+   * @param flywheel The Flywheel subsystem to use
+   * @param speed The speed to run the feed system at
+   */
   public static Command runFeed(Flywheel flywheel, double speed) {
     return Commands.runOnce(() -> flywheel.runFeed(speed));
+  }
+
+  public static Command setSpeed(Flywheel flywheel, double speed) {
+    return Commands.runOnce(() -> flywheel.setSpeed(speed));
   }
 
   /**

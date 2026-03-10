@@ -17,12 +17,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -79,12 +77,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    followerConfig = config;
+    followerConfig = config.clone();
     if (kFlywheelFollowerInverted)
       followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    feedConfig = config;
+    feedConfig = config.clone();
     if (kFlywheelFeedInverted)
       feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
@@ -93,8 +91,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(followerConfig);
     feeder.getConfigurator().apply(feedConfig);
-    // If follower rotates in the opposite direction, set "MotorAlignmentValue" to Opposed
-    follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
+
+    // follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
@@ -127,6 +125,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void setVelocity(double velocityRadPerSec, double ffVolts) {
     leader.setControl(new VelocityVoltage(Units.radiansToRotations(velocityRadPerSec)));
+  }
+
+  @Override
+  public void setSpeed(double speed) {
+    leader.set(speed);
   }
 
   @Override

@@ -146,13 +146,12 @@ public class VisionLibrary {
     // Distance Calculations
     public static double getDistanceFromPoint(Drive driveSubsystem, Pose2d pointPose) {
       Pose2d drivePose = driveSubsystem.getPose();
-      
+
       double x = Math.abs(pointPose.getX() - drivePose.getX());
       double y = Math.abs(pointPose.getY() - drivePose.getY());
 
-      return Math.sqrt((x*x) + (y*y));
+      return Math.sqrt((x * x) + (y * y));
     }
-
   }
 
   /**

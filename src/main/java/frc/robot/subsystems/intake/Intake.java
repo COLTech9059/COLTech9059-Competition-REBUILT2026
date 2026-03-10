@@ -1,14 +1,11 @@
 package frc.robot.subsystems.intake;
 
-import frc.robot.util.RBSISubsystem;
-
 import static frc.robot.Constants.IntakeConstants.extendedPositionDeadbandInRadians;
 import static frc.robot.Constants.IntakeConstants.extendedPositionInRadians;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.RBSISubsystem;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * Intake subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility
@@ -66,7 +63,7 @@ public class Intake extends RBSISubsystem {
     double currentAngle = Units.degreesToRadians(inputs.positionDegrees);
     return ((currentAngle >= (extendedPositionInRadians - extendedPositionDeadbandInRadians)));
   }
-  
+
   public boolean isIntakeIn() {
     return (isIntakeInLeft() || isIntakeInRight());
   }

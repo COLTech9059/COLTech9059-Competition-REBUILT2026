@@ -86,13 +86,15 @@ public class Flywheel extends RBSISubsystem {
   }
 
   /** Run flywheel using a given distance. Used for shooting at the Hub. */
-  public void runVelocityBasedOnDistance(double inputDistance) {
-
-  }
+  public void runVelocityBasedOnDistance(double inputDistance) {}
 
   /** Run the feed system at the specified speed */
   public void runFeed(double speed) {
     io.runFeed(speed);
+  }
+
+  public void setSpeed(double speed) {
+    io.setSpeed(speed);
   }
 
   /** Stops the flywheel. */
@@ -128,12 +130,18 @@ public class Flywheel extends RBSISubsystem {
 
   public boolean isFlywheelUpToSpeed(double setpointRPM, double tolerance) {
     double velocityRotationsPerSec = Units.radiansToRotations(inputs.velocityRadPerSec);
-    return velocityRotationsPerSec <= setpointRPM * (1 + tolerance) && velocityRotationsPerSec >= (1 - tolerance);
+    return velocityRotationsPerSec <= setpointRPM * (1 + tolerance)
+        && velocityRotationsPerSec >= (1 - tolerance);
   }
 
   public double getFlywheelRPMFromDistance(double distanceFromTarget) {
-    double targetVelocity = velocityMultiplier * (1.10926 * distanceFromTarget + 14.23834); // Calculate required launch velocity in feet/second
-    double targetRPM = Units.radiansPerSecondToRotationsPerMinute(targetVelocity / 4.0); // Calculate target velocity in Radians/sec, then convert to RPM
+    double targetVelocity =
+        velocityMultiplier
+            * (1.10926 * distanceFromTarget
+                + 14.23834); // Calculate required launch velocity in feet/second
+    double targetRPM =
+        Units.radiansPerSecondToRotationsPerMinute(
+            targetVelocity / 4.0); // Calculate target velocity in Radians/sec, then convert to RPM
     return targetRPM;
   }
 

@@ -28,6 +28,8 @@ public interface FlywheelIO extends RBSIIO {
   /** Run closed loop at the specified velocity. */
   public default void setVelocity(double velocityRadPerSec, double ffVolts) {}
 
+  public default void setSpeed(double speed) {}
+
   public default void runFeed(double speed) {}
 
   public default void stopFeed() {}
