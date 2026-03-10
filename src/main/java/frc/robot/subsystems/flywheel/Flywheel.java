@@ -131,6 +131,12 @@ public class Flywheel extends RBSISubsystem {
     return velocityRotationsPerSec <= setpointRPM * (1 + tolerance) && velocityRotationsPerSec >= (1 - tolerance);
   }
 
+  public double getFlywheelRPMFromDistance(double distanceFromTarget) {
+    double targetVelocity = velocityMultiplier * (1.10926 * distanceFromTarget + 14.23834); // Calculate required launch velocity in feet/second
+    double targetRPM = Units.radiansPerSecondToRotationsPerMinute(targetVelocity / 4.0); // Calculate target velocity in Radians/sec, then convert to RPM
+    return targetRPM;
+  }
+
   @Override
   public int[] getPowerPorts() {
     return io.getPowerPorts();

@@ -178,23 +178,23 @@ public final class Constants {
         new RobotDeviceId(SwerveConstants.kFLEncoderId, SwerveConstants.kFLEncoderCanbus, null);
     // Front Right
     public static final RobotDeviceId FR_DRIVE =
-        new RobotDeviceId(SwerveConstants.kFRDriveMotorId, SwerveConstants.kFRDriveCanbus, 17);
+        new RobotDeviceId(SwerveConstants.kFRDriveMotorId, SwerveConstants.kFRDriveCanbus, 11);
     public static final RobotDeviceId FR_ROTATION =
-        new RobotDeviceId(SwerveConstants.kFRSteerMotorId, SwerveConstants.kFRSteerCanbus, 16);
+        new RobotDeviceId(SwerveConstants.kFRSteerMotorId, SwerveConstants.kFRSteerCanbus, 12);
     public static final RobotDeviceId FR_CANCODER =
         new RobotDeviceId(SwerveConstants.kFREncoderId, SwerveConstants.kFREncoderCanbus, null);
     // Back Left
     public static final RobotDeviceId BL_DRIVE =
-        new RobotDeviceId(SwerveConstants.kBLDriveMotorId, SwerveConstants.kBLDriveCanbus, 1);
+        new RobotDeviceId(SwerveConstants.kBLDriveMotorId, SwerveConstants.kBLDriveCanbus, 2);
     public static final RobotDeviceId BL_ROTATION =
-        new RobotDeviceId(SwerveConstants.kBLSteerMotorId, SwerveConstants.kBLSteerCanbus, 0);
+        new RobotDeviceId(SwerveConstants.kBLSteerMotorId, SwerveConstants.kBLSteerCanbus, 1);
     public static final RobotDeviceId BL_CANCODER =
         new RobotDeviceId(SwerveConstants.kBLEncoderId, SwerveConstants.kBLEncoderCanbus, null);
     // Back Right
     public static final RobotDeviceId BR_DRIVE =
-        new RobotDeviceId(SwerveConstants.kBRDriveMotorId, SwerveConstants.kBRSteerCanbus, 2);
+        new RobotDeviceId(SwerveConstants.kBRDriveMotorId, SwerveConstants.kBRSteerCanbus, 6);
     public static final RobotDeviceId BR_ROTATION =
-        new RobotDeviceId(SwerveConstants.kBRSteerMotorId, SwerveConstants.kBRSteerCanbus, 3);
+        new RobotDeviceId(SwerveConstants.kBRSteerMotorId, SwerveConstants.kBRSteerCanbus, 7);
     public static final RobotDeviceId BR_CANCODER =
         new RobotDeviceId(SwerveConstants.kBREncoderId, SwerveConstants.kBREncoderCanbus, null);
     // Pigeon
@@ -204,16 +204,16 @@ public final class Constants {
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, 8);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, 9);
-    public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 10);
+    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, 9);
+    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, 0);
+    public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 3);
 
-    public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 11);
-    public static final RobotDeviceId INTAKE_POSITION_FOLLOWER = new RobotDeviceId(18, 12);
+    public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 10);
+    public static final RobotDeviceId INTAKE_POSITION_FOLLOWER = new RobotDeviceId(18, 17);
     public static final RobotDeviceId INTAKE_ROLLER = new RobotDeviceId(19, 13);
-    public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(20, 14);
+    public static final RobotDeviceId INTAKE_FEED = new RobotDeviceId(20, 5);
 
-    public static final RobotDeviceId CLIMBER_MOTOR = new RobotDeviceId(21, 15);
+    public static final RobotDeviceId CLIMBER_MOTOR = new RobotDeviceId(21, null);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
@@ -356,6 +356,8 @@ public final class Constants {
     public static final double kVelocityGainReal = 0.05;
     // Feedback (PID) constants
     public static final PIDConstants pidReal = new PIDConstants(1.0, 0.0, 0.0);
+
+    public static final double velocityMultiplier = 1.0;
 
     // MODE == SIM
     // Feedforward constants

@@ -379,6 +379,8 @@ public class RobotContainer {
                   },
                   m_vision));
 
+      driverController.x().onTrue(Commands.runOnce(() -> m_drivebase.setSpeed(0.4)));
+
       // ** Example Commands -- Remap, remove, or change as desired **
       // Press B button while driving --> ROBOT-CENTRIC
       // driverController
