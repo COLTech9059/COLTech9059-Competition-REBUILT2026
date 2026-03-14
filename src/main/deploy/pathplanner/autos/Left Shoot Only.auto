@@ -7,37 +7,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left to Depot"
+            "pathName": "Left to Shoot"
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "Extend Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Start Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot Intake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Extend Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Stop Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot to Middle Shoot"
           }
         },
         {
@@ -53,7 +48,7 @@
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -65,7 +60,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               }
             ]
@@ -74,19 +69,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Stop Uptake"
+            "name": "Stop Shoot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Stop Shoot"
+            "name": "Stop Uptake"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Depot Autos",
+  "folder": "Basic Autos",
   "choreoAuto": false
 }

@@ -14,6 +14,8 @@ import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -30,6 +32,10 @@ public class Flywheel extends RBSISubsystem {
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
   private final SimpleMotorFeedforward ffModel;
   private final SysIdRoutine sysId;
+
+  private double variableSpeed = minFlywheelSpeed;
+
+  private Timer spinUpTimer = new Timer();
 
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
@@ -69,6 +75,25 @@ public class Flywheel extends RBSISubsystem {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
+    SmartDashboard.putNumber("Flywheel Variable Speed", variableSpeed);
+    SmartDashboard.putBoolean("Flywheel Spun Up?", isTimerPastValue(flywheelSpinUpTime));
+  }
+
+  public void startTimer() {
+    spinUpTimer.reset();
+    spinUpTimer.start();
+  }
+
+  public double getTimer() {
+    return spinUpTimer.get();
+  }
+
+  public boolean isTimerPastValue(double time) {
+    return spinUpTimer.get() >= time;
+  }
+
+  public void stopTimer() {
+    spinUpTimer.stop();
   }
 
   /** Run open loop at the specified voltage. */
@@ -97,6 +122,10 @@ public class Flywheel extends RBSISubsystem {
     io.setSpeed(speed);
   }
 
+  public void setSpeed() {
+    io.setSpeed(variableSpeed);
+  }
+
   /** Stops the flywheel. */
   public void stop() {
     io.stop();
@@ -105,6 +134,12 @@ public class Flywheel extends RBSISubsystem {
   /** Stop the feed system */
   public void stopFeed() {
     io.stopFeed();
+  }
+
+  public void incrementSpeed(boolean increase) {
+    if (increase)
+      variableSpeed = Math.min(maxFlywheelSpeed, variableSpeed + flywheelSpeedIncrement);
+    else variableSpeed = Math.max(minFlywheelSpeed, variableSpeed - flywheelSpeedIncrement);
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

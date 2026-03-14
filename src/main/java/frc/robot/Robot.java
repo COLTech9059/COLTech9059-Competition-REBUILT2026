@@ -204,6 +204,8 @@ public class Robot extends LoggedRobot {
     }
     m_robotContainer.setMotorBrake(true);
 
+    m_robotContainer.stopAll();
+
     // In case this got set in sequential practice sessions or whatever
     FieldState.wonAuto = null;
   }

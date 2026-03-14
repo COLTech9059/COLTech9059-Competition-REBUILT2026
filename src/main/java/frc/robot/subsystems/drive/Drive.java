@@ -42,6 +42,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -91,8 +93,11 @@ public class Drive extends SubsystemBase {
 
   private DriveSimPhysics simPhysics;
 
+  // Field (for Elastic/SmartDashboard)
+  private final Field2d Field = new Field2d();
+
   // Speed Modulation
-  private double speedMultiplier = 1.0;
+  private double speedMultiplier = maxSpeedMultiplier;
 
   // Constructor
   public Drive(ImuIO imuIO) {
@@ -140,7 +145,6 @@ public class Drive extends SubsystemBase {
           throw new RuntimeException("Invalid Swerve Drive Type");
       }
       // Start odometry thread (for the real robot)
-
       PhoenixOdometryThread.getInstance().start();
 
     } else {
@@ -223,6 +227,8 @@ public class Drive extends SubsystemBase {
       Logger.recordOutput("Drive/SpeedMultiplier", speedMultiplier);
     }
 
+    SmartDashboard.putNumber("Drive Speed Multiplier", speedMultiplier);
+
     // Update the IMU inputs -- logging happens automatically
     imuIO.updateInputs(imuInputs);
 
@@ -262,6 +268,10 @@ public class Drive extends SubsystemBase {
     for (var module : modules) {
       module.periodic();
     }
+
+    // Update Field
+    // Field.setRobotPose(getPose());
+    // Logger.recordOutput("Drive/Field", Field);
 
     odometryLock.unlock();
 

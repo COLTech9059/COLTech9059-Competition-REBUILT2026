@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.25,
-        "y": 4.2
+        "x": 1.8562142857142856,
+        "y": 5.703232142857144
       },
       "prevControl": {
-        "x": 2.2641891891891897,
-        "y": 3.7490090090090096
+        "x": 1.8704034749034752,
+        "y": 5.252241151866153
       },
       "nextControl": null,
       "isLocked": true,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 170.0
+    "rotation": 150.0
   },
   "reversed": false,
   "folder": "Outpost Paths",

@@ -4,6 +4,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.intake.Intake;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -33,6 +34,11 @@ public class FlywheelCommands {
         .finallyDo(() -> flywheel.stop());
   }
 
+  public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM) {
+    return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
+        .finallyDo(() -> flywheel.stop());
+  }
+
   /**
    * Runs the flywheel at the given velocity setpoint; closed loop
    *
@@ -41,8 +47,38 @@ public class FlywheelCommands {
    */
   public static Command setVelocityRad(Flywheel flywheel, double velocityRadPerSec) {
     return Commands.runOnce(
-            () -> flywheel.runVelocity(Units.radiansToRotations(velocityRadPerSec)), flywheel)
+            () -> flywheel.runVelocity(Units.radiansToRotations(velocityRadPerSec) * 60), flywheel)
         .finallyDo(() -> flywheel.stop());
+  }
+
+  /**
+   * Continuous command sequence to pulse the whole uptake system at the given speeds and interval
+   * <b>(Does not stop these motors on interrupt!)</b>
+   *
+   * @param flywheel The Flywheel subsystem to use
+   * @param intake The Intake subsystem to use
+   * @param uptakeSpeed The speed to run the uptake/flywheel feed system at
+   * @param indexSpeed The speed to run the indexing system at
+   * @param intakeSpeed The speed to run the intake rollers at
+   * @param pulseInterval The time between pulses (seconds)
+   * @param pulseDuration The time for which each pulse runs (seconds)
+   */
+  public static Command pulseUptake(
+      Flywheel flywheel,
+      Intake intake,
+      double uptakeSpeed,
+      double indexSpeed,
+      double intakeSpeed,
+      double pulseInterval,
+      double pulseDuration) {
+    return Commands.sequence(
+            IntakeCommands.runIntakeSpeed(intake, intakeSpeed, indexSpeed),
+            runFeed(flywheel, uptakeSpeed),
+            Commands.waitSeconds(pulseDuration),
+            IntakeCommands.stopIntake(intake),
+            stop(flywheel),
+            Commands.waitSeconds(pulseInterval))
+        .repeatedly();
   }
 
   /**
@@ -63,7 +99,15 @@ public class FlywheelCommands {
    * @param speed The speed to run the feed system at
    */
   public static Command runFeed(Flywheel flywheel, double speed) {
-    return Commands.runOnce(() -> flywheel.runFeed(speed));
+    return Commands.runOnce(
+        () -> {
+          flywheel.runFeed(speed);
+          flywheel.startTimer();
+        });
+  }
+
+  public static Command setSpeed(Flywheel flywheel) {
+    return Commands.runOnce(() -> flywheel.setSpeed());
   }
 
   public static Command setSpeed(Flywheel flywheel, double speed) {
@@ -80,7 +124,12 @@ public class FlywheelCommands {
         () -> {
           flywheel.stop();
           flywheel.stopFeed();
+          flywheel.stopTimer();
         },
         flywheel);
+  }
+
+  public static Command stopFeed(Flywheel flywheel) {
+    return Commands.runOnce(() -> flywheel.stopFeed());
   }
 }

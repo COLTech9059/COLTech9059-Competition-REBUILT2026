@@ -8,10 +8,10 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4652387663901463,
-        "y": 6.12384896457715
+        "x": 2.309541560362642,
+        "y": 6.0079443956253895
       },
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Left Start"
     },
     {
@@ -20,8 +20,8 @@
         "y": 6.0
       },
       "prevControl": {
-        "x": 2.4380583240541993,
-        "y": 5.995989717658955
+        "x": 2.436727886244747,
+        "y": 5.922977653074085
       },
       "nextControl": null,
       "isLocked": true,
@@ -48,7 +48,7 @@
   "folder": "Depot Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

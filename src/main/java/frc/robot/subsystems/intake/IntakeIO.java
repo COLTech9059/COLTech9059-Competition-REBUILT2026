@@ -25,6 +25,8 @@ public interface IntakeIO extends RBSIIO {
 
   public default void setSpeed(double baseIntakeSpeed, double baseFeedSpeed) {}
 
+  public default void runFeed(double speed) {}
+
   public default void setPosition(double speed, boolean out) {}
 
   public default void stopIntake() {}

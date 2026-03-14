@@ -17,10 +17,12 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -73,31 +75,35 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     // Apply the open- and closed-loop ramp configuration for current smoothing
     config.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
 
-    if (kFlywheelLeaderInverted)
-      config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
-    else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+    feedConfig = config.clone();
+    if (kFlywheelFeedInverted)
+      feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+
+    // config.
 
     followerConfig = config.clone();
     if (kFlywheelFollowerInverted)
       followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    feedConfig = config.clone();
-    if (kFlywheelFeedInverted)
-      feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
-    else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+    if (kFlywheelLeaderInverted)
+      config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(followerConfig);
     feeder.getConfigurator().apply(feedConfig);
 
-    // follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
+    follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
+
+    configurePID(pidReal.kP, pidReal.kI, pidReal.kD);
   }
 
   @Override
@@ -108,6 +114,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.velocityRadPerSec =
         Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / kFlywheelGearRatio;
+    inputs.velocityRPM = leaderVelocity.getValueAsDouble() * 60 / kFlywheelGearRatio;
     inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
     inputs.currentAmps =
         new double[] {

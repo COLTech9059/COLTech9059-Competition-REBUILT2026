@@ -13,7 +13,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.subsystems.drive.SwerveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
@@ -77,7 +76,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         case UNLICENSED -> ClosedLoopOutputType.Voltage;
       };
 
-  private final Orchestra orchestra = new Orchestra();
+  // private final Orchestra orchestra = new Orchestra();
 
   // Voltage control requests
   private final VoltageOut voltageRequest = new VoltageOut(0);
@@ -184,9 +183,9 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withKP(DrivebaseConstants.kSteerP)
             .withKI(0.0)
             .withKD(DrivebaseConstants.kSteerD)
-            .withKS(0.0)
-            .withKV(0.0)
-            .withKA(0.0)
+            .withKS(DrivebaseConstants.kSteerS)
+            .withKV(DrivebaseConstants.kSteerV)
+            .withKA(DrivebaseConstants.kSteerA)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
     // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
@@ -246,21 +245,21 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
 
-    orchestra.addInstrument(driveTalon);
-    orchestra.addInstrument(turnTalon);
-    orchestra.loadMusic("src/main/deploy/OdeToJoy");
+    // orchestra.addInstrument(driveTalon);
+    // orchestra.addInstrument(turnTalon);
+    // orchestra.loadMusic("src/main/deploy/OdeToJoy");
   }
 
-  @Override
-  public void playSong(String filepath) {
-    orchestra.loadMusic(filepath);
-    orchestra.play();
-  }
+  // @Override
+  // public void playSong(String filepath) {
+  //   orchestra.loadMusic(filepath);
+  //   orchestra.play();
+  // }
 
-  @Override
-  public void stopSong() {
-    orchestra.stop();
-  }
+  // @Override
+  // public void stopSong() {
+  //   orchestra.stop();
+  // }
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {

@@ -37,11 +37,22 @@ public class Intake extends RBSISubsystem {
     io.setSpeed(speed);
   }
 
+  public void runFeed(double speed) {
+    io.runFeed(speed);
+  }
+
   /** Set the position of the intake, either extended or retracted */
   public void setPosition(double baseSpeed, boolean out) {
     io.setPosition(baseSpeed, out);
 
     Logger.recordOutput("Intake/setpointPosition", out);
+  }
+
+  public void jostleIntake(double baseSpeed) {
+    double intakePosition = Units.degreesToRadians(inputs.positionDegrees);
+    boolean yesReverse =
+        (intakePosition >= (extendedPositionInRadians - (2 * extendedPositionDeadbandInRadians)));
+    io.setPosition(baseSpeed, yesReverse);
   }
 
   /** Stop the intake rollers */
@@ -76,6 +87,10 @@ public class Intake extends RBSISubsystem {
   /** Return true if the intake is 'in' */
   public boolean isIntakeInRight() {
     return inputs.isIntakeInRight;
+  }
+
+  public void setSpeed(double intakeSpeed, double feedSpeed) {
+    io.setSpeed(intakeSpeed, feedSpeed);
   }
 
   @Override

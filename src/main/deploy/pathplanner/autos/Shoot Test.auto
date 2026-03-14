@@ -5,13 +5,25 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "named",
+          "data": {
+            "name": "Start Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "Start Shoot"
+                  "name": "Start Uptake"
                 }
               },
               {
@@ -28,11 +40,17 @@
           "data": {
             "name": "Stop Shoot"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Uptake"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Basic Autos",
+  "folder": "Test Autos",
   "choreoAuto": false
 }

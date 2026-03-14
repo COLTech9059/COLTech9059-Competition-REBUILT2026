@@ -29,7 +29,7 @@ public class VisionLibrary {
 
   public static final class VisionHelpers {
 
-    private static final double MIN_AUTO_TURN_SPEED = .25;
+    private static final double MIN_AUTO_TURN_SPEED = .35;
     private static final int IDEAL_ANGLE = 45;
     private static final int ANGLE_ERROR_BOUND = 3;
 
@@ -66,6 +66,50 @@ public class VisionLibrary {
 
     public static void toggleStrafing() {
       strafeEnabled = !strafeEnabled;
+    }
+
+    // Angle Snapping
+    private static boolean angleSnappingEnabled = false;
+
+    public static void toggleAngleSnapping() {
+      angleSnappingEnabled = !angleSnappingEnabled;
+    }
+
+    public static double getRotationPowerWithAngleSnapping(
+        Drive DriveSubsystem, double stickPower) {
+      Rotation2d robotRotation = DriveSubsystem.getHeading();
+
+      int robotRotationInDegrees = (int) robotRotation.getDegrees();
+
+      // Add negative rotation to simulate full circle with range [0,360].
+      if (Math.signum(robotRotationInDegrees) == -1)
+        robotRotationInDegrees = 360 + robotRotationInDegrees;
+
+      // Determine closest direction to 45 degree angle.
+      int degreeDifference = robotRotationInDegrees % (90);
+
+      // Determine turning direction
+      int sign = 1;
+      if (degreeDifference >= IDEAL_ANGLE) sign = -1;
+
+      Logger.recordOutput("VisionLibrary/DegreeDifference", degreeDifference);
+
+      if ((degreeDifference < (IDEAL_ANGLE + ANGLE_ERROR_BOUND))
+          && (degreeDifference > (IDEAL_ANGLE - ANGLE_ERROR_BOUND))) {
+        Logger.recordOutput("VisionLibrary/TurnPower", 0.0);
+        return 0.0;
+      }
+
+      Logger.recordOutput(
+          "VisionLibrary/TurnPower",
+          Math.max(
+                  MIN_AUTO_TURN_SPEED,
+                  Math.log(Math.abs(degreeDifference - IDEAL_ANGLE) / IDEAL_ANGLE))
+              * sign);
+
+      return Math.max(
+              MIN_AUTO_TURN_SPEED, Math.log(Math.abs(degreeDifference - IDEAL_ANGLE) / IDEAL_ANGLE))
+          * sign;
     }
 
     /**
@@ -131,6 +175,7 @@ public class VisionLibrary {
     public static double getRotationPower(Drive DriveSubsystem, double stickPower) {
 
       Logger.recordOutput("VisionLibrary/Strafing/strafeEnabled", (strafeEnabled));
+      Logger.recordOutput("VisionLibrary/Strafing/angleSnappingEnabled", (angleSnappingEnabled));
 
       double turnPower =
           strafeEnabled
@@ -138,7 +183,10 @@ public class VisionLibrary {
               : stickPower;
 
       // Ramps automatically override turn power input.
-      turnPower = getRotationPowerWithRampConsideration(DriveSubsystem, turnPower);
+      turnPower =
+          angleSnappingEnabled
+              ? getRotationPowerWithAngleSnapping(DriveSubsystem, stickPower)
+              : turnPower; // getRotationPowerWithRampConsideration(DriveSubsystem, turnPower);
 
       return turnPower;
     }
@@ -245,7 +293,7 @@ public class VisionLibrary {
     if (Math.abs(angleFromSetpoint) < VisionHelpers.STRAFE_RADIAN_ERROR_BOUND) return 0.0;
 
     // Proportion angle to power
-    double basePower = Math.min(Math.sqrt(Math.abs(angleFromSetpoint / (Math.PI / 4))), 1);
+    double basePower = Math.min(Math.log(Math.abs(angleFromSetpoint / (Math.PI / 4))), 1);
     double sign = 1;
 
     if (Math.signum(angleFromSetpoint) == -1.0) sign = -1;

@@ -143,6 +143,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
+  public void runFeed(double speed) {
+    feedMotor.set(speed);
+  }
+
+  @Override
   public void setPosition(double baseSpeed, boolean out) {
     double currentAngle = getRotationsInRadians();
     baseSpeed = Math.abs(baseSpeed);
@@ -180,7 +185,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private void setEncoderRotations(double rotations) {
     positionMotor.setPosition(rotations);
-    positionMotorFollower.setPosition(-rotations);
+    positionMotorFollower.setPosition(rotations);
   }
 
   private double getRotationsInRadians() {

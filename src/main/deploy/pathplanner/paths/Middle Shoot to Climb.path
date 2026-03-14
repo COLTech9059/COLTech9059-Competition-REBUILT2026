@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.25,
-        "y": 4.2
+        "x": 1.8562142857142856,
+        "y": 5.703232142857144
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.169287389346529,
-        "y": 4.436612498574148
+        "x": 1.7755016750608146,
+        "y": 5.939844641431292
       },
       "isLocked": true,
       "linkedName": "Middle Shoot"
@@ -48,7 +48,7 @@
   "folder": "General Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 170.0
+    "rotation": 150.0
   },
   "useDefaultConstraints": true
 }

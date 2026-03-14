@@ -46,6 +46,11 @@ public class IntakeCommands {
     return Commands.startEnd(() -> intake.runSpeed(speed), () -> intake.stopIntake(), intake);
   }
 
+  public static Command runIntakeSpeed(Intake intake, double intakeSpeed, double feedSpeed) {
+    return Commands.startEnd(
+        () -> intake.setSpeed(intakeSpeed, feedSpeed), () -> intake.stopIntake());
+  }
+
   /**
    * Run the intake rollers at the specified votlage
    *

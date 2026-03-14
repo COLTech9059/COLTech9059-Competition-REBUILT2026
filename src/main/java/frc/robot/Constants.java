@@ -22,6 +22,7 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.Autopilot;
@@ -73,7 +74,7 @@ public final class Constants {
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
   private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
   private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
+  private static VisionType visionType = VisionType.PHOTON; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -242,7 +243,7 @@ public final class Constants {
     public static final DriveStyle kDriveStyle = DriveStyle.TANK; // TANK, GAMER
 
     // Joystick Deadbands
-    public static final double kDeadband = 0.2;
+    public static final double kDeadband = 0.1;
     public static final double kTurnConstant = 6;
 
     // Joystick slew rate limiters to smooth erratic joystick motions, measured in units per second
@@ -264,16 +265,17 @@ public final class Constants {
     public static final int[] MULTI_TOGGLE = {4, 5};
 
     // TODO: Temp flywheel velocity values, replace with real
-    public static final double FLYWHEEL_MIN_RPM = 2000;
-    public static final double FLYWHEEL_MID_RPM = 2100;
-    public static final double FLYWHEEL_MAX_RPM = 2200;
+    public static final double FLYWHEEL_MIN_RPM = 3800;
+    public static final double FLYWHEEL_MID_RPM = 4000;
+    public static final double FLYWHEEL_MAX_RPM = 4200;
+    public static final double FLYWHEEL_UNCLOG_RPM = -1000;
   }
 
   /************************************************************************* */
   /** Drive Base Constants ************************************************* */
   public static final class DrivebaseConstants {
 
-    public static final double maxSpeedMultiplier = 0.9;
+    public static final double maxSpeedMultiplier = 0.8;
     public static final double minSpeedMultiplier = 0.2;
     public static final double speedIncrement = 0.1;
 
@@ -319,15 +321,18 @@ public final class Constants {
     //
     // IMPORTANT:: These values are valid only for CTRE LICENSED operation!!
     //             Adjust these downward until your modules behave correctly
-    public static final double kDriveP = 0.9945475;
-    public static final double kDriveD = 0.0;
+    public static final double kDriveP = 15.0; // 0.9945475;
+    public static final double kDriveD = 0.15; // 0.0;
     public static final double kDriveV = 0.1210375;
     public static final double kDriveA = 0.001816195;
     public static final double kDriveS = 0.10265;
     public static final double kDriveT =
         SwerveConstants.kDriveGearRatio / DCMotor.getKrakenX60Foc(1).KtNMPerAmp;
-    public static final double kSteerP = 400; // 0.011298825
-    public static final double kSteerD = 20; // 0
+    public static final double kSteerP = 500; // 400
+    public static final double kSteerD = 20; // 20
+    public static final double kSteerS = 0;
+    public static final double kSteerV = 0;
+    public static final double kSteerA = 0;
   }
 
   /************************************************************************* */
@@ -339,11 +344,17 @@ public final class Constants {
 
     // Inversions
     public static final boolean kFlywheelLeaderInverted = false;
-    public static final boolean kFlywheelFollowerInverted = false;
+    public static final boolean kFlywheelFollowerInverted = false; // Do not change
     public static final boolean kFlywheelFeedInverted = true;
 
     // Mechanism motor gear ratio
     public static final double kFlywheelGearRatio = 1.0;
+
+    public static final double flywheelSpinUpTime = 2.0;
+
+    public static final double maxFlywheelSpeed = 0.8;
+    public static final double minFlywheelSpeed = 0.6;
+    public static final double flywheelSpeedIncrement = 0.05;
 
     // Flywheel motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
@@ -355,7 +366,9 @@ public final class Constants {
     public static final double kStaticGainReal = 0.1;
     public static final double kVelocityGainReal = 0.05;
     // Feedback (PID) constants
-    public static final PIDConstants pidReal = new PIDConstants(1.0, 0.0, 0.0);
+    public static final PIDConstants pidReal = new PIDConstants(1.75, 1.5, 1.0, 3);
+    public static final FeedForwardConfig ffReal =
+        new FeedForwardConfig().kS(0.0001875 + 0.0100125).kV(0).kA(0);
 
     public static final double velocityMultiplier = 1.0;
 
@@ -497,30 +510,30 @@ public final class Constants {
   }
 
   /************************************************************************* */
-  /** Vision Camera Posses ************************************************* */
+  /** Vision Camera Poses ************************************************* */
   public static class Cameras {
     // Camera names, must match names configured on coprocessor
-    public static String camera0Name = "left_camera";
-    public static String camera1Name = "right_camera";
-    public static String camera2Name = "center_camera";
+    public static String camera0Name = "Camera_Left";
+    public static String camera1Name = "Camera_Right";
+    public static String camera2Name = "Camera_Front";
     // ... And more, if needed
 
     // Robot to camera transforms
     // (ONLY USED FOR PHOTONVISION -- Limelight: configure in web UI instead)
     // Example Cameras are mounted in the back corners, 18" up from the floor, facing sideways
-    public static Transform3d robotToCamera0 =
+    public static Transform3d robotToCamera0 = // Left Camera
         new Transform3d(
             Inches.of(-14.691),
-            Inches.of(-7.145),
-            Inches.of(19.0),
+            Inches.of(-3.375),
+            Inches.of(17.25),
             new Rotation3d(0.0, 0.0, Math.PI / 2));
-    public static Transform3d robotToCamera1 =
+    public static Transform3d robotToCamera1 = // Right Camera
         new Transform3d(
             Inches.of(14.691),
-            Inches.of(-7.145),
-            Inches.of(19.0),
+            Inches.of(-3.375),
+            Inches.of(17.25),
             new Rotation3d(0.0, 0.0, -Math.PI / 2));
-    public static Transform3d robotToCamera2 =
+    public static Transform3d robotToCamera2 = // Center Camera
         new Transform3d(
             Inches.of(0.0),
             Inches.of(2.179),
@@ -532,7 +545,8 @@ public final class Constants {
     public static double[] cameraStdDevFactors =
         new double[] {
           1.0, // Camera 0
-          1.0 // Camera 1
+          1.0, // Camera 1
+          1.0 // Camera 2
         };
   }
 
