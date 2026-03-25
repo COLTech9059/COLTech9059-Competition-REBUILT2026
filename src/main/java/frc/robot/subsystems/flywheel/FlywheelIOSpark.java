@@ -72,7 +72,7 @@ public class FlywheelIOSpark implements FlywheelIO {
     leaderConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pid(pidReal.kP, pidReal.kI, pidReal.kD)
+        // .pid(pidReal.kP, pidReal.kI, pidReal.kD)
         .feedForward
         .kS(kStaticGainReal)
         .kV(kVelocityGainReal);

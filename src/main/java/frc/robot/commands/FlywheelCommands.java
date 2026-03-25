@@ -12,30 +12,58 @@ import java.util.function.DoubleSupplier;
  */
 public class FlywheelCommands {
 
-  // TODO: Test this command comp, it may not work; If not, create a separate command with the feed
-  // system logic
   /**
-   * Runs the flywheel at the given velocity setpoint; closed loop
+   * Runs the flywheel at the given velocity setpoint and automatically manages feeding; closed loop
    *
    * @param flywheel The Flywheel subsystem to use
    * @param velocityRPM The velocity setpoint in RPM
    * @param tolerance The tolerance of the setpoint in either direction, expressed as a decimal
    *     multiplier (i.e. 5% tolerance = 0.05)
-   * @param feedSpeed The speed to run the feed system at
+   * @param feedSpeed The speed to run the uptake system at
+   * @param indexSpeed The speed to run the indexing system at
+   * @param intakeSpeed The speed to run the intake rollers at
    */
-  public static Command setVelocity(
-      Flywheel flywheel, DoubleSupplier velocityRPM, double tolerance, double feedSpeed) {
-
+  public static Command setVelocityAutomatic(
+      Flywheel flywheel,
+      Intake intake,
+      DoubleSupplier velocityRPM,
+      double tolerance,
+      double feedSpeed,
+      double indexSpeed,
+      double intakeSpeed) {
     return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
         .alongWith(
-            Commands.run(() -> flywheel.runFeed(feedSpeed))
+            Commands.run(
+                    () -> {
+                      flywheel.runFeed(feedSpeed);
+                      intake.setSpeed(intakeSpeed, indexSpeed);
+                    })
                 .onlyWhile(() -> flywheel.isFlywheelUpToSpeed(velocityRPM.getAsDouble(), tolerance))
-                .finallyDo(() -> flywheel.stopFeed()))
-        .finallyDo(() -> flywheel.stop());
+                .finallyDo(
+                    () -> {
+                      flywheel.stopFeed();
+                      intake.stopIntake();
+                    }))
+        .finallyDo(
+            () -> {
+              flywheel.stop();
+              flywheel.stopFeed();
+              intake.stopIntake();
+            });
   }
 
   public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM) {
     return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
+        .finallyDo(() -> flywheel.stop());
+  }
+
+  public static Command setVelocity(
+      Flywheel flywheel, DoubleSupplier velocityRPM, double unclogTime, double unclogSpeed) {
+    return Commands.sequence(
+            Commands.runOnce(() -> flywheel.runFeed(unclogSpeed)),
+            Commands.waitSeconds(unclogTime),
+            Commands.runOnce(() -> flywheel.stopFeed()),
+            Commands.runOnce(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel))
         .finallyDo(() -> flywheel.stop());
   }
 

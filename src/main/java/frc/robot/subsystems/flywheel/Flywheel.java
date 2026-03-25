@@ -12,8 +12,10 @@ package frc.robot.subsystems.flywheel;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FlywheelConstants.*;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,8 +49,8 @@ public class Flywheel extends RBSISubsystem {
       case REAL:
       case REPLAY:
         ffModel = new SimpleMotorFeedforward(kStaticGainReal, kVelocityGainReal);
-        io.configurePID(pidReal.kP, pidReal.kI, pidReal.kD);
-        io.configureFF(kStaticGainReal, kVelocityGainReal);
+        // io.configurePID(pidReal.kP, pidReal.kI, pidReal.kD);
+        // io.configureFF(kStaticGainReal, kVelocityGainReal);
         break;
       case SIM:
         ffModel = new SimpleMotorFeedforward(kStaticGainSim, kVelocityGainSim);
@@ -65,9 +67,9 @@ public class Flywheel extends RBSISubsystem {
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Flywheel/SysIdState", state.toString())),
+                Volts.of(8),
+                Time.ofBaseUnits(8.0, edu.wpi.first.units.Units.Seconds),
+                (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
@@ -183,5 +185,21 @@ public class Flywheel extends RBSISubsystem {
   @Override
   public int[] getPowerPorts() {
     return io.getPowerPorts();
+  }
+
+  public void configurePID(double kP, double kI, double kD) {
+    io.configurePID(kP, kI, kD);
+  }
+
+  public double getKP() {
+    return io.getKP();
+  }
+
+  public double getKI() {
+    return io.getKI();
+  }
+
+  public double getKD() {
+    return io.getKD();
   }
 }

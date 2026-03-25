@@ -434,25 +434,43 @@ public class RobotContainer {
 
     /*****OPERATOR CONTROLS*****/
 
-    operatorController.rightBumper().onTrue(Commands.runOnce(() -> variableFlywheelRPM += 100));
+    operatorController
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    variableFlywheelRPM =
+                        Math.min(variableFlywheelRPM + 100, FLYWHEEL_MAX_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(true)));
-    operatorController.leftBumper().onTrue(Commands.runOnce(() -> variableFlywheelRPM -= 100));
+    operatorController
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    variableFlywheelRPM =
+                        Math.max(variableFlywheelRPM - 100, FLYWHEEL_MIN_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(false)));
 
-    operatorController.rightTrigger().onTrue(FlywheelCommands.setSpeed(m_flywheel));
     operatorController
         .b()
-        .onTrue(
+        .whileTrue(
+            FlywheelCommands.setVelocityAutomatic(
+                m_flywheel,
+                intake,
+                () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM,
+                0.05,
+                0.5,
+                0.8,
+                0.8))
+        .onFalse(FlywheelCommands.stop(m_flywheel));
+    operatorController
+        .rightTrigger()
+        .whileTrue(
             FlywheelCommands.setVelocity(
                 m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM))
-        .onFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
-    // .onFalse(FlywheelCommands.stop(m_flywheel));
-
-    // operatorController
-    //     .a()
-    //     .onTrue(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM))
-    //     .onFalse(FlywheelCommands.stop(m_flywheel));
-    // operatorController.rightTrigger().onFalse(FlywheelCommands.stop(m_flywheel));
+        // 0.25,
+        // -0.5))
+        .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
 
     operatorController
         .leftTrigger()
@@ -467,14 +485,57 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> intake.runFeed(0.6)))
         .onFalse(FlywheelCommands.stopFeed(m_flywheel))
         .onFalse(IntakeCommands.stopIntake(intake));
-    // .whileTrue(FlywheelCommands.pulseUptake(m_flywheel, intake, 0.65, 0.5, 0.8, 0.35, 0.35))
-    // .onFalse(
-    //     Commands.sequence(
-    //         FlywheelCommands.stopFeed(m_flywheel), IntakeCommands.stopIntake(intake)));
+
     operatorController
         .povDown()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.35))
         .onFalse(FlywheelCommands.runFeed(m_flywheel, 0));
+
+    // Flywheel PID Tuning
+    // operatorController
+    //     .povUp()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP() + 0.1, m_flywheel.getKI(), m_flywheel.getKD())));
+    // operatorController
+    //     .povDown()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP() - 0.1, m_flywheel.getKI(), m_flywheel.getKD())));
+
+    // operatorController
+    //     .povRight()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP(), m_flywheel.getKI(), m_flywheel.getKD() + 0.1)));
+    // operatorController
+    //     .povLeft()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP(), m_flywheel.getKI(), m_flywheel.getKD() - 0.1)));
+
+    // operatorController
+    //     .start()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP(), m_flywheel.getKI() + 0.1, m_flywheel.getKD())));
+    // operatorController
+    //     .back()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 m_flywheel.configurePID(
+    //                     m_flywheel.getKP(), m_flywheel.getKI() - 0.1, m_flywheel.getKD())));
 
     if (Constants.getMode() == Mode.SIM) {
       // IN SIMULATION ONLY:

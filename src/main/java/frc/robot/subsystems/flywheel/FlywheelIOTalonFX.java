@@ -80,8 +80,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    // config.
-
     followerConfig = config.clone();
     if (kFlywheelFollowerInverted)
       followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
@@ -90,6 +88,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     if (kFlywheelLeaderInverted)
       config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+
+    configureFF(ff1Real[0], ff1Real[1], ff1Real[2]);
+    configurePID(pid1Real.kP, pid1Real.kI, pid1Real.kD);
+
+    configureFFFollower(ff2Real[0], ff2Real[1], ff2Real[2]);
+    configurePIDFollower(pid2Real.kP, pid2Real.kI, pid2Real.kD);
 
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
@@ -102,8 +106,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
-
-    configurePID(pidReal.kP, pidReal.kI, pidReal.kD);
   }
 
   @Override
@@ -122,6 +124,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
           followerCurrent.getValueAsDouble(),
           feederCurrent.getValueAsDouble()
         };
+    inputs.kP = config.Slot0.kP;
+    inputs.kI = config.Slot0.kI;
+    inputs.kD = config.Slot0.kD;
   }
 
   @Override
@@ -170,6 +175,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
   }
 
+  public void configurePIDFollower(double kP, double kI, double kD) {
+    followerConfig.Slot0.kP = kP;
+    followerConfig.Slot0.kI = kI;
+    followerConfig.Slot0.kD = kD;
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(followerConfig, 0.25));
+  }
+
   /**
    * Set the FeedForward portion of the Slot0 closed-loop configuration
    *
@@ -195,5 +207,27 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.Slot0.kV = kV;
     config.Slot0.kA = kA;
     PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
+  }
+
+  public void configureFFFollower(double kS, double kV, double kA) {
+    followerConfig.Slot0.kS = kS;
+    followerConfig.Slot0.kV = kV;
+    followerConfig.Slot0.kA = kA;
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(followerConfig, 0.25));
+  }
+
+  @Override
+  public double getKP() {
+    return config.Slot0.kP;
+  }
+
+  @Override
+  public double getKI() {
+    return config.Slot0.kI;
+  }
+
+  @Override
+  public double getKD() {
+    return config.Slot0.kD;
   }
 }

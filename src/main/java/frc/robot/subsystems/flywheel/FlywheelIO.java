@@ -21,6 +21,9 @@ public interface FlywheelIO extends RBSIIO {
     public double velocityRPM = 0.0;
     public double appliedVolts = 0.0;
     public double[] currentAmps = new double[] {};
+    public double kP = 0.0;
+    public double kI = 0.0;
+    public double kD = 0.0;
   }
 
   /** Updates the set of loggable inputs. */
@@ -43,4 +46,16 @@ public interface FlywheelIO extends RBSIIO {
 
   /** Set velocity FeedForward constants. */
   public default void configureFF(double kS, double kV, double kA) {}
+
+  public default double getKP() {
+    return 0;
+  }
+
+  public default double getKI() {
+    return 0;
+  }
+
+  public default double getKD() {
+    return 0;
+  }
 }

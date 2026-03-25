@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -64,6 +65,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     // Apply the open & closed-loop ramp configuration for current smoothing
     positionConfig.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
+    positionConfig.Slot0.kP = pidPosition.kP;
+    positionConfig.Slot0.kI = pidPosition.kI;
+    positionConfig.Slot0.kD = pidPosition.kD;
 
     intakeConfig = positionConfig.clone();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -133,7 +137,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void setSpeed(double speed) {
     intakeMotor.set(speed);
-    feedMotor.set(speed);
+    // feedMotor.set(speed);
   }
 
   @Override
@@ -165,6 +169,12 @@ public class IntakeIOTalonFX implements IntakeIO {
       else appliedSpeed = 0;
     }
     positionMotor.set(appliedSpeed);
+  }
+
+  @Override
+  public void setPosition(double positionDegrees) {
+    positionMotor.setControl(
+        new PositionTorqueCurrentFOC(Units.degreesToRotations(positionDegrees)));
   }
 
   @Override

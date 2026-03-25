@@ -48,6 +48,10 @@ public class Intake extends RBSISubsystem {
     Logger.recordOutput("Intake/setpointPosition", out);
   }
 
+  public void setPosition(double positionDegrees) {
+    io.setPosition(positionDegrees);
+  }
+
   public void jostleIntake(double baseSpeed) {
     double intakePosition = Units.degreesToRadians(inputs.positionDegrees);
     boolean yesReverse =

@@ -22,7 +22,6 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.revrobotics.spark.config.FeedForwardConfig;
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.Autopilot;
@@ -265,9 +264,9 @@ public final class Constants {
     public static final int[] MULTI_TOGGLE = {4, 5};
 
     // TODO: Temp flywheel velocity values, replace with real
-    public static final double FLYWHEEL_MIN_RPM = 3800;
+    public static final double FLYWHEEL_MIN_RPM = 1500;
     public static final double FLYWHEEL_MID_RPM = 4000;
-    public static final double FLYWHEEL_MAX_RPM = 4200;
+    public static final double FLYWHEEL_MAX_RPM = 4800;
     public static final double FLYWHEEL_UNCLOG_RPM = -1000;
   }
 
@@ -358,17 +357,19 @@ public final class Constants {
 
     // Flywheel motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
-    public static final double kFlywheelClosedLoopRampPeriod = 0.15; // seconds
-    public static final double kFlywheelOpenLoopRampPeriod = 0.25; // seconds
+    public static final double kFlywheelClosedLoopRampPeriod = 0.15; // seconds (0.15)
+    public static final double kFlywheelOpenLoopRampPeriod = 0.25; // seconds (0.25)
 
     // MODE == REAL / REPLAY
     // Feedforward constants
     public static final double kStaticGainReal = 0.1;
     public static final double kVelocityGainReal = 0.05;
     // Feedback (PID) constants
-    public static final PIDConstants pidReal = new PIDConstants(1.75, 1.5, 1.0, 3);
-    public static final FeedForwardConfig ffReal =
-        new FeedForwardConfig().kS(0.0001875 + 0.0100125).kV(0).kA(0);
+    public static final PIDConstants pid1Real = new PIDConstants(1.3553, 0, 0.1);
+    public static final double[] ff1Real = {0.16416, 0.12342, 0.027128};
+
+    public static final PIDConstants pid2Real = new PIDConstants(0.11429, 0, 0);
+    public static final double[] ff2Real = {0.1658, 0.1227, 0.027904};
 
     public static final double velocityMultiplier = 1.0;
 
@@ -403,6 +404,10 @@ public final class Constants {
     public static final double extendedPositionInRadians =
         Math.PI / 2; // TODO: Heuristic; Replace with measured value
     public static final double extendedPositionDeadbandInRadians = Math.PI / 18;
+
+    // Positioning PID Constants
+    // TODO: Tune PID for intake positioning
+    public static final PIDConstants pidPosition = new PIDConstants(0.0, 0.0, 0.0);
 
     // Intake motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty

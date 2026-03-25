@@ -29,6 +29,8 @@ public interface IntakeIO extends RBSIIO {
 
   public default void setPosition(double speed, boolean out) {}
 
+  public default void setPosition(double positionDegrees) {}
+
   public default void stopIntake() {}
 
   public default void stopPosition() {}
