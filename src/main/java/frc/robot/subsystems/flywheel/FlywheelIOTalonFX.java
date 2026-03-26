@@ -89,12 +89,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
-    configureFF(ff1Real[0], ff1Real[1], ff1Real[2]);
-    configurePID(pid1Real.kP, pid1Real.kI, pid1Real.kD);
-
-    configureFFFollower(ff2Real[0], ff2Real[1], ff2Real[2]);
-    configurePIDFollower(pid2Real.kP, pid2Real.kI, pid2Real.kD);
-
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(followerConfig);
@@ -102,8 +96,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
 
+    leaderAppliedVolts.setUpdateFrequency(200.0);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+        50.0, leaderPosition, leaderVelocity, leaderCurrent, followerCurrent, feederCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
   }
@@ -168,18 +163,19 @@ public class FlywheelIOTalonFX implements FlywheelIO {
    * @param kD Differential gain
    */
   @Override
-  public void configurePID(double kP, double kI, double kD) {
-    config.Slot0.kP = kP;
-    config.Slot0.kI = kI;
-    config.Slot0.kD = kD;
-    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
-  }
-
-  public void configurePIDFollower(double kP, double kI, double kD) {
-    followerConfig.Slot0.kP = kP;
-    followerConfig.Slot0.kI = kI;
-    followerConfig.Slot0.kD = kD;
-    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(followerConfig, 0.25));
+  public void configurePID(double kP, double kI, double kD, int motorNum) {
+        
+    switch (motorNum) {
+      case 1:
+        config.Slot0.kP = kP;
+        config.Slot0.kI = kI;
+        config.Slot0.kD = kD;
+        break;
+      case 2:
+      followerConfig.Slot0.kP = kP;
+      followerConfig.Slot0.kI = kI;
+      followerConfig.Slot0.kD = kD;
+    }
   }
 
   /**
@@ -202,17 +198,24 @@ public class FlywheelIOTalonFX implements FlywheelIO {
    * @param kV Velocity gain
    * @param kA Acceleration gain
    */
-  public void configureFF(double kS, double kV, double kA) {
-    config.Slot0.kS = kS;
-    config.Slot0.kV = kV;
-    config.Slot0.kA = kA;
-    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
+  public void configureFF(double kS, double kV, double kA, int motorNum) {
+    
+    switch (motorNum) {
+      case 1:
+        config.Slot0.kS = kS;
+        config.Slot0.kV = kV;
+        config.Slot0.kA = kA;
+        break;
+      case 2:
+        followerConfig.Slot0.kS = kS;
+        followerConfig.Slot0.kV = kV;
+        followerConfig.Slot0.kA = kA;
+    }
   }
 
-  public void configureFFFollower(double kS, double kV, double kA) {
-    followerConfig.Slot0.kS = kS;
-    followerConfig.Slot0.kV = kV;
-    followerConfig.Slot0.kA = kA;
+  @Override
+  public void configureAll() {
+    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
     PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(followerConfig, 0.25));
   }
 

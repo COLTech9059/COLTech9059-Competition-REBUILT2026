@@ -163,7 +163,7 @@ public class FlywheelIOHybrid implements FlywheelIO {
    * @param kD Differential gain
    */
   @Override
-  public void configurePID(double kP, double kI, double kD) {
+  public void configurePID(double kP, double kI, double kD, int motorNum) {
     config.Slot0.kP = kP;
     config.Slot0.kI = kI;
     config.Slot0.kD = kD;

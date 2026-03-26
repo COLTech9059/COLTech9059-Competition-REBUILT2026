@@ -357,15 +357,12 @@ public final class Constants {
 
     // Flywheel motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
-    public static final double kFlywheelClosedLoopRampPeriod = 0.15; // seconds (0.15)
+    public static final double kFlywheelClosedLoopRampPeriod = 0.0; // seconds (0.0)
     public static final double kFlywheelOpenLoopRampPeriod = 0.25; // seconds (0.25)
 
     // MODE == REAL / REPLAY
-    // Feedforward constants
-    public static final double kStaticGainReal = 0.1;
-    public static final double kVelocityGainReal = 0.05;
     // Feedback (PID) constants
-    public static final PIDConstants pid1Real = new PIDConstants(1.3553, 0, 0.1);
+    public static final PIDConstants pid1Real = new PIDConstants(1.3553, 0, 0);
     public static final double[] ff1Real = {0.16416, 0.12342, 0.027128};
 
     public static final PIDConstants pid2Real = new PIDConstants(0.11429, 0, 0);
@@ -375,10 +372,12 @@ public final class Constants {
 
     // MODE == SIM
     // Feedforward constants
-    public static final double kStaticGainSim = 0.0;
-    public static final double kVelocityGainSim = 0.03;
+    public static final double kStaticGainSim = 0.15;
+    public static final double kVelocityGainSim = 0.1;
+    public static final double kAccelerationGainSim = 0.025;
+
     // Feedback (PID) constants
-    public static final PIDConstants pidSim = new PIDConstants(1.0, 0.0, 0.0);
+    public static final PIDConstants pidSim = new PIDConstants(0.0, 0.0, 0.0);
   }
 
   /************************************************************************* */

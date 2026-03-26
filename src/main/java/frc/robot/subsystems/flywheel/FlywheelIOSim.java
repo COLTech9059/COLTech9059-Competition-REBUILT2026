@@ -11,6 +11,7 @@ package frc.robot.subsystems.flywheel;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -36,6 +37,7 @@ public class FlywheelIOSim implements FlywheelIO {
 
   private boolean closedLoop = false;
   private double ffVolts = 0.0;
+  private SimpleMotorFeedforward ffObject = new SimpleMotorFeedforward(0, 0, 0, 0.02);
   private double appliedVolts = 0.0;
 
   @Override
@@ -50,6 +52,7 @@ public class FlywheelIOSim implements FlywheelIO {
 
     inputs.positionRad = 0.0;
     inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.velocityRPM = sim.getAngularVelocityRPM();
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
   }
@@ -74,7 +77,14 @@ public class FlywheelIOSim implements FlywheelIO {
   }
 
   @Override
-  public void configurePID(double kP, double kI, double kD) {
+  public void configureFF(double kS, double kV, double kA, int motorNum) {
+    ffObject.setKs(kS);
+    ffObject.setKv(kV);
+    ffObject.setKa(kA);
+  }
+
+  @Override
+  public void configurePID(double kP, double kI, double kD, int motorNum) {
     pid.setPID(kP, kI, kD);
   }
 }

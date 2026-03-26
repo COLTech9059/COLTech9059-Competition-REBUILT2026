@@ -47,15 +47,23 @@ public class Flywheel extends RBSISubsystem {
     // separate robot with different tuning)
     switch (Constants.getMode()) {
       case REAL:
+        io.configurePID(pid1Real.kP, pid1Real.kI, pid1Real.kD, 1);
+        io.configureFF(ff1Real[0], ff1Real[1], ff1Real[2], 1);
+        io.configurePID(pid2Real.kP, pid2Real.kI, pid2Real.kD, 2);
+        io.configureFF(ff2Real[0], ff2Real[1], ff2Real[2], 2);
+        io.configureAll();
       case REPLAY:
-        ffModel = new SimpleMotorFeedforward(kStaticGainReal, kVelocityGainReal);
-        // io.configurePID(pidReal.kP, pidReal.kI, pidReal.kD);
-        // io.configureFF(kStaticGainReal, kVelocityGainReal);
+        ffModel = new SimpleMotorFeedforward(ff1Real[0], ff1Real[1], ff1Real[2]);
+        io.configurePID(pid1Real.kP, pid1Real.kI, pid1Real.kD, 1);
+        io.configureFF(ff1Real[0], ff1Real[1], ff1Real[2], 1);
+        io.configurePID(pid2Real.kP, pid2Real.kI, pid2Real.kD, 2);
+        io.configureFF(ff2Real[0], ff2Real[1], ff2Real[2], 2);
+        io.configureAll();
         break;
       case SIM:
         ffModel = new SimpleMotorFeedforward(kStaticGainSim, kVelocityGainSim);
-        io.configurePID(pidSim.kP, pidSim.kI, pidSim.kD);
-        io.configureFF(kStaticGainSim, kVelocityGainSim);
+        io.configurePID(pidSim.kP, pidSim.kI, pidSim.kD, 1);
+        io.configureFF(kStaticGainSim, kVelocityGainSim, kAccelerationGainSim, 1);
         break;
       default:
         ffModel = new SimpleMotorFeedforward(0.0, 0.0);
@@ -187,8 +195,12 @@ public class Flywheel extends RBSISubsystem {
     return io.getPowerPorts();
   }
 
-  public void configurePID(double kP, double kI, double kD) {
-    io.configurePID(kP, kI, kD);
+  public void configurePID(double kP, double kI, double kD, int motorNum) {
+    io.configurePID(kP, kI, kD, motorNum);
+  }
+
+  public void configureAll() {
+    io.configureAll();
   }
 
   public double getKP() {

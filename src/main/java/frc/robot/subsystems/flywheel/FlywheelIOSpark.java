@@ -74,8 +74,8 @@ public class FlywheelIOSpark implements FlywheelIO {
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         // .pid(pidReal.kP, pidReal.kI, pidReal.kD)
         .feedForward
-        .kS(kStaticGainReal)
-        .kV(kVelocityGainReal);
+        .kS(ff1Real[0])
+        .kV(ff1Real[1]);
     leaderConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -146,7 +146,7 @@ public class FlywheelIOSpark implements FlywheelIO {
    * SmartMotion control.
    */
   @Override
-  public void configurePID(double kP, double kI, double kD) {
+  public void configurePID(double kP, double kI, double kD, int motorNum) {
     // pid.setP(kP, 0);
     // pid.setI(kI, 0);
     // pid.setD(kD, 0);
@@ -157,5 +157,5 @@ public class FlywheelIOSpark implements FlywheelIO {
   public void configureFF(double kS, double kV) {}
 
   @Override
-  public void configureFF(double kS, double kV, double kA) {}
+  public void configureFF(double kS, double kV, double kA, int motorNum) {}
 }
