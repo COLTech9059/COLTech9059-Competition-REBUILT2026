@@ -1,9 +1,18 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.IntakeConstants.extendedPositionDeadbandInRadians;
 import static frc.robot.Constants.IntakeConstants.extendedPositionInRadians;
+import static frc.robot.Constants.IntakeConstants.ffPosition;
+import static frc.robot.Constants.IntakeConstants.ffPositionFollower;
+import static frc.robot.Constants.IntakeConstants.pidPosition;
+import static frc.robot.Constants.IntakeConstants.pidPositionFollower;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.util.RBSISubsystem;
 import org.littletonrobotics.junction.Logger;
 
@@ -16,15 +25,47 @@ public class Intake extends RBSISubsystem {
 
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final SysIdRoutine sysId;
 
   public Intake(IntakeIO io) {
     this.io = io;
+
+    switch (Constants.getMode()) {
+      case REAL:
+        io.setPID(pidPosition.kP, pidPosition.kI, pidPosition.kD, 1);
+        io.setFF(ffPosition[0], ffPosition[1], ffPosition[2], 1);
+        io.setPID(pidPositionFollower.kP, pidPositionFollower.kI, pidPositionFollower.kD, 2);
+        io.setFF(ffPositionFollower[0], ffPositionFollower[1], ffPositionFollower[2], 2);
+        io.configureAll();
+        break;
+      case SIM:
+      case REPLAY:
+    }
+
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.25).per(Second),
+                Volts.of(2.0),
+                Time.ofBaseUnits(8.0, edu.wpi.first.units.Units.Seconds),
+                (state) -> Logger.recordOutput("SysIDState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) ->
+                    runPositionVolts(
+                        voltage.in(
+                            Volts)), /*(sysIdRoutineLog) -> sysIdRoutineLog.motor("String"))*/
+                null,
+                this));
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+  }
+
+  public void runPositionVolts(double volts) {
+    io.setPositionVoltage(volts);
   }
 
   /** Run the intake rollers at the specified voltage */

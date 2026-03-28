@@ -11,6 +11,7 @@ public interface IntakeIO extends RBSIIO {
     public double positionDegrees = 0.0;
     public double positionLeader = 0.0;
     public double positionFollower = 0.0;
+    public double leaderAppliedTorque = 0.0;
     public double intakeSpeed = 0.0;
     public boolean isIntakeInLeft = false;
     public boolean isIntakeInRight = false;
@@ -20,6 +21,8 @@ public interface IntakeIO extends RBSIIO {
   public default void updateInputs(IntakeIOInputs inputs) {}
 
   public default void setVoltage(double volts) {}
+
+  public default void setPositionVoltage(double volts) {}
 
   public default void setSpeed(double baseSpeed) {}
 
@@ -34,4 +37,10 @@ public interface IntakeIO extends RBSIIO {
   public default void stopIntake() {}
 
   public default void stopPosition() {}
+
+  public default void setPID(double kP, double kI, double kD, int motorNum) {}
+
+  public default void setFF(double kS, double kV, double kA, int motorNum) {}
+
+  public default void configureAll() {}
 }

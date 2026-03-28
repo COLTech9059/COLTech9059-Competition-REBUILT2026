@@ -362,11 +362,11 @@ public final class Constants {
 
     // MODE == REAL / REPLAY
     // Feedback (PID) constants
-    public static final PIDConstants pid1Real = new PIDConstants(1.3553, 0, 0);
-    public static final double[] ff1Real = {0.16416, 0.12342, 0.027128};
+    public static final PIDConstants pid1Real = new PIDConstants(0.2, 0, 0); 
+    public static final double[] ff1Real = {0.17065, 0.12191 * 0.975, 0.029701};
 
-    public static final PIDConstants pid2Real = new PIDConstants(0.11429, 0, 0);
-    public static final double[] ff2Real = {0.1658, 0.1227, 0.027904};
+    public static final PIDConstants pid2Real = new PIDConstants(0.2, 0, 0); 
+    public static final double[] ff2Real = {0.19764, 0.12221 * 0.975, 0.026514};
 
     public static final double velocityMultiplier = 1.0;
 
@@ -407,6 +407,10 @@ public final class Constants {
     // Positioning PID Constants
     // TODO: Tune PID for intake positioning
     public static final PIDConstants pidPosition = new PIDConstants(0.0, 0.0, 0.0);
+    public static final PIDConstants pidPositionFollower = new PIDConstants(0.0, 0.0, 0.0);
+
+    public static final double[] ffPosition = {0.0, 0.0, 0.0};
+    public static final double[] ffPositionFollower = {0.0, 0.0, 0.0};
 
     // Intake motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty

@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.util.PhoenixUtil;
 
 public class IntakeIOTalonFX implements IntakeIO {
 
@@ -39,8 +40,10 @@ public class IntakeIOTalonFX implements IntakeIO {
       positionMotorFollower.getSupplyCurrent();
   private final StatusSignal<Current> intakeCurrent = intakeMotor.getSupplyCurrent();
   private final StatusSignal<Current> feedCurrent = feedMotor.getSupplyCurrent();
+  private final StatusSignal<Current> leaderAppliedTorque = positionMotor.getTorqueCurrent();
 
   private final TalonFXConfiguration positionConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration positionFollowerConfig;
   private final TalonFXConfiguration intakeConfig;
   private final TalonFXConfiguration feedConfig;
 
@@ -65,9 +68,6 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     // Apply the open & closed-loop ramp configuration for current smoothing
     positionConfig.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
-    positionConfig.Slot0.kP = pidPosition.kP;
-    positionConfig.Slot0.kI = pidPosition.kI;
-    positionConfig.Slot0.kD = pidPosition.kD;
 
     intakeConfig = positionConfig.clone();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -81,10 +81,14 @@ public class IntakeIOTalonFX implements IntakeIO {
       feedConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
+    positionFollowerConfig = positionConfig.clone();
+
     positionMotor.getConfigurator().apply(positionConfig);
+    positionMotorFollower.getConfigurator().apply(positionFollowerConfig);
     intakeMotor.getConfigurator().apply(intakeConfig);
     feedMotor.getConfigurator().apply(feedConfig);
 
+    leaderAppliedTorque.setUpdateFrequency(200);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         positionLeader,
@@ -107,6 +111,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionCurrent,
         intakeCurrent,
         feedCurrent,
+        leaderAppliedTorque,
         positionFollowerCurrent);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = getRotationsInDegrees();
@@ -114,6 +119,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         Units.rotationsToDegrees(positionLeader.getValueAsDouble()) / kIntakeGearRatio;
     inputs.positionFollower =
         Units.rotationsToDegrees(positionFollower.getValueAsDouble()) / kIntakeGearRatio;
+    inputs.leaderAppliedTorque = leaderAppliedTorque.getValueAsDouble();
     inputs.isIntakeInLeft = inLimitLeft.get();
     inputs.isIntakeInRight = inLimitRight.get();
     inputs.currentAmps =
@@ -132,6 +138,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   public void setVoltage(double volts) {
     intakeMotor.setVoltage(volts);
     feedMotor.setVoltage(volts);
+  }
+
+  @Override
+  public void setPositionVoltage(double volts) {
+    positionMotor.setVoltage(volts);
   }
 
   @Override
@@ -206,5 +217,44 @@ public class IntakeIOTalonFX implements IntakeIO {
   private double getRotationsInDegrees() {
     double motorRotationInDegrees = Units.rotationsToDegrees(getAverageRotations());
     return motorRotationInDegrees / kIntakeGearRatio;
+  }
+
+  @Override
+  public void setPID(double kP, double kI, double kD, int motorNum) {
+    switch (motorNum) {
+      case 1:
+        positionConfig.Slot0.kP = kP;
+        positionConfig.Slot0.kI = kI;
+        positionConfig.Slot0.kD = kD;
+        break;
+      case 2:
+        positionFollowerConfig.Slot0.kP = kP;
+        positionFollowerConfig.Slot0.kI = kI;
+        positionFollowerConfig.Slot0.kD = kD;
+        break;
+    }
+  }
+
+  @Override
+  public void setFF(double kS, double kV, double kA, int motorNum) {
+    switch (motorNum) {
+      case 1:
+        positionConfig.Slot0.kS = kS;
+        positionConfig.Slot0.kV = kV;
+        positionConfig.Slot0.kA = kA;
+        break;
+      case 2:
+        positionFollowerConfig.Slot0.kS = kS;
+        positionFollowerConfig.Slot0.kV = kV;
+        positionFollowerConfig.Slot0.kA = kA;
+        break;
+    }
+  }
+
+  @Override
+  public void configureAll() {
+    PhoenixUtil.tryUntilOk(5, () -> positionMotor.getConfigurator().apply(positionConfig));
+    PhoenixUtil.tryUntilOk(
+        5, () -> positionMotorFollower.getConfigurator().apply(positionFollowerConfig));
   }
 }

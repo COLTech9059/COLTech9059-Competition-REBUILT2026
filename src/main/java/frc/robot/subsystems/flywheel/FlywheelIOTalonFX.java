@@ -164,7 +164,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
    */
   @Override
   public void configurePID(double kP, double kI, double kD, int motorNum) {
-        
+
     switch (motorNum) {
       case 1:
         config.Slot0.kP = kP;
@@ -172,9 +172,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         config.Slot0.kD = kD;
         break;
       case 2:
-      followerConfig.Slot0.kP = kP;
-      followerConfig.Slot0.kI = kI;
-      followerConfig.Slot0.kD = kD;
+        followerConfig.Slot0.kP = kP;
+        followerConfig.Slot0.kI = kI;
+        followerConfig.Slot0.kD = kD;
     }
   }
 
@@ -199,7 +199,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
    * @param kA Acceleration gain
    */
   public void configureFF(double kS, double kV, double kA, int motorNum) {
-    
+
     switch (motorNum) {
       case 1:
         config.Slot0.kS = kS;
