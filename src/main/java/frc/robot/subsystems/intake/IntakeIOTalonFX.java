@@ -11,12 +11,15 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.PhoenixUtil;
 
@@ -34,6 +37,10 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private final StatusSignal<Angle> positionLeader = positionMotor.getPosition();
   private final StatusSignal<Angle> positionFollower = positionMotorFollower.getPosition();
+  private final StatusSignal<Voltage> voltageLeader = positionMotor.getMotorVoltage();
+  private final StatusSignal<Voltage> voltageFollower = positionMotorFollower.getMotorVoltage();
+  private final StatusSignal<AngularVelocity> velocityLeader = positionMotor.getVelocity();
+  private final StatusSignal<AngularVelocity> velocityFollower = positionMotorFollower.getVelocity();
 
   private final StatusSignal<Current> positionCurrent = positionMotor.getSupplyCurrent();
   private final StatusSignal<Current> positionFollowerCurrent =
@@ -48,6 +55,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final TalonFXConfiguration feedConfig;
 
   public IntakeIOTalonFX() {
+    positionConfig.Feedback.SensorToMechanismRatio = kIntakePositionGearRatio;
+
     positionConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     positionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -69,6 +78,10 @@ public class IntakeIOTalonFX implements IntakeIO {
     // Apply the open & closed-loop ramp configuration for current smoothing
     positionConfig.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
 
+    positionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    positionConfig.Slot0.GravityArmPositionOffset = intakeGravityOffsetRotations;
+    positionConfig.Slot0.kG = ffPosition[3];
+
     intakeConfig = positionConfig.clone();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     if (kIntakeInverted)
@@ -82,6 +95,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     positionFollowerConfig = positionConfig.clone();
+    positionFollowerConfig.Slot0.kG = ffPositionFollower[3];
 
     positionMotor.getConfigurator().apply(positionConfig);
     positionMotorFollower.getConfigurator().apply(positionFollowerConfig);
@@ -93,6 +107,10 @@ public class IntakeIOTalonFX implements IntakeIO {
         50.0,
         positionLeader,
         positionFollower,
+        voltageLeader,
+        voltageFollower,
+        velocityLeader,
+        velocityFollower,
         positionCurrent,
         intakeCurrent,
         feedCurrent,
@@ -106,19 +124,27 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     BaseStatusSignal.refreshAll(
+       leaderAppliedTorque,
         positionLeader,
         positionFollower,
+        voltageLeader,
+        voltageFollower,
+        velocityLeader,
+        velocityFollower,
         positionCurrent,
         intakeCurrent,
         feedCurrent,
-        leaderAppliedTorque,
         positionFollowerCurrent);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = getRotationsInDegrees();
     inputs.positionLeader =
-        Units.rotationsToDegrees(positionLeader.getValueAsDouble()) / kIntakeGearRatio;
+        Units.rotationsToDegrees(positionLeader.getValueAsDouble());
     inputs.positionFollower =
-        Units.rotationsToDegrees(positionFollower.getValueAsDouble()) / kIntakeGearRatio;
+        Units.rotationsToDegrees(positionFollower.getValueAsDouble());
+    inputs.voltageLeader = voltageLeader.getValue();
+    inputs.voltageFollower = voltageFollower.getValue();
+    inputs.velocityLeader = velocityLeader.getValue();
+    inputs.velocityFollower = velocityFollower.getValue();
     inputs.leaderAppliedTorque = leaderAppliedTorque.getValueAsDouble();
     inputs.isIntakeInLeft = inLimitLeft.get();
     inputs.isIntakeInRight = inLimitRight.get();
@@ -211,12 +237,12 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private double getRotationsInRadians() {
     double motorRotationInRadians = Units.rotationsToRadians(getAverageRotations());
-    return motorRotationInRadians / kIntakePositionGearRatio;
+    return motorRotationInRadians;
   }
 
   private double getRotationsInDegrees() {
     double motorRotationInDegrees = Units.rotationsToDegrees(getAverageRotations());
-    return motorRotationInDegrees / kIntakeGearRatio;
+    return motorRotationInDegrees;
   }
 
   @Override

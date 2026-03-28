@@ -451,6 +451,8 @@ public class RobotContainer {
                         Math.max(variableFlywheelRPM - 100, FLYWHEEL_MIN_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(false)));
 
+    operatorController.back().whileTrue(FlywheelCommands.setVelocity(m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(20)));
+
     operatorController
         .b()
         .whileTrue(
@@ -649,7 +651,7 @@ public class RobotContainer {
           "Drive SysId (Dynamic Reverse)",
           m_drivebase.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-      // Example Flywheel SysId Characterization
+      // Flywheel SysId Characterization
       autoChooserPathPlanner.addOption(
           "Flywheel SysId (Quasistatic Forward)",
           m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -662,6 +664,20 @@ public class RobotContainer {
       autoChooserPathPlanner.addOption(
           "Flywheel SysId (Dynamic Reverse)",
           m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+      // Intake SysId Characterization
+      autoChooserPathPlanner.addOption(
+          "Intake SysId (Quasistatic Forward)",
+          intake.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Intake SysId (Quasistatic Reverse)",
+          intake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooserPathPlanner.addOption(
+          "Intake SysId (Dynamic Forward)",
+          intake.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Intake SysId (Dynamic Reverse)",
+          intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
   }
 

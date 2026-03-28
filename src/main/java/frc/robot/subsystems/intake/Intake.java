@@ -1,5 +1,9 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.IntakeConstants.extendedPositionDeadbandInRadians;
@@ -10,7 +14,10 @@ import static frc.robot.Constants.IntakeConstants.pidPosition;
 import static frc.robot.Constants.IntakeConstants.pidPositionFollower;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.util.RBSISubsystem;
@@ -46,15 +53,21 @@ public class Intake extends RBSISubsystem {
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.of(0.25).per(Second),
-                Volts.of(2.0),
-                Time.ofBaseUnits(8.0, edu.wpi.first.units.Units.Seconds),
+                Volts.of(1.0),
+                Time.ofBaseUnits(5.0, edu.wpi.first.units.Units.Seconds),
                 (state) -> Logger.recordOutput("SysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) ->
-                    runPositionVolts(
-                        voltage.in(
-                            Volts)), /*(sysIdRoutineLog) -> sysIdRoutineLog.motor("String"))*/
-                null,
+                (voltage) -> runPositionVolts(voltage.in(Volts)), 
+                (sysIdRoutineLog) -> {
+                  sysIdRoutineLog.motor("Intake Leader")
+                    .angularPosition(Angle.ofBaseUnits(inputs.positionLeader, Degrees))
+                    .voltage(inputs.voltageLeader)
+                    .angularVelocity(inputs.velocityLeader);
+                  sysIdRoutineLog.motor("Follower Leader")
+                    .angularPosition(Angle.ofBaseUnits(inputs.positionFollower, Degrees))
+                    .voltage(inputs.voltageFollower)
+                    .angularVelocity(inputs.velocityFollower);
+                },
                 this));
   }
 
@@ -141,5 +154,15 @@ public class Intake extends RBSISubsystem {
   @Override
   public int[] getPowerPorts() {
     return io.getPowerPorts();
+  }
+
+  /** Returns a command to run a quasistatic test in the specified direction. */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysId.quasistatic(direction);
+  }
+
+  /** Returns a command to run a dynamic test in the specified direction. */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysId.dynamic(direction);
   }
 }

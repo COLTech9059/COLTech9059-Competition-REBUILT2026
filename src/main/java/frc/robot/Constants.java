@@ -409,8 +409,10 @@ public final class Constants {
     public static final PIDConstants pidPosition = new PIDConstants(0.0, 0.0, 0.0);
     public static final PIDConstants pidPositionFollower = new PIDConstants(0.0, 0.0, 0.0);
 
-    public static final double[] ffPosition = {0.0, 0.0, 0.0};
-    public static final double[] ffPositionFollower = {0.0, 0.0, 0.0};
+    public static final double[] ffPosition = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
+    public static final double[] ffPositionFollower = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
+
+    public static final double intakeGravityOffsetRotations = 0.0; // -0.25 - 0.25
 
     // Intake motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
