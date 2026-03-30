@@ -75,6 +75,8 @@ import frc.robot.util.RBSIPowerMonitor;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -236,7 +238,7 @@ public class RobotContainer {
     // In addition to the initial battery capacity from the Dashbaord, ``RBSIPowerMonitor`` takes
     // all the non-drivebase subsystems for which you wish to have power monitoring; DO NOT
     // include ``m_drivebase``, as that is automatically monitored.
-    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel);
+    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel, intake);
 
     // Define Auto commands
     defineAutoCommands();
@@ -715,5 +717,10 @@ public class RobotContainer {
     // scoreTraj.done().onTrue(scoringSubsystem.score());
 
     return routine;
+  }
+
+  public void recordTotalSubsystemCurrentDraw() {
+    double totalCurrentDraw = m_drivebase.getTotalCurrent() + m_flywheel.getTotalCurrent() + intake.getTotalCurrent();
+    Logger.recordOutput("Total Subsystem Current", totalCurrentDraw);
   }
 }

@@ -277,6 +277,17 @@ public class Drive extends SubsystemBase {
 
     // Update gyro/IMU alert
     gyroDisconnectedAlert.set(!imuInputs.connected && Constants.getMode() != Mode.SIM);
+
+    Logger.recordOutput("Drive/Total Current", getTotalCurrent());
+  }
+
+  public double getTotalCurrent() {
+    double currentSum = 0;
+    for (var module:modules) {
+      currentSum += module.getDriveCurrent();
+      currentSum += module.getTurnCurrent();
+    }
+    return currentSum;
   }
 
   /** Simulation Periodic Method */

@@ -143,6 +143,14 @@ public class Module {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
 
+  public double getDriveCurrent() {
+    return inputs.driveCurrentAmps;
+  }
+
+  public double getTurnCurrent() {
+    return inputs.turnCurrentAmps;
+  }
+
   public void playSong(String filepath) {
     io.playSong(filepath);
   }

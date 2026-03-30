@@ -204,8 +204,10 @@ public final class Constants {
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(14, 9);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(15, 0);
+    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(12, 9);
+    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(13, 0);
+    public static final RobotDeviceId FLYWHEEL_SECONDARY_RIGHT = new RobotDeviceId(14, 14);
+    public static final RobotDeviceId FLYWHEEL_SECONDARY_LEFT = new RobotDeviceId(15, 15);
     public static final RobotDeviceId FLYWHEEL_FEED = new RobotDeviceId(16, 3);
 
     public static final RobotDeviceId INTAKE_POSITION = new RobotDeviceId(17, 10);
@@ -367,6 +369,12 @@ public final class Constants {
 
     public static final PIDConstants pid2Real = new PIDConstants(0.2, 0, 0); 
     public static final double[] ff2Real = {0.19764, 0.12221 * 0.975, 0.026514};
+
+    public static final PIDConstants pid3Real = new PIDConstants(0.2, 0, 0); 
+    public static final double[] ff3Real = {0.19764, 0.12221 * 0.975, 0.026514};
+
+    public static final PIDConstants pid4Real = new PIDConstants(0.2, 0, 0); 
+    public static final double[] ff4Real = {0.19764, 0.12221 * 0.975, 0.026514};
 
     public static final double velocityMultiplier = 1.0;
 

@@ -75,6 +75,15 @@ public class Intake extends RBSISubsystem {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+    Logger.recordOutput("Intake/Total Current", getTotalCurrent());
+  }
+
+  public double getTotalCurrent() {
+    double currentSum = 0;
+    for (int i = 0; i < inputs.currentAmps.length; i++) {
+      currentSum += inputs.currentAmps[i];
+    }
+    return currentSum;
   }
 
   public void runPositionVolts(double volts) {

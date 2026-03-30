@@ -51,6 +51,10 @@ public class Flywheel extends RBSISubsystem {
         io.configureFF(ff1Real[0], ff1Real[1], ff1Real[2], 1);
         io.configurePID(pid2Real.kP, pid2Real.kI, pid2Real.kD, 2);
         io.configureFF(ff2Real[0], ff2Real[1], ff2Real[2], 2);
+        io.configurePID(pid3Real.kP, pid3Real.kI, pid3Real.kD, 3);
+        io.configureFF(ff3Real[0], ff3Real[1], ff3Real[2], 3);
+        io.configurePID(pid4Real.kP, pid4Real.kI, pid4Real.kD, 4);
+        io.configureFF(ff4Real[0], ff4Real[1], ff4Real[2], 4);
         io.configureAll();
       case REPLAY:
         ffModel = new SimpleMotorFeedforward(ff1Real[0], ff1Real[1], ff1Real[2]);
@@ -58,6 +62,10 @@ public class Flywheel extends RBSISubsystem {
         io.configureFF(ff1Real[0], ff1Real[1], ff1Real[2], 1);
         io.configurePID(pid2Real.kP, pid2Real.kI, pid2Real.kD, 2);
         io.configureFF(ff2Real[0], ff2Real[1], ff2Real[2], 2);
+        io.configurePID(pid3Real.kP, pid3Real.kI, pid3Real.kD, 3);
+        io.configureFF(ff3Real[0], ff3Real[1], ff3Real[2], 3);
+        io.configurePID(pid4Real.kP, pid4Real.kI, pid4Real.kD, 4);
+        io.configureFF(ff4Real[0], ff4Real[1], ff4Real[2], 4);
         io.configureAll();
         break;
       case SIM:
@@ -85,8 +93,19 @@ public class Flywheel extends RBSISubsystem {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
+
     SmartDashboard.putNumber("Flywheel Variable Speed", variableSpeed);
     SmartDashboard.putBoolean("Flywheel Spun Up?", isTimerPastValue(flywheelSpinUpTime));
+
+    Logger.recordOutput("Flywheel/Total Current", getTotalCurrent());
+  }
+
+  public double getTotalCurrent() {
+    double currentSum = 0;
+    for (int i = 0; i < inputs.currentAmps.length; i++) {
+      currentSum += inputs.currentAmps[i];
+    }
+    return currentSum;
   }
 
   public void startTimer() {

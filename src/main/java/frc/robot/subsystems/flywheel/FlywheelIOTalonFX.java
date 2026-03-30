@@ -38,10 +38,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       new TalonFX(FLYWHEEL_LEADER.getDeviceNumber(), FLYWHEEL_LEADER.getCANBus());
   private final TalonFX follower =
       new TalonFX(FLYWHEEL_FOLLOWER.getDeviceNumber(), FLYWHEEL_FOLLOWER.getCANBus());
+  private final TalonFX secondaryRight = new TalonFX(FLYWHEEL_SECONDARY_RIGHT.getDeviceNumber(), FLYWHEEL_SECONDARY_RIGHT.getCANBus());
+  private final TalonFX secondaryLeft = new TalonFX(FLYWHEEL_SECONDARY_LEFT.getDeviceNumber(), FLYWHEEL_SECONDARY_LEFT.getCANBus());
   private final TalonFX feeder = new TalonFX(FLYWHEEL_FEED.getDeviceNumber());
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {
-    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort(), FLYWHEEL_FEED.getPowerPort()
+    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort(), FLYWHEEL_SECONDARY_RIGHT.getPowerPort(), FLYWHEEL_SECONDARY_LEFT.getPowerPort(), FLYWHEEL_FEED.getPowerPort()
   };
 
   private final StatusSignal<Angle> leaderPosition = leader.getPosition();
@@ -49,10 +51,14 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> leaderAppliedVolts = leader.getMotorVoltage();
   private final StatusSignal<Current> leaderCurrent = leader.getSupplyCurrent();
   private final StatusSignal<Current> followerCurrent = follower.getSupplyCurrent();
+  private final StatusSignal<Current> secondaryRightCurrent = secondaryRight.getSupplyCurrent();
+  private final StatusSignal<Current> secondaryLeftCurrent = secondaryLeft.getSupplyCurrent();
   private final StatusSignal<Current> feederCurrent = feeder.getSupplyCurrent();
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final TalonFXConfiguration followerConfig;
+  private final TalonFXConfiguration secondaryRightConfig;
+  private final TalonFXConfiguration secondaryLeftConfig;
   private final TalonFXConfiguration feedConfig;
 
   public FlywheelIOTalonFX() {
@@ -85,6 +91,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
+    secondaryRightConfig = config.clone();
+    secondaryLeftConfig = config.clone();
+
     if (kFlywheelLeaderInverted)
       config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
@@ -92,13 +101,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     // Apply the configurations to the flywheel motors
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(followerConfig);
+    secondaryRight.getConfigurator().apply(secondaryRightConfig);
+    secondaryLeft.getConfigurator().apply(secondaryLeftConfig);
     feeder.getConfigurator().apply(feedConfig);
 
     follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
+    secondaryRight.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
+    secondaryLeft.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed));
 
     leaderAppliedVolts.setUpdateFrequency(200.0);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, leaderPosition, leaderVelocity, leaderCurrent, followerCurrent, feederCurrent);
+        50.0, leaderPosition, leaderVelocity, leaderCurrent, followerCurrent, secondaryRightCurrent, secondaryLeftCurrent, feederCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
   }
@@ -117,6 +130,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         new double[] {
           leaderCurrent.getValueAsDouble(),
           followerCurrent.getValueAsDouble(),
+          secondaryRightCurrent.getValueAsDouble(),
+          secondaryLeftCurrent.getValueAsDouble(),
           feederCurrent.getValueAsDouble()
         };
     inputs.kP = config.Slot0.kP;
@@ -175,6 +190,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         followerConfig.Slot0.kP = kP;
         followerConfig.Slot0.kI = kI;
         followerConfig.Slot0.kD = kD;
+        break;
+      case 3:
+        secondaryRightConfig.Slot0.kP = kP;
+        secondaryRightConfig.Slot0.kI = kI;
+        secondaryRightConfig.Slot0.kD = kD;
+        break;
+      case 4:
+        secondaryLeftConfig.Slot0.kP = kP;
+        secondaryLeftConfig.Slot0.kI = kI;
+        secondaryLeftConfig.Slot0.kD = kD;
+        break;
     }
   }
 
@@ -210,6 +236,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         followerConfig.Slot0.kS = kS;
         followerConfig.Slot0.kV = kV;
         followerConfig.Slot0.kA = kA;
+        break;
+      case 3:
+        secondaryRightConfig.Slot0.kS = kS;
+        secondaryRightConfig.Slot0.kV = kV;
+        secondaryRightConfig.Slot0.kA = kA;
+        break;
+      case 4:
+        secondaryLeftConfig.Slot0.kS = kS;
+        secondaryLeftConfig.Slot0.kV = kV;
+        secondaryLeftConfig.Slot0.kA = kA;
+        break;
     }
   }
 
