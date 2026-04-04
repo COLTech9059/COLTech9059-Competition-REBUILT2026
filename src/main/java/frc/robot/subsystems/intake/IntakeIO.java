@@ -1,10 +1,9 @@
 package frc.robot.subsystems.intake;
 
-import frc.robot.util.RBSIIO;
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.RBSIIO;
+import org.littletonrobotics.junction.AutoLog;
 
 /** */
 public interface IntakeIO extends RBSIIO {
@@ -40,6 +39,8 @@ public interface IntakeIO extends RBSIIO {
   public default void setPosition(double speed, boolean out) {}
 
   public default void setPosition(double positionDegrees) {}
+
+  public default void setIntakeVelocity(double velocityRPM, double feedSpeed) {}
 
   public default void stopIntake() {}
 

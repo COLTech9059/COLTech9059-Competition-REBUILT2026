@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -40,7 +41,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Voltage> voltageLeader = positionMotor.getMotorVoltage();
   private final StatusSignal<Voltage> voltageFollower = positionMotorFollower.getMotorVoltage();
   private final StatusSignal<AngularVelocity> velocityLeader = positionMotor.getVelocity();
-  private final StatusSignal<AngularVelocity> velocityFollower = positionMotorFollower.getVelocity();
+  private final StatusSignal<AngularVelocity> velocityFollower =
+      positionMotorFollower.getVelocity();
 
   private final StatusSignal<Current> positionCurrent = positionMotor.getSupplyCurrent();
   private final StatusSignal<Current> positionFollowerCurrent =
@@ -84,6 +86,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     intakeConfig = positionConfig.clone();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    intakeConfig.Feedback.SensorToMechanismRatio = kIntakeGearRatio;
     if (kIntakeInverted)
       intakeConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
     else intakeConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
@@ -124,7 +127,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-       leaderAppliedTorque,
+        leaderAppliedTorque,
         positionLeader,
         positionFollower,
         voltageLeader,
@@ -137,10 +140,8 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionFollowerCurrent);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = getRotationsInDegrees();
-    inputs.positionLeader =
-        Units.rotationsToDegrees(positionLeader.getValueAsDouble());
-    inputs.positionFollower =
-        Units.rotationsToDegrees(positionFollower.getValueAsDouble());
+    inputs.positionLeader = Units.rotationsToDegrees(positionLeader.getValueAsDouble());
+    inputs.positionFollower = Units.rotationsToDegrees(positionFollower.getValueAsDouble());
     inputs.voltageLeader = voltageLeader.getValue();
     inputs.voltageFollower = voltageFollower.getValue();
     inputs.velocityLeader = velocityLeader.getValue();
@@ -215,6 +216,12 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
+  public void setIntakeVelocity(double velocityRPM, double feedSpeed) {
+    intakeMotor.setControl(new VelocityVoltage(velocityRPM));
+    feedMotor.set(feedSpeed);
+  }
+
+  @Override
   public void stopIntake() {
     intakeMotor.stopMotor();
     feedMotor.stopMotor();
@@ -258,6 +265,11 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionFollowerConfig.Slot0.kI = kI;
         positionFollowerConfig.Slot0.kD = kD;
         break;
+      case 3:
+        intakeConfig.Slot0.kP = kP;
+        intakeConfig.Slot0.kI = kI;
+        intakeConfig.Slot0.kD = kD;
+        break;
     }
   }
 
@@ -274,6 +286,11 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionFollowerConfig.Slot0.kV = kV;
         positionFollowerConfig.Slot0.kA = kA;
         break;
+      case 3:
+        intakeConfig.Slot0.kS = kS;
+        intakeConfig.Slot0.kV = kV;
+        intakeConfig.Slot0.kA = kA;
+        break;
     }
   }
 
@@ -282,5 +299,6 @@ public class IntakeIOTalonFX implements IntakeIO {
     PhoenixUtil.tryUntilOk(5, () -> positionMotor.getConfigurator().apply(positionConfig));
     PhoenixUtil.tryUntilOk(
         5, () -> positionMotorFollower.getConfigurator().apply(positionFollowerConfig));
+    PhoenixUtil.tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig));
   }
 }

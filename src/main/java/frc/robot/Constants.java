@@ -364,16 +364,16 @@ public final class Constants {
 
     // MODE == REAL / REPLAY
     // Feedback (PID) constants
-    public static final PIDConstants pid1Real = new PIDConstants(0.2, 0, 0); 
+    public static final PIDConstants pid1Real = new PIDConstants(0.2, 0, 0);
     public static final double[] ff1Real = {0.17065, 0.12191 * 0.975, 0.029701};
 
-    public static final PIDConstants pid2Real = new PIDConstants(0.2, 0, 0); 
+    public static final PIDConstants pid2Real = new PIDConstants(0.2, 0, 0);
     public static final double[] ff2Real = {0.19764, 0.12221 * 0.975, 0.026514};
 
-    public static final PIDConstants pid3Real = new PIDConstants(0.2, 0, 0); 
+    public static final PIDConstants pid3Real = new PIDConstants(0.2, 0, 0);
     public static final double[] ff3Real = {0.19764, 0.12221 * 0.975, 0.026514};
 
-    public static final PIDConstants pid4Real = new PIDConstants(0.2, 0, 0); 
+    public static final PIDConstants pid4Real = new PIDConstants(0.2, 0, 0);
     public static final double[] ff4Real = {0.19764, 0.12221 * 0.975, 0.026514};
 
     public static final double velocityMultiplier = 1.0;
@@ -401,24 +401,30 @@ public final class Constants {
     public static final boolean kIntakeFeedInverted = true;
 
     // Mechanism gear ratios
-    public static final double kIntakeGearRatio = 2.0; // 2:1
+    public static final double kIntakeGearRatio = 1.33;
     public static final double kIntakePositionGearRatio = 16.0; // 16:1
 
     public static final int kIntakeCurrentLimit = 40;
     public static final int kIntakeOptimalVoltage = 12;
 
     // Encoder constants
-    public static final double extendedPositionInRadians =
-        Math.PI / 2; // TODO: Heuristic; Replace with measured value
+    public static final double extendedPositionInRadians = Math.PI / 2;
+    public static final double extendedPositionDegrees = 90; // TODO: Find actual values for intake positioning
+    public static final double oscillationPositionDegrees = 70;
     public static final double extendedPositionDeadbandInRadians = Math.PI / 18;
 
+    // Intake RPM setpoints
+    public static final double intakeSetpointRPM = 5000;
+
     // Positioning PID Constants
-    // TODO: Tune PID for intake positioning
+    // TODO: Tune PID for intake positioning & rollers
     public static final PIDConstants pidPosition = new PIDConstants(0.0, 0.0, 0.0);
     public static final PIDConstants pidPositionFollower = new PIDConstants(0.0, 0.0, 0.0);
+    public static final PIDConstants pidIntakeRollers = new PIDConstants(0.2, 0.0, 0.0);
 
     public static final double[] ffPosition = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
     public static final double[] ffPositionFollower = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
+    public static final double[] ffIntakeRollers = {0.0, 0.0, 0.0};
 
     public static final double intakeGravityOffsetRotations = 0.0; // -0.25 - 0.25
 

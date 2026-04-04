@@ -75,7 +75,6 @@ import frc.robot.util.RBSIPowerMonitor;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
@@ -406,13 +405,17 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Hold Left Trigger --> Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.runIntakeSpeed(intake, 0.50));
+    driverController.leftTrigger().whileTrue(IntakeCommands.setIntakeVelocity(intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8));
 
     // Press Left Bumper --> Retract intake
     driverController.leftBumper().whileTrue(IntakeCommands.retractIntake(intake, 0.20));
 
     // Press Right Bumper --> Extend Intake
-    driverController.rightBumper().whileTrue(IntakeCommands.extendIntake(intake, 0.40));
+    // driverController.rightBumper().whileTrue(IntakeCommands.extendIntake(intake, 0.40));
+    driverController.rightBumper().whileTrue(IntakeCommands.setIntakePosition(intake, Constants.IntakeConstants.extendedPositionDegrees));
+
+    // Press 3 lines/Start Button --> Toggle Oscillation
+    driverController.start().onTrue(IntakeCommands.oscillateIntakePosition(intake, Constants.IntakeConstants.extendedPositionDegrees, Constants.IntakeConstants.oscillationPositionDegrees, 0.2, Constants.IntakeConstants.intakeSetpointRPM, 0.8));
 
     // POV Up/Down --> Increment/Decrement Drive Speed
     driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
@@ -453,94 +456,34 @@ public class RobotContainer {
                         Math.max(variableFlywheelRPM - 100, FLYWHEEL_MIN_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(false)));
 
-    operatorController.back().whileTrue(FlywheelCommands.setVelocity(m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(20)));
-
     operatorController
-        .b()
+        .back()
         .whileTrue(
-            FlywheelCommands.setVelocityAutomatic(
-                m_flywheel,
-                intake,
-                () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM,
-                0.05,
-                0.5,
-                0.8,
-                0.8))
-        .onFalse(FlywheelCommands.stop(m_flywheel));
+            FlywheelCommands.setVelocity(
+                m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(20)));
+
     operatorController
         .rightTrigger()
         .whileTrue(
-            FlywheelCommands.setVelocity(
-                m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM))
-        // 0.25,
-        // -0.5))
+            FlywheelCommands.setVelocity(m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM))
         .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
 
-    operatorController
-        .leftTrigger()
-        .onTrue(FlywheelCommands.setSpeed(m_flywheel, -0.35))
-        .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.65));
-    operatorController.leftTrigger().onFalse(FlywheelCommands.stop(m_flywheel));
+    operatorController.leftTrigger()
+      .onTrue(IntakeCommands.setIntakeVelocity(intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
+      .onFalse(IntakeCommands.stopIntake(intake));
 
     operatorController
         .povUp()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.90))
-        .onTrue(IntakeCommands.runIntakeSpeed(intake, 0.8))
         .onTrue(Commands.runOnce(() -> intake.runFeed(0.6)))
-        .onFalse(FlywheelCommands.stopFeed(m_flywheel))
-        .onFalse(IntakeCommands.stopIntake(intake));
+        .onFalse(FlywheelCommands.stopFeed(m_flywheel));
 
     operatorController
         .povDown()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.35))
         .onFalse(FlywheelCommands.runFeed(m_flywheel, 0));
 
-    // Flywheel PID Tuning
-    // operatorController
-    //     .povUp()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP() + 0.1, m_flywheel.getKI(), m_flywheel.getKD())));
-    // operatorController
-    //     .povDown()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP() - 0.1, m_flywheel.getKI(), m_flywheel.getKD())));
-
-    // operatorController
-    //     .povRight()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP(), m_flywheel.getKI(), m_flywheel.getKD() + 0.1)));
-    // operatorController
-    //     .povLeft()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP(), m_flywheel.getKI(), m_flywheel.getKD() - 0.1)));
-
-    // operatorController
-    //     .start()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP(), m_flywheel.getKI() + 0.1, m_flywheel.getKD())));
-    // operatorController
-    //     .back()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 m_flywheel.configurePID(
-    //                     m_flywheel.getKP(), m_flywheel.getKI() - 0.1, m_flywheel.getKD())));
-
+        
     if (Constants.getMode() == Mode.SIM) {
       // IN SIMULATION ONLY:
       // Double-press the A button on Joystick3 to run the CameraSweepEvaluator
@@ -675,11 +618,21 @@ public class RobotContainer {
           "Intake SysId (Quasistatic Reverse)",
           intake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       autoChooserPathPlanner.addOption(
-          "Intake SysId (Dynamic Forward)",
-          intake.sysIdDynamic(SysIdRoutine.Direction.kForward));
+          "Intake SysId (Dynamic Forward)", intake.sysIdDynamic(SysIdRoutine.Direction.kForward));
       autoChooserPathPlanner.addOption(
-          "Intake SysId (Dynamic Reverse)",
-          intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          "Intake SysId (Dynamic Reverse)", intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      autoChooserPathPlanner.addOption(
+          "Intake Roller SysId (Dynamic Forward)",
+          intake.sysIdDynamicIntake(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Intake Roller SysId (Dynamic Reverse)",
+          intake.sysIdDynamicIntake(SysIdRoutine.Direction.kReverse));
+      autoChooserPathPlanner.addOption(
+          "Intake Roller SysId (Quasistatic Forward)",
+          intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Intake Roller SysId (Quasistatic Reverse)",
+          intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kReverse));
     }
   }
 
@@ -720,7 +673,8 @@ public class RobotContainer {
   }
 
   public void recordTotalSubsystemCurrentDraw() {
-    double totalCurrentDraw = m_drivebase.getTotalCurrent() + m_flywheel.getTotalCurrent() + intake.getTotalCurrent();
+    double totalCurrentDraw =
+        m_drivebase.getTotalCurrent() + m_flywheel.getTotalCurrent() + intake.getTotalCurrent();
     Logger.recordOutput("Total Subsystem Current", totalCurrentDraw);
   }
 }

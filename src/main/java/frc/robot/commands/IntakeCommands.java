@@ -81,4 +81,41 @@ public class IntakeCommands {
     return Commands.sequence(
         extendIntake(intake, positionSpeed), runIntakeSpeed(intake, intakeSpeed));
   }
+
+  /**
+   * Set the intake to the given position
+   * @param intake The intake subsystem to use
+   * @param positionSetpointDegrees The angle setpoint to drive the intake to (degrees)
+   */
+  public static Command setIntakePosition(Intake intake, double positionSetpointDegrees) {
+    return Commands.runOnce(() -> intake.setPosition(positionSetpointDegrees));
+  }
+
+  /**
+   * Set the intake to the given position and oscillate
+   * @param intake The intake subsystem to use
+   * @param initialPositionDegrees The initial position to drive to before oscillation starts (degrees)
+   * @param oscillatePositionDegrees The secondary position for oscillation (degrees)
+   * @param delayTimeSeconds The delay between driving to the setpoints (seconds)
+   */
+  public static Command oscillateIntakePosition(Intake intake, double initialPositionDegrees, double oscillatePositionDegrees, double delayTimeSeconds, double intakeSetpointRPM, double feedSpeed) {
+    return Commands.sequence(
+      setIntakePosition(intake, initialPositionDegrees),
+      Commands.waitSeconds(delayTimeSeconds),
+      setIntakePosition(intake, oscillatePositionDegrees),
+      Commands.waitSeconds(delayTimeSeconds))
+      .repeatedly()
+      .alongWith(setIntakeVelocity(intake, intakeSetpointRPM, feedSpeed))
+      .finallyDo(() -> intake.stopPosition());
+  }
+
+  /**
+   * Set the intake rollers to the given velocity setpoint and run the feed at the given duty cycle
+   * @param intake The intake subsystem to use
+   * @param velocityRPM The velocity to run the intake rollers at (rotations per minute)
+   * @param feedSpeed The speed to run the indexing system at (duty cycle %)
+   */
+  public static Command setIntakeVelocity(Intake intake, double velocityRPM, double feedSpeed) {
+    return Commands.runOnce(() -> intake.setIntakeVelocity(velocityRPM, feedSpeed));
+  }
 }

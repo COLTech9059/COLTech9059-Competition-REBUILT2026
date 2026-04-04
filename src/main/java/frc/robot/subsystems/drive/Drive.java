@@ -283,7 +283,7 @@ public class Drive extends SubsystemBase {
 
   public double getTotalCurrent() {
     double currentSum = 0;
-    for (var module:modules) {
+    for (var module : modules) {
       currentSum += module.getDriveCurrent();
       currentSum += module.getTurnCurrent();
     }

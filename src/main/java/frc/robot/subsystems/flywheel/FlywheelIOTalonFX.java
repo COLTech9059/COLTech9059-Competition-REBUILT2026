@@ -38,12 +38,18 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       new TalonFX(FLYWHEEL_LEADER.getDeviceNumber(), FLYWHEEL_LEADER.getCANBus());
   private final TalonFX follower =
       new TalonFX(FLYWHEEL_FOLLOWER.getDeviceNumber(), FLYWHEEL_FOLLOWER.getCANBus());
-  private final TalonFX secondaryRight = new TalonFX(FLYWHEEL_SECONDARY_RIGHT.getDeviceNumber(), FLYWHEEL_SECONDARY_RIGHT.getCANBus());
-  private final TalonFX secondaryLeft = new TalonFX(FLYWHEEL_SECONDARY_LEFT.getDeviceNumber(), FLYWHEEL_SECONDARY_LEFT.getCANBus());
+  private final TalonFX secondaryRight =
+      new TalonFX(FLYWHEEL_SECONDARY_RIGHT.getDeviceNumber(), FLYWHEEL_SECONDARY_RIGHT.getCANBus());
+  private final TalonFX secondaryLeft =
+      new TalonFX(FLYWHEEL_SECONDARY_LEFT.getDeviceNumber(), FLYWHEEL_SECONDARY_LEFT.getCANBus());
   private final TalonFX feeder = new TalonFX(FLYWHEEL_FEED.getDeviceNumber());
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {
-    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort(), FLYWHEEL_SECONDARY_RIGHT.getPowerPort(), FLYWHEEL_SECONDARY_LEFT.getPowerPort(), FLYWHEEL_FEED.getPowerPort()
+    FLYWHEEL_LEADER.getPowerPort(),
+    FLYWHEEL_FOLLOWER.getPowerPort(),
+    FLYWHEEL_SECONDARY_RIGHT.getPowerPort(),
+    FLYWHEEL_SECONDARY_LEFT.getPowerPort(),
+    FLYWHEEL_FEED.getPowerPort()
   };
 
   private final StatusSignal<Angle> leaderPosition = leader.getPosition();
@@ -111,7 +117,14 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     leaderAppliedVolts.setUpdateFrequency(200.0);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, leaderPosition, leaderVelocity, leaderCurrent, followerCurrent, secondaryRightCurrent, secondaryLeftCurrent, feederCurrent);
+        50.0,
+        leaderPosition,
+        leaderVelocity,
+        leaderCurrent,
+        followerCurrent,
+        secondaryRightCurrent,
+        secondaryLeftCurrent,
+        feederCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
   }
