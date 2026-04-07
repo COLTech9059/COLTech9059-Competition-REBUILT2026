@@ -19,6 +19,11 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
+/**
+ * Climber "hardware" class for a simulated subsystem
+ * 
+ * @author DevAspen (Modified from RBSI Template)
+ */
 public class FlywheelIOSim implements FlywheelIO {
   // Reduction between motors and encoder, as output over input. If the flywheel
   // spins slower than the motors, this number should be greater than one.

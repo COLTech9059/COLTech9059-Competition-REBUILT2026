@@ -31,6 +31,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 
+/**
+ * Flywheel "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
+ * 
+ * @author DevAspen (modified from RBSI template)
+ */
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   // Define the leader / follower motors from the Ports section of RobotContainer

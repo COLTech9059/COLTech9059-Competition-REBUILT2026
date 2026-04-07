@@ -24,6 +24,11 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.PhoenixUtil;
 
+/**
+ * Intake "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
+ * 
+ * @author DevAspen
+ */
 public class IntakeIOTalonFX implements IntakeIO {
 
   private TalonFX positionMotor = new TalonFX(INTAKE_POSITION.getDeviceNumber());

@@ -28,6 +28,7 @@ import org.littletonrobotics.junction.Logger;
 /**
  * Flywheel subsystem, driven by several motors; Kraken, NEO, and hybrid compatibility; open &
  * closed-loop control
+ * @author DevAspen (modified from RBSI template)
  */
 public class Flywheel extends RBSISubsystem {
   private final FlywheelIO io;

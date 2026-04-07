@@ -106,8 +106,8 @@ public class RobotContainer {
 
   private final ImuIO m_imu;
   private final Flywheel m_flywheel;
-  private final Intake intake = new Intake(new IntakeIOTalonFX());
-  private final Climber climber = new Climber(new ClimberIOEmpty());
+  private final Intake m_intake = new Intake(new IntakeIOTalonFX());
+  private final Climber m_climber = new Climber(new ClimberIOEmpty());
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -237,7 +237,7 @@ public class RobotContainer {
     // In addition to the initial battery capacity from the Dashbaord, ``RBSIPowerMonitor`` takes
     // all the non-drivebase subsystems for which you wish to have power monitoring; DO NOT
     // include ``m_drivebase``, as that is automatically monitored.
-    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel, intake);
+    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel, m_intake);
 
     // Define Auto commands
     defineAutoCommands();
@@ -300,7 +300,7 @@ public class RobotContainer {
                     new Pose2d(m_drivebase.getPose().getTranslation(), Rotation2d.kZero)),
             m_drivebase));
 
-    NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(climber, 0.4));
+    NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(m_climber, 0.4));
 
     NamedCommands.registerCommand("Start Shoot", FlywheelCommands.setSpeed(m_flywheel, 0.60));
 
@@ -308,17 +308,17 @@ public class RobotContainer {
         "Start Uptake",
         Commands.sequence(
             FlywheelCommands.runFeed(m_flywheel, 0.5),
-            IntakeCommands.runIntakeSpeed(intake, 0.8, 0.5)));
+            IntakeCommands.runIntakeSpeed(m_intake, 0.8, 0.5)));
 
     NamedCommands.registerCommand("Stop Uptake", FlywheelCommands.stop(m_flywheel));
 
     NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
 
-    NamedCommands.registerCommand("Extend Intake", IntakeCommands.extendIntake(intake, 0.4));
+    NamedCommands.registerCommand("Extend Intake", IntakeCommands.extendIntake(m_intake, 0.4));
 
-    NamedCommands.registerCommand("Start Intake", IntakeCommands.runIntakeSpeed(intake, 0.8));
+    NamedCommands.registerCommand("Start Intake", IntakeCommands.runIntakeSpeed(m_intake, 0.8));
 
-    NamedCommands.registerCommand("Stop Intake", IntakeCommands.stopIntake(intake));
+    NamedCommands.registerCommand("Stop Intake", IntakeCommands.stopIntake(m_intake));
   }
 
   /**
@@ -404,49 +404,51 @@ public class RobotContainer {
             Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
                 .ignoringDisable(true));
 
-    // Hold Left Trigger --> Intake
+    // Hold right trigger --> Spin up m_intake to setpoint RPM with feed (closed loop)
     driverController
         .rightTrigger()
         .whileTrue(
             IntakeCommands.setIntakeVelocity(
-                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
-        .onFalse(IntakeCommands.stopIntake(intake));
+                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
+        .onFalse(IntakeCommands.stopIntake(m_intake));
 
+    // Hold left trigger --> Spin up m_intake to outtake RPM without feed (closed loop)
     driverController
         .leftTrigger()
         .whileTrue(
             IntakeCommands.setIntakeVelocity(
-                intake, -Constants.IntakeConstants.intakeSetpointRPM, 0))
-        .onFalse(IntakeCommands.stopIntake(intake));
+                m_intake, -Constants.IntakeConstants.intakeSetpointRPM, 0))
+        .onFalse(IntakeCommands.stopIntake(m_intake));
 
-    // Press Left Bumper --> Retract intake
+    // Hold left bumper --> Retract m_intake
     driverController
         .leftBumper()
-        .whileTrue(IntakeCommands.retractIntake(intake, 0.20))
-        .onFalse(IntakeCommands.stopIntake(intake));
+        .whileTrue(IntakeCommands.retractIntake(m_intake, 0.20))
+        .onFalse(IntakeCommands.stopIntake(m_intake));
 
-    // Press Right Bumper --> Extend Intake
+    // Hold right bumper --> Extend m_intake
     driverController
         .rightBumper()
-        .whileTrue(IntakeCommands.extendIntake(intake, 0.40))
-        .onFalse(IntakeCommands.stopIntake(intake));
+        .whileTrue(IntakeCommands.extendIntake(m_intake, 0.40))
+        .onFalse(IntakeCommands.stopIntake(m_intake));
     // driverController
     //     .rightBumper()
     //     .whileTrue(
     //         IntakeCommands.setIntakePosition(
-    //             intake, Constants.IntakeConstants.extendedPositionDegrees));
+    //             m_intake, Constants.IntakeConstants.extendedPositionDegrees));
 
-    // Press 3 lines/Start Button --> Toggle Oscillation
+    // Press 3 lines/start button --> Toggle m_intake oscillation
     driverController
         .start()
         .toggleOnTrue(
             IntakeCommands.oscillateIntakePosition(
-                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7, 0.2, 0.4));
+                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7, 0.2, 0.4));
 
     // POV Up/Down --> Increment/Decrement Drive Speed
     driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
     driverController.povDown().onTrue(Commands.runOnce(m_drivebase::decreaseSpeed, m_drivebase));
 
+    // Press back button --> Stop flywheel (backup/emergency only)
     driverController.back().onTrue(FlywheelCommands.stop(m_flywheel));
 
     // Press POV LEFT to nudge the robot left
@@ -465,6 +467,7 @@ public class RobotContainer {
 
     /*****OPERATOR CONTROLS*****/
 
+    // Press right bumper --> Increment flywheel RPM by 100
     operatorController
         .rightBumper()
         .onTrue(
@@ -473,6 +476,8 @@ public class RobotContainer {
                     variableFlywheelRPM =
                         Math.min(variableFlywheelRPM + 100, FLYWHEEL_MAX_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(true)));
+
+    // Press left bumper --> Decrement flywheel RPM by 100
     operatorController
         .leftBumper()
         .onTrue(
@@ -482,12 +487,14 @@ public class RobotContainer {
                         Math.max(variableFlywheelRPM - 100, FLYWHEEL_MIN_RPM - FLYWHEEL_MID_RPM)));
     // .onTrue(Commands.runOnce(() -> m_flywheel.incrementSpeed(false)));
 
+    // Hold back button --> Test distance based RPM formula
     operatorController
         .back()
         .whileTrue(
             FlywheelCommands.setVelocity(
                 m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(10)));
 
+    // Hold right trigger --> Spin up flywheel to setpoint RPM (closed loop)
     operatorController
         .rightTrigger()
         .whileTrue(
@@ -495,20 +502,23 @@ public class RobotContainer {
                 m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM));
     // .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
 
+    // Hold left trigger --> Spin up m_intake to setpoint RPM (closed loop)
     operatorController
         .leftTrigger()
         .onTrue(
             IntakeCommands.setIntakeVelocity(
-                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7))
-        .onFalse(IntakeCommands.stopIntake(intake));
+                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7))
+        .onFalse(IntakeCommands.stopIntake(m_intake));
 
+    // Hold POV up --> Run index & uptake
     operatorController
         .povUp()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.90))
-        .onTrue(Commands.runOnce(() -> intake.runFeed(0.7)))
+        .onTrue(Commands.runOnce(() -> m_intake.runFeed(0.7)))
         .onFalse(FlywheelCommands.stopFeed(m_flywheel))
-        .onFalse(Commands.runOnce(() -> intake.runFeed(0)));
+        .onFalse(Commands.runOnce(() -> m_intake.runFeed(0)));
 
+    // Hold POV down --> Run uptake in reverse
     operatorController
         .povDown()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.35))
@@ -643,32 +653,32 @@ public class RobotContainer {
       // Intake SysId Characterization
       autoChooserPathPlanner.addOption(
           "Intake SysId (Quasistatic Forward)",
-          intake.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+          m_intake.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       autoChooserPathPlanner.addOption(
           "Intake SysId (Quasistatic Reverse)",
-          intake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+          m_intake.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       autoChooserPathPlanner.addOption(
-          "Intake SysId (Dynamic Forward)", intake.sysIdDynamic(SysIdRoutine.Direction.kForward));
+          "Intake SysId (Dynamic Forward)", m_intake.sysIdDynamic(SysIdRoutine.Direction.kForward));
       autoChooserPathPlanner.addOption(
-          "Intake SysId (Dynamic Reverse)", intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+          "Intake SysId (Dynamic Reverse)", m_intake.sysIdDynamic(SysIdRoutine.Direction.kReverse));
       autoChooserPathPlanner.addOption(
           "Intake Roller SysId (Dynamic Forward)",
-          intake.sysIdDynamicIntake(SysIdRoutine.Direction.kForward));
+          m_intake.sysIdDynamicIntake(SysIdRoutine.Direction.kForward));
       autoChooserPathPlanner.addOption(
           "Intake Roller SysId (Dynamic Reverse)",
-          intake.sysIdDynamicIntake(SysIdRoutine.Direction.kReverse));
+          m_intake.sysIdDynamicIntake(SysIdRoutine.Direction.kReverse));
       autoChooserPathPlanner.addOption(
           "Intake Roller SysId (Quasistatic Forward)",
-          intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kForward));
+          m_intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kForward));
       autoChooserPathPlanner.addOption(
           "Intake Roller SysId (Quasistatic Reverse)",
-          intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kReverse));
+          m_intake.sysIdQuasistaticIntake(SysIdRoutine.Direction.kReverse));
     }
   }
 
   public void stopAll() {
-    intake.stopIntake();
-    intake.stopPosition();
+    m_intake.stopIntake();
+    m_intake.stopPosition();
     m_flywheel.stop();
   }
 
@@ -687,8 +697,8 @@ public class RobotContainer {
     // When the routine begins, reset odometry and start the first trajectory
     routine.active().onTrue(Commands.sequence(pickupTraj.resetOdometry(), pickupTraj.cmd()));
 
-    // Starting at the event marker named "intake", run the intake
-    // pickupTraj.atTime("intake").onTrue(intakeSubsystem.intake());
+    // Starting at the event marker named "m_intake", run the m_intake
+    // pickupTraj.atTime("m_intake").onTrue(intakeSubsystem.m_intake());
 
     // When the trajectory is done, start the next trajectory
     pickupTraj.done().onTrue(scoreTraj.cmd());
@@ -704,7 +714,7 @@ public class RobotContainer {
 
   public void recordTotalSubsystemCurrentDraw() {
     double totalCurrentDraw =
-        m_drivebase.getTotalCurrent() + m_flywheel.getTotalCurrent() + intake.getTotalCurrent();
+        m_drivebase.getTotalCurrent() + m_flywheel.getTotalCurrent() + m_intake.getTotalCurrent();
     Logger.recordOutput("Total Subsystem Current", totalCurrentDraw);
   }
 }

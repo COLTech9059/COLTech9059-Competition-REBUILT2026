@@ -15,6 +15,12 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
+
+/**
+ * Intake "hardware" class for a subsystem that uses exclusively SparkMax motor controllers
+ * 
+ * @author DevAspen
+ */
 public class IntakeIOSpark implements IntakeIO {
 
   private SparkMax positionMotor =

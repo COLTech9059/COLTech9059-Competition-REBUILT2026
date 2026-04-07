@@ -15,6 +15,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 
+/**
+ * Climber "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
+ * 
+ * @author DevAspen
+ */
 public class ClimberIOTalonFX implements ClimberIO {
   private TalonFX climbMotor = new TalonFX(CLIMBER_MOTOR.getDeviceNumber());
   private DigitalInput upLimit = new DigitalInput(CLIMBER_UP_LIMIT);
