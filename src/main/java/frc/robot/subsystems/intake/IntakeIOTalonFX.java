@@ -43,6 +43,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<AngularVelocity> velocityLeader = positionMotor.getVelocity();
   private final StatusSignal<AngularVelocity> velocityFollower =
       positionMotorFollower.getVelocity();
+  private final StatusSignal<AngularVelocity> velocityRollerRPS = intakeMotor.getVelocity();
 
   private final StatusSignal<Current> positionCurrent = positionMotor.getSupplyCurrent();
   private final StatusSignal<Current> positionFollowerCurrent =
@@ -114,6 +115,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         voltageFollower,
         velocityLeader,
         velocityFollower,
+        velocityRollerRPS,
         positionCurrent,
         intakeCurrent,
         feedCurrent,
@@ -134,6 +136,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         voltageFollower,
         velocityLeader,
         velocityFollower,
+        velocityRollerRPS,
         positionCurrent,
         intakeCurrent,
         feedCurrent,
@@ -146,6 +149,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     inputs.voltageFollower = voltageFollower.getValue();
     inputs.velocityLeader = velocityLeader.getValue();
     inputs.velocityFollower = velocityFollower.getValue();
+    inputs.velocityRollerRPM = velocityRollerRPS.getValueAsDouble() * 60;
     inputs.leaderAppliedTorque = leaderAppliedTorque.getValueAsDouble();
     inputs.isIntakeInLeft = inLimitLeft.get();
     inputs.isIntakeInRight = inLimitRight.get();
@@ -182,6 +186,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   public void setSpeed(double baseIntakeSpeed, double baseFeedSpeed) {
     intakeMotor.set(baseIntakeSpeed);
     feedMotor.set(baseFeedSpeed);
+  }
+
+  @Override
+  public void setPositionSpeed(double positionSpeed) {
+    positionMotor.set(positionSpeed);
   }
 
   @Override

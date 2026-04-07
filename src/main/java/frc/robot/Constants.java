@@ -364,17 +364,21 @@ public final class Constants {
 
     // MODE == REAL / REPLAY
     // Feedback (PID) constants
-    public static final PIDConstants pid1Real = new PIDConstants(0.2, 0, 0);
-    public static final double[] ff1Real = {0.17065, 0.12191 * 0.975, 0.029701};
+    public static final PIDConstants pid1Real = new PIDConstants(0.1, 0, 0);
+    public static final double[] ff1Real = {
+      0.21486, 0.11432, 0.026774
+    }; // {0.17065, 0.12191 * 0.975, 0.029701};
 
-    public static final PIDConstants pid2Real = new PIDConstants(0.2, 0, 0);
-    public static final double[] ff2Real = {0.19764, 0.12221 * 0.975, 0.026514};
+    public static final PIDConstants pid2Real = new PIDConstants(0.1, 0, 0);
+    public static final double[] ff2Real = {
+      0.12768, 0.11423, 0.034086
+    }; // {0.19764, 0.12221 * 0.975, 0.026514};
 
-    public static final PIDConstants pid3Real = new PIDConstants(0.2, 0, 0);
-    public static final double[] ff3Real = {0.19764, 0.12221 * 0.975, 0.026514};
+    public static final PIDConstants pid3Real = new PIDConstants(0.1, 0, 0);
+    public static final double[] ff3Real = {0.39683, 0.10717, 0.018185};
 
-    public static final PIDConstants pid4Real = new PIDConstants(0.2, 0, 0);
-    public static final double[] ff4Real = {0.19764, 0.12221 * 0.975, 0.026514};
+    public static final PIDConstants pid4Real = new PIDConstants(0.1, 0, 0);
+    public static final double[] ff4Real = {0.41313, 0.10694, 0.01758};
 
     public static final double velocityMultiplier = 1.0;
 
@@ -409,22 +413,23 @@ public final class Constants {
 
     // Encoder constants
     public static final double extendedPositionInRadians = Math.PI / 2;
-    public static final double extendedPositionDegrees = 90; // TODO: Find actual values for intake positioning
+    public static final double extendedPositionDegrees =
+        90; // TODO: Find actual values for intake positioning
     public static final double oscillationPositionDegrees = 70;
     public static final double extendedPositionDeadbandInRadians = Math.PI / 18;
 
     // Intake RPM setpoints
-    public static final double intakeSetpointRPM = 5000;
+    public static final double intakeSetpointRPM = 3000; // Off by some unknown amount; tune PSVA
 
     // Positioning PID Constants
     // TODO: Tune PID for intake positioning & rollers
     public static final PIDConstants pidPosition = new PIDConstants(0.0, 0.0, 0.0);
     public static final PIDConstants pidPositionFollower = new PIDConstants(0.0, 0.0, 0.0);
-    public static final PIDConstants pidIntakeRollers = new PIDConstants(0.2, 0.0, 0.0);
+    public static final PIDConstants pidIntakeRollers = new PIDConstants(2.0, 0.0, 0.0);
 
     public static final double[] ffPosition = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
     public static final double[] ffPositionFollower = {0.0, 0.0, 0.0, 0.0}; // kS, kV, kA, kG
-    public static final double[] ffIntakeRollers = {0.0, 0.0, 0.0};
+    public static final double[] ffIntakeRollers = {0.47219 * 0.75, 0.13783 * 0.95, 0.038663};
 
     public static final double intakeGravityOffsetRotations = 0.0; // -0.25 - 0.25
 

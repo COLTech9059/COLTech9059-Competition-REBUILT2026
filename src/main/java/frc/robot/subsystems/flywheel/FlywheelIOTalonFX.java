@@ -93,10 +93,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     else feedConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     followerConfig = config.clone();
-    if (kFlywheelFollowerInverted)
-      followerConfig.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
-    else followerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
-
     secondaryRightConfig = config.clone();
     secondaryLeftConfig = config.clone();
 

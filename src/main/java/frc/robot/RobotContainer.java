@@ -405,17 +405,43 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Hold Left Trigger --> Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.setIntakeVelocity(intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8));
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            IntakeCommands.setIntakeVelocity(
+                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
+        .onFalse(IntakeCommands.stopIntake(intake));
+
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            IntakeCommands.setIntakeVelocity(
+                intake, -Constants.IntakeConstants.intakeSetpointRPM, 0))
+        .onFalse(IntakeCommands.stopIntake(intake));
 
     // Press Left Bumper --> Retract intake
-    driverController.leftBumper().whileTrue(IntakeCommands.retractIntake(intake, 0.20));
+    driverController
+        .leftBumper()
+        .whileTrue(IntakeCommands.retractIntake(intake, 0.20))
+        .onFalse(IntakeCommands.stopIntake(intake));
 
     // Press Right Bumper --> Extend Intake
-    // driverController.rightBumper().whileTrue(IntakeCommands.extendIntake(intake, 0.40));
-    driverController.rightBumper().whileTrue(IntakeCommands.setIntakePosition(intake, Constants.IntakeConstants.extendedPositionDegrees));
+    driverController
+        .rightBumper()
+        .whileTrue(IntakeCommands.extendIntake(intake, 0.40))
+        .onFalse(IntakeCommands.stopIntake(intake));
+    // driverController
+    //     .rightBumper()
+    //     .whileTrue(
+    //         IntakeCommands.setIntakePosition(
+    //             intake, Constants.IntakeConstants.extendedPositionDegrees));
 
     // Press 3 lines/Start Button --> Toggle Oscillation
-    driverController.start().onTrue(IntakeCommands.oscillateIntakePosition(intake, Constants.IntakeConstants.extendedPositionDegrees, Constants.IntakeConstants.oscillationPositionDegrees, 0.2, Constants.IntakeConstants.intakeSetpointRPM, 0.8));
+    driverController
+        .start()
+        .toggleOnTrue(
+            IntakeCommands.oscillateIntakePosition(
+                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7, 0.2, 0.4));
 
     // POV Up/Down --> Increment/Decrement Drive Speed
     driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
@@ -460,30 +486,34 @@ public class RobotContainer {
         .back()
         .whileTrue(
             FlywheelCommands.setVelocity(
-                m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(20)));
+                m_flywheel, () -> m_flywheel.getFlywheelRPMFromDistance(10)));
 
     operatorController
         .rightTrigger()
         .whileTrue(
-            FlywheelCommands.setVelocity(m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM))
-        .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
+            FlywheelCommands.setVelocity(
+                m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM));
+    // .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
 
-    operatorController.leftTrigger()
-      .onTrue(IntakeCommands.setIntakeVelocity(intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
-      .onFalse(IntakeCommands.stopIntake(intake));
+    operatorController
+        .leftTrigger()
+        .onTrue(
+            IntakeCommands.setIntakeVelocity(
+                intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7))
+        .onFalse(IntakeCommands.stopIntake(intake));
 
     operatorController
         .povUp()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.90))
-        .onTrue(Commands.runOnce(() -> intake.runFeed(0.6)))
-        .onFalse(FlywheelCommands.stopFeed(m_flywheel));
+        .onTrue(Commands.runOnce(() -> intake.runFeed(0.7)))
+        .onFalse(FlywheelCommands.stopFeed(m_flywheel))
+        .onFalse(Commands.runOnce(() -> intake.runFeed(0)));
 
     operatorController
         .povDown()
         .onTrue(FlywheelCommands.runFeed(m_flywheel, -0.35))
         .onFalse(FlywheelCommands.runFeed(m_flywheel, 0));
 
-        
     if (Constants.getMode() == Mode.SIM) {
       // IN SIMULATION ONLY:
       // Double-press the A button on Joystick3 to run the CameraSweepEvaluator

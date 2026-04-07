@@ -36,6 +36,7 @@ public class Flywheel extends RBSISubsystem {
   private final SysIdRoutine sysId;
 
   private double variableSpeed = minFlywheelSpeed;
+  private double velocitySetpointRPM = 0;
 
   private Timer spinUpTimer = new Timer();
 
@@ -98,12 +99,15 @@ public class Flywheel extends RBSISubsystem {
     SmartDashboard.putBoolean("Flywheel Spun Up?", isTimerPastValue(flywheelSpinUpTime));
 
     Logger.recordOutput("Flywheel/Total Current", getTotalCurrent());
+
+    // Log flywheel setpoint
+    Logger.recordOutput("Flywheel/SetpointRPM", velocitySetpointRPM);
   }
 
   public double getTotalCurrent() {
     double currentSum = 0;
     for (int i = 0; i < inputs.currentAmps.length; i++) {
-      currentSum += inputs.currentAmps[i];
+      currentSum += Math.abs(inputs.currentAmps[i]);
     }
     return currentSum;
   }
@@ -135,8 +139,7 @@ public class Flywheel extends RBSISubsystem {
     var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
     io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
 
-    // Log flywheel setpoint
-    Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
+    velocitySetpointRPM = velocityRPM;
   }
 
   /** Run flywheel using a given distance. Used for shooting at the Hub. */

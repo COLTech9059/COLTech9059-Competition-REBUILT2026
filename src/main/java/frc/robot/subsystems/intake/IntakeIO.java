@@ -15,6 +15,7 @@ public interface IntakeIO extends RBSIIO {
     public double positionFollower = 0.0;
     public AngularVelocity velocityLeader = null;
     public AngularVelocity velocityFollower = null;
+    public double velocityRollerRPM = 0.0;
     public Voltage voltageLeader = null;
     public Voltage voltageFollower = null;
     public double leaderAppliedTorque = 0.0;
@@ -33,6 +34,8 @@ public interface IntakeIO extends RBSIIO {
   public default void setSpeed(double baseSpeed) {}
 
   public default void setSpeed(double baseIntakeSpeed, double baseFeedSpeed) {}
+
+  public default void setPositionSpeed(double positionSpeed) {}
 
   public default void runFeed(double speed) {}
 

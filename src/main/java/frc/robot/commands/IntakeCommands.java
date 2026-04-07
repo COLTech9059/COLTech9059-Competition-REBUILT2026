@@ -27,8 +27,8 @@ public class IntakeCommands {
    */
   public static Command retractIntake(Intake intake, double baseSpeed) {
     return Commands.run(() -> intake.setPosition(baseSpeed, false), intake)
-        .unless(intake::isIntakeIn)
-        .until(intake::isIntakeIn)
+        // .unless(intake::isIntakeIn)
+        // .until(intake::isIntakeIn)
         .finallyDo(
             () -> {
               intake.stopPosition();
@@ -43,7 +43,7 @@ public class IntakeCommands {
    * @param speed The speed to run the rollers at
    */
   public static Command runIntakeSpeed(Intake intake, double speed) {
-    return Commands.startEnd(() -> intake.runSpeed(speed), () -> intake.stopIntake(), intake);
+    return Commands.startEnd(() -> intake.runSpeed(speed), () -> intake.stopIntake());
   }
 
   public static Command runIntakeSpeed(Intake intake, double intakeSpeed, double feedSpeed) {
@@ -58,7 +58,7 @@ public class IntakeCommands {
    * @param volts The voltage to run the rollers at
    */
   public static Command runIntakeVolts(Intake intake, double volts) {
-    return Commands.startEnd(() -> intake.runVolts(volts), () -> intake.stopIntake(), intake);
+    return Commands.startEnd(() -> intake.runVolts(volts), () -> intake.stopIntake());
   }
 
   /**
@@ -84,33 +84,55 @@ public class IntakeCommands {
 
   /**
    * Set the intake to the given position
+   *
    * @param intake The intake subsystem to use
    * @param positionSetpointDegrees The angle setpoint to drive the intake to (degrees)
    */
   public static Command setIntakePosition(Intake intake, double positionSetpointDegrees) {
-    return Commands.runOnce(() -> intake.setPosition(positionSetpointDegrees));
+    return Commands.runOnce(() -> intake.setPosition(positionSetpointDegrees), intake);
   }
 
   /**
    * Set the intake to the given position and oscillate
+   *
    * @param intake The intake subsystem to use
-   * @param initialPositionDegrees The initial position to drive to before oscillation starts (degrees)
+   * @param initialPositionDegrees The initial position to drive to before oscillation starts
+   *     (degrees)
    * @param oscillatePositionDegrees The secondary position for oscillation (degrees)
    * @param delayTimeSeconds The delay between driving to the setpoints (seconds)
    */
-  public static Command oscillateIntakePosition(Intake intake, double initialPositionDegrees, double oscillatePositionDegrees, double delayTimeSeconds, double intakeSetpointRPM, double feedSpeed) {
+  public static Command oscillateIntakePosition(
+      Intake intake,
+      double initialPositionDegrees,
+      double oscillatePositionDegrees,
+      double delayTimeSeconds,
+      double intakeSetpointRPM,
+      double feedSpeed) {
     return Commands.sequence(
-      setIntakePosition(intake, initialPositionDegrees),
-      Commands.waitSeconds(delayTimeSeconds),
-      setIntakePosition(intake, oscillatePositionDegrees),
-      Commands.waitSeconds(delayTimeSeconds))
-      .repeatedly()
-      .alongWith(setIntakeVelocity(intake, intakeSetpointRPM, feedSpeed))
-      .finallyDo(() -> intake.stopPosition());
+            setIntakePosition(intake, initialPositionDegrees),
+            Commands.waitSeconds(delayTimeSeconds),
+            setIntakePosition(intake, oscillatePositionDegrees),
+            Commands.waitSeconds(delayTimeSeconds))
+        .repeatedly()
+        .alongWith(setIntakeVelocity(intake, intakeSetpointRPM, feedSpeed))
+        .finallyDo(() -> intake.stopPosition());
+  }
+
+  public static Command oscillateIntakePosition(
+      Intake intake, double intakeSetpointRPM, double feedSpeed, double speed, double interval) {
+    return Commands.sequence(
+            Commands.runOnce(() -> intake.runPositionSpeed(-speed)),
+            Commands.waitSeconds(interval),
+            Commands.runOnce(() -> intake.runPositionSpeed(speed)),
+            Commands.waitSeconds(interval))
+        .repeatedly()
+        .alongWith(setIntakeVelocity(intake, intakeSetpointRPM, feedSpeed))
+        .finallyDo(() -> intake.stopPosition());
   }
 
   /**
    * Set the intake rollers to the given velocity setpoint and run the feed at the given duty cycle
+   *
    * @param intake The intake subsystem to use
    * @param velocityRPM The velocity to run the intake rollers at (rotations per minute)
    * @param feedSpeed The speed to run the indexing system at (duty cycle %)

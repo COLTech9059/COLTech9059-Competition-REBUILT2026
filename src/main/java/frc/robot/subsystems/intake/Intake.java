@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.IntakeConstants.extendedPositionDeadbandInRadians;
@@ -12,8 +11,8 @@ import static frc.robot.Constants.IntakeConstants.pidIntakeRollers;
 import static frc.robot.Constants.IntakeConstants.pidPosition;
 import static frc.robot.Constants.IntakeConstants.pidPositionFollower;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -32,6 +31,8 @@ public class Intake extends RBSISubsystem {
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final SysIdRoutine sysId;
   private final SysIdRoutine sysIdRollers;
+
+  private double velocitySetpointRPM = 0;
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -64,40 +65,18 @@ public class Intake extends RBSISubsystem {
                 Volts.of(0.25).per(Second),
                 Volts.of(1.0),
                 Time.ofBaseUnits(5.0, edu.wpi.first.units.Units.Seconds),
-                (state) -> Logger.recordOutput("SysIDState", state.toString())),
+                (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> runPositionVolts(voltage.in(Volts)),
-                (sysIdRoutineLog) -> {
-                  sysIdRoutineLog
-                      .motor("Intake Leader")
-                      .angularPosition(Angle.ofBaseUnits(inputs.positionLeader, Degrees))
-                      .voltage(inputs.voltageLeader)
-                      .angularVelocity(inputs.velocityLeader);
-                  sysIdRoutineLog
-                      .motor("Follower Leader")
-                      .angularPosition(Angle.ofBaseUnits(inputs.positionFollower, Degrees))
-                      .voltage(inputs.voltageFollower)
-                      .angularVelocity(inputs.velocityFollower);
-                },
-                this));
+                (voltage) -> runPositionVolts(voltage.in(Volts)), null, this));
 
     sysIdRollers =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(1).per(Second),
-                Volts.of(8.0),
-                Time.ofBaseUnits(8.0, edu.wpi.first.units.Units.Seconds),
-                (state) -> Logger.recordOutput("SysIDState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> runVolts(voltage.in(Volts)),
-                (sysIdRoutineLog) -> {
-                  sysIdRoutineLog
-                      .motor("Intake Rollers")
-                      .angularPosition(Angle.ofBaseUnits(inputs.positionLeader, Degrees))
-                      .voltage(inputs.voltageLeader)
-                      .angularVelocity(inputs.velocityLeader);
-                },
-                this));
+                null, // Volts.of(1).per(Second),
+                null, // Volts.of(8.0),
+                Time.ofBaseUnits(7.0, edu.wpi.first.units.Units.Seconds),
+                (state) -> SignalLogger.writeString("state", state.toString())),
+            new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -105,6 +84,9 @@ public class Intake extends RBSISubsystem {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
     Logger.recordOutput("Intake/Total Current", getTotalCurrent());
+
+    // Log velocity setpoint
+    Logger.recordOutput("Intake/SetpointRPM", velocitySetpointRPM);
   }
 
   public double getTotalCurrent() {
@@ -129,6 +111,10 @@ public class Intake extends RBSISubsystem {
     io.setSpeed(speed);
   }
 
+  public void runPositionSpeed(double positionSpeed) {
+    io.setPositionSpeed(positionSpeed);
+  }
+
   public void runFeed(double speed) {
     io.runFeed(speed);
   }
@@ -142,6 +128,8 @@ public class Intake extends RBSISubsystem {
 
   public void setIntakeVelocity(double velocityRPM, double feedSpeed) {
     io.setIntakeVelocity(velocityRPM, feedSpeed);
+
+    velocitySetpointRPM = velocityRPM;
   }
 
   public void setPosition(double positionDegrees) {
@@ -213,6 +201,6 @@ public class Intake extends RBSISubsystem {
   }
 
   public Command sysIdDynamicIntake(SysIdRoutine.Direction direction) {
-    return sysIdRollers.quasistatic(direction);
+    return sysIdRollers.dynamic(direction);
   }
 }
