@@ -89,14 +89,16 @@ public class Intake extends RBSISubsystem {
     Logger.recordOutput("Intake/SetpointRPM", velocitySetpointRPM);
   }
 
+  /** Returns the total current draw of the subsystem */
   public double getTotalCurrent() {
     double currentSum = 0;
     for (int i = 0; i < inputs.currentAmps.length; i++) {
-      currentSum += inputs.currentAmps[i];
+      currentSum += Math.abs(inputs.currentAmps[i]);
     }
     return currentSum;
   }
 
+  /** Run the positioning motors at the given voltage */
   public void runPositionVolts(double volts) {
     io.setPositionVoltage(volts);
   }
@@ -111,10 +113,12 @@ public class Intake extends RBSISubsystem {
     io.setSpeed(speed);
   }
 
+  /** Run the positioning motors at the given speed */
   public void runPositionSpeed(double positionSpeed) {
     io.setPositionSpeed(positionSpeed);
   }
 
+  /** Run the feed motor at the given speed */
   public void runFeed(double speed) {
     io.runFeed(speed);
   }
@@ -126,16 +130,28 @@ public class Intake extends RBSISubsystem {
     Logger.recordOutput("Intake/setpointPosition", out);
   }
 
+  public void setIntakeTorque(double torqueSetpoint) {
+    io.setIntakeTorque(torqueSetpoint);
+  }
+
+  /**
+   * Set the velocity of the intake & feed system
+   *
+   * @param velocityRPM The velocity setpoint of the intake rollers in RPM
+   * @param feedSpeed The speed to set the feed system to
+   */
   public void setIntakeVelocity(double velocityRPM, double feedSpeed) {
     io.setIntakeVelocity(velocityRPM, feedSpeed);
 
     velocitySetpointRPM = velocityRPM;
   }
 
+  /** Set the position of the positioning system in degrees; closed loop */
   public void setPosition(double positionDegrees) {
     io.setPosition(positionDegrees);
   }
 
+  /** Jostle/oscillate the intake with the given base speed */
   public void jostleIntake(double baseSpeed) {
     double intakePosition = Units.degreesToRadians(inputs.positionDegrees);
     boolean yesReverse =
@@ -158,11 +174,13 @@ public class Intake extends RBSISubsystem {
     return inputs.positionDegrees;
   }
 
+  /** Returns true if the intake is in the "out" position */
   public boolean isIntakeOut() {
     double currentAngle = Units.degreesToRadians(inputs.positionDegrees);
     return ((currentAngle >= (extendedPositionInRadians - extendedPositionDeadbandInRadians)));
   }
 
+  /** Returns true if the intake is in the "in" position */
   public boolean isIntakeIn() {
     return (isIntakeInLeft() || isIntakeInRight());
   }
@@ -177,6 +195,7 @@ public class Intake extends RBSISubsystem {
     return inputs.isIntakeInRight;
   }
 
+  /** Sets the speed of the intake and feed system to the given speeds */
   public void setSpeed(double intakeSpeed, double feedSpeed) {
     io.setSpeed(intakeSpeed, feedSpeed);
   }
@@ -196,10 +215,12 @@ public class Intake extends RBSISubsystem {
     return sysId.dynamic(direction);
   }
 
+  /** Returns a command to run a quasistatic intake roller test in the specified direction */
   public Command sysIdQuasistaticIntake(SysIdRoutine.Direction direction) {
     return sysIdRollers.quasistatic(direction);
   }
 
+  /** Returns a command to run a dynamic intake roller test in the specified direction */
   public Command sysIdDynamicIntake(SysIdRoutine.Direction direction) {
     return sysIdRollers.dynamic(direction);
   }

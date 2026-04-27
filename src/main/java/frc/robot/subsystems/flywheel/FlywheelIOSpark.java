@@ -40,9 +40,9 @@ import org.littletonrobotics.junction.Logger;
 /**
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
  * "CANSparkFlex".
- * 
- * Flywheel "hardware" class for a subsystem that uses exclusively SparkMax motor controllers
- * 
+ *
+ * <p>Flywheel "hardware" class for a subsystem that uses exclusively SparkMax motor controllers
+ *
  * @author DevAspen (modified from RBSI template)
  */
 public class FlywheelIOSpark implements FlywheelIO {

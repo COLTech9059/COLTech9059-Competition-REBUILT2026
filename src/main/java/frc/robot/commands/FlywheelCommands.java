@@ -53,8 +53,7 @@ public class FlywheelCommands {
   }
 
   public static Command setVelocity(Flywheel flywheel, DoubleSupplier velocityRPM) {
-    return Commands.run(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel)
-        .finallyDo(() -> flywheel.stop());
+    return Commands.runOnce(() -> flywheel.runVelocity(velocityRPM.getAsDouble()), flywheel);
   }
 
   public static Command setVelocity(

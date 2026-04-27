@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Backup Shoot"
+            "pathName": "Right Backup Shoot"
           }
         },
         {
@@ -48,13 +48,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Stop Shoot"
+                  "name": "Stop Uptake"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Stop Uptake"
+                  "name": "Stop Shoot"
                 }
               }
             ]

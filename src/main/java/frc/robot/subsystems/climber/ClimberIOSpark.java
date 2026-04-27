@@ -16,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
 
 /**
  * Climber "hardware" class for a subsystem that uses exclusively SparkMax motor controllers
- * 
+ *
  * @author DevAspen
  */
 public class ClimberIOSpark implements ClimberIO {

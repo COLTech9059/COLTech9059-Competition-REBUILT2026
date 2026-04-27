@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * Climber "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
- * 
+ *
  * @author DevAspen
  */
 public class ClimberIOTalonFX implements ClimberIO {

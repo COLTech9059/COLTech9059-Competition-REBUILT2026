@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -26,7 +27,7 @@ import frc.robot.util.PhoenixUtil;
 
 /**
  * Intake "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
- * 
+ *
  * @author DevAspen
  */
 public class IntakeIOTalonFX implements IntakeIO {
@@ -194,6 +195,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
+  public void setIntakeTorque(double torqueSetpoint) {
+    intakeMotor.setControl(new TorqueCurrentFOC(torqueSetpoint));
+  }
+
+  @Override
   public void setPositionSpeed(double positionSpeed) {
     positionMotor.set(positionSpeed);
   }
@@ -206,7 +212,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void setPosition(double baseSpeed, boolean out) {
     double currentAngle = getRotationsInRadians();
-    baseSpeed = Math.abs(baseSpeed);
+    // baseSpeed = Math.abs(baseSpeed);
     double appliedSpeed = baseSpeed;
 
     if (out) {

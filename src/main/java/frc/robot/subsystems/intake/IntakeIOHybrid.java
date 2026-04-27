@@ -25,8 +25,9 @@ import frc.robot.util.SparkUtil;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * Intake "hardware" class for a subsystem that uses SparkMax motor controllers for intake positioning and a TalonFX for intake rollers (DEPRECATED; UPDATE BEFORE USE)
- * 
+ * Intake "hardware" class for a subsystem that uses SparkMax motor controllers for intake
+ * positioning and a TalonFX for intake rollers (DEPRECATED; UPDATE BEFORE USE)
+ *
  * @author DevAspen
  */
 public class IntakeIOHybrid implements IntakeIO {

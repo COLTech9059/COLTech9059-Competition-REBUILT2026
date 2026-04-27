@@ -73,7 +73,7 @@ public final class Constants {
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
   private static CTREPro phoenixPro = CTREPro.LICENSED; // LICENSED, UNLICENSED
   private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.PHOTON; // PHOTON, LIMELIGHT, NONE
+  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -266,9 +266,9 @@ public final class Constants {
     public static final int[] MULTI_TOGGLE = {4, 5};
 
     // TODO: Temp flywheel velocity values, replace with real
-    public static final double FLYWHEEL_MIN_RPM = 1500;
-    public static final double FLYWHEEL_MID_RPM = 4000;
-    public static final double FLYWHEEL_MAX_RPM = 4800;
+    public static final double FLYWHEEL_MIN_RPM = 2500;
+    public static final double FLYWHEEL_MID_RPM = 3000;
+    public static final double FLYWHEEL_MAX_RPM = 4000;
     public static final double FLYWHEEL_UNCLOG_RPM = -1000;
   }
 
@@ -277,7 +277,7 @@ public final class Constants {
   public static final class DrivebaseConstants {
 
     public static final double maxSpeedMultiplier = 0.8;
-    public static final double minSpeedMultiplier = 0.2;
+    public static final double minSpeedMultiplier = 0.3;
     public static final double speedIncrement = 0.1;
 
     // Theoretical free speed (m/s) at 12v applied output;
@@ -357,6 +357,8 @@ public final class Constants {
     public static final double minFlywheelSpeed = 0.6;
     public static final double flywheelSpeedIncrement = 0.05;
 
+    public static final double kFeedTorque = 1.5; // Nm
+
     // Flywheel motor open-loop and closed-loop ramp periods for current smoothing
     //   Time from from 0 -> full duty
     public static final double kFlywheelClosedLoopRampPeriod = 0.0; // seconds (0.0)
@@ -411,6 +413,9 @@ public final class Constants {
     public static final int kIntakeCurrentLimit = 40;
     public static final int kIntakeOptimalVoltage = 12;
 
+    public static final double kIntakeTorque = 4.0; // Nm
+    public static final double kFeedTorque = 3.5; // Nm
+
     // Encoder constants
     public static final double extendedPositionInRadians = Math.PI / 2;
     public static final double extendedPositionDegrees =
@@ -419,7 +424,7 @@ public final class Constants {
     public static final double extendedPositionDeadbandInRadians = Math.PI / 18;
 
     // Intake RPM setpoints
-    public static final double intakeSetpointRPM = 3000; // Off by some unknown amount; tune PSVA
+    public static final double intakeSetpointRPM = 2500; // Off by some unknown amount; tune PSVA
 
     // Positioning PID Constants
     // TODO: Tune PID for intake positioning & rollers

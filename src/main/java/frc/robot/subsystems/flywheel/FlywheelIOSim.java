@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 /**
  * Climber "hardware" class for a simulated subsystem
- * 
+ *
  * @author DevAspen (Modified from RBSI Template)
  */
 public class FlywheelIOSim implements FlywheelIO {

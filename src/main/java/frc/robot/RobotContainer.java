@@ -172,8 +172,8 @@ public class RobotContainer {
               case PHOTON ->
                   new Vision(
                       m_drivebase::addVisionMeasurement,
-                      new VisionIOPhotonVision(camera0Name, robotToCamera0),
-                      new VisionIOPhotonVision(camera2Name, robotToCamera2));
+                      new VisionIOPhotonVision(camera0Name, robotToCamera0));
+              // new VisionIOPhotonVision(camera2Name, robotToCamera2));
               case LIMELIGHT ->
                   new Vision(
                       m_drivebase::addVisionMeasurement,
@@ -302,21 +302,28 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Climb", ClimberCommands.retractClimber(m_climber, 0.4));
 
-    NamedCommands.registerCommand("Start Shoot", FlywheelCommands.setSpeed(m_flywheel, 0.60));
+    NamedCommands.registerCommand(
+        "Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 2800));
+
+    NamedCommands.registerCommand(
+        "Start Mid Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 3100));
+
+    NamedCommands.registerCommand(
+        "Start Far Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 3800));
 
     NamedCommands.registerCommand(
         "Start Uptake",
-        Commands.sequence(
-            FlywheelCommands.runFeed(m_flywheel, 0.5),
-            IntakeCommands.runIntakeSpeed(m_intake, 0.8, 0.5)));
+        FlywheelCommands.runFeed(m_flywheel, 0.9)
+            .alongWith(IntakeCommands.runIntakeSpeed(m_intake, 0.6, 0.6)));
 
-    NamedCommands.registerCommand("Stop Uptake", FlywheelCommands.stop(m_flywheel));
+    NamedCommands.registerCommand("Stop Uptake", FlywheelCommands.stopFeed(m_flywheel));
 
     NamedCommands.registerCommand("Stop Shoot", FlywheelCommands.stop(m_flywheel));
 
-    NamedCommands.registerCommand("Extend Intake", IntakeCommands.extendIntake(m_intake, 0.4));
+    NamedCommands.registerCommand("Extend Intake", IntakeCommands.extendIntake(m_intake, 0.3));
 
-    NamedCommands.registerCommand("Start Intake", IntakeCommands.runIntakeSpeed(m_intake, 0.8));
+    NamedCommands.registerCommand(
+        "Start Intake", IntakeCommands.runIntakeSpeed(m_intake, 0.8, 0.7));
 
     NamedCommands.registerCommand("Stop Intake", IntakeCommands.stopIntake(m_intake));
   }
@@ -407,29 +414,29 @@ public class RobotContainer {
     // Hold right trigger --> Spin up m_intake to setpoint RPM with feed (closed loop)
     driverController
         .rightTrigger()
-        .whileTrue(
-            IntakeCommands.setIntakeVelocity(
-                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
+        .whileTrue(IntakeCommands.runIntakeSpeed(m_intake, 0.3, 0.5))
+        // IntakeCommands.setIntakeVelocity(
+        //     m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
         .onFalse(IntakeCommands.stopIntake(m_intake));
 
     // Hold left trigger --> Spin up m_intake to outtake RPM without feed (closed loop)
     driverController
         .leftTrigger()
-        .whileTrue(
-            IntakeCommands.setIntakeVelocity(
-                m_intake, -Constants.IntakeConstants.intakeSetpointRPM, 0))
+        .whileTrue(IntakeCommands.runIntakeSpeed(m_intake, -0.3, -0.5))
+        // IntakeCommands.setIntakeVelocity(
+        //     m_intake, -Constants.IntakeConstants.intakeSetpointRPM, 0))
         .onFalse(IntakeCommands.stopIntake(m_intake));
 
     // Hold left bumper --> Retract m_intake
     driverController
         .leftBumper()
-        .whileTrue(IntakeCommands.retractIntake(m_intake, 0.20))
+        .whileTrue(IntakeCommands.extendIntake(m_intake, -0.20))
         .onFalse(IntakeCommands.stopIntake(m_intake));
 
     // Hold right bumper --> Extend m_intake
     driverController
         .rightBumper()
-        .whileTrue(IntakeCommands.extendIntake(m_intake, 0.40))
+        .whileTrue(IntakeCommands.extendIntake(m_intake, 0.30))
         .onFalse(IntakeCommands.stopIntake(m_intake));
     // driverController
     //     .rightBumper()
@@ -442,7 +449,7 @@ public class RobotContainer {
         .start()
         .toggleOnTrue(
             IntakeCommands.oscillateIntakePosition(
-                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7, 0.2, 0.4));
+                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.5, 0.1, 0.2));
 
     // POV Up/Down --> Increment/Decrement Drive Speed
     driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
@@ -499,22 +506,21 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             FlywheelCommands.setVelocity(
-                m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM));
+                m_flywheel, () -> flywheelVelocityRPM.getAsDouble() + variableFlywheelRPM))
+        .onFalse(FlywheelCommands.stop(m_flywheel));
     // .whileFalse(FlywheelCommands.setVelocity(m_flywheel, () -> FLYWHEEL_UNCLOG_RPM));
 
     // Hold left trigger --> Spin up m_intake to setpoint RPM (closed loop)
     operatorController
         .leftTrigger()
-        .onTrue(
-            IntakeCommands.setIntakeVelocity(
-                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.7))
-        .onFalse(IntakeCommands.stopIntake(m_intake));
+        .onTrue(FlywheelCommands.setVelocity(m_flywheel, () -> -1000))
+        .onFalse(FlywheelCommands.stop(m_flywheel));
 
     // Hold POV up --> Run index & uptake
     operatorController
         .povUp()
-        .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.90))
-        .onTrue(Commands.runOnce(() -> m_intake.runFeed(0.7)))
+        .onTrue(FlywheelCommands.runFeed(m_flywheel, 0.80))
+        .onTrue(Commands.runOnce(() -> m_intake.runFeed(0.5)))
         .onFalse(FlywheelCommands.stopFeed(m_flywheel))
         .onFalse(Commands.runOnce(() -> m_intake.runFeed(0)));
 

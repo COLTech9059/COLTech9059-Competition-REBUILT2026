@@ -18,6 +18,7 @@ import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -33,7 +34,7 @@ import frc.robot.util.PhoenixUtil;
 
 /**
  * Flywheel "hardware" class for a subsystem that uses exclusively TalonFX motor controllers
- * 
+ *
  * @author DevAspen (modified from RBSI template)
  */
 public class FlywheelIOTalonFX implements FlywheelIO {
@@ -171,6 +172,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void runFeed(double speed) {
     feeder.set(speed);
+  }
+
+  @Override
+  public void setFeedTorque(double torqueCurrent) {
+    feeder.setControl(new TorqueCurrentFOC(torqueCurrent));
   }
 
   @Override

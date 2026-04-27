@@ -32,8 +32,9 @@ import frc.robot.util.PhoenixUtil;
 import frc.robot.util.SparkUtil;
 
 /**
- * Flywheel "hardware" class for a subsystem that uses TalonFX motor controllers for the flywheel and SparkMax motor controllers for the feed/uptake system (DEPRECATED; UPDATE BEFORE USE)
- * 
+ * Flywheel "hardware" class for a subsystem that uses TalonFX motor controllers for the flywheel
+ * and SparkMax motor controllers for the feed/uptake system (DEPRECATED; UPDATE BEFORE USE)
+ *
  * @author DevAspen
  */
 public class FlywheelIOHybrid implements FlywheelIO {

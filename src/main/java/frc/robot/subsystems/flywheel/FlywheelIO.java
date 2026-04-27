@@ -13,7 +13,9 @@ import frc.robot.util.RBSIIO;
 import org.littletonrobotics.junction.AutoLog;
 
 /**
- * Template Input/Output interface to act as a medium between the various "hardware" files and the high-level subsystem file which the rest of the program interacts with
+ * Template Input/Output interface to act as a medium between the various "hardware" files and the
+ * high-level subsystem file which the rest of the program interacts with
+ *
  * @author DevAspen (modified from RBSI template)
  */
 public interface FlywheelIO extends RBSIIO {
@@ -39,6 +41,8 @@ public interface FlywheelIO extends RBSIIO {
   public default void setSpeed(double speed) {}
 
   public default void runFeed(double speed) {}
+
+  public default void setFeedTorque(double torqueCurrent) {}
 
   public default void stopFeed() {}
 

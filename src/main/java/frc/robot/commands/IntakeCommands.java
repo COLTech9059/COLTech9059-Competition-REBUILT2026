@@ -14,8 +14,8 @@ public class IntakeCommands {
    */
   public static Command extendIntake(Intake intake, double baseSpeed) {
     return Commands.run(() -> intake.setPosition(baseSpeed, true), intake)
-        .unless(intake::isIntakeOut)
-        .until(intake::isIntakeOut)
+        // .unless(intake::isIntakeOut)
+        // .until(intake::isIntakeOut)
         .finallyDo(() -> intake.stopPosition());
   }
 
@@ -121,9 +121,9 @@ public class IntakeCommands {
   public static Command oscillateIntakePosition(
       Intake intake, double intakeSetpointRPM, double feedSpeed, double speed, double interval) {
     return Commands.sequence(
-            Commands.runOnce(() -> intake.runPositionSpeed(-speed)),
-            Commands.waitSeconds(interval),
             Commands.runOnce(() -> intake.runPositionSpeed(speed)),
+            Commands.waitSeconds(interval),
+            Commands.runOnce(() -> intake.runPositionSpeed(-speed)),
             Commands.waitSeconds(interval))
         .repeatedly()
         .alongWith(setIntakeVelocity(intake, intakeSetpointRPM, feedSpeed))
