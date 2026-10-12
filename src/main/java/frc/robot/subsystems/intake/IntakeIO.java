@@ -28,6 +28,10 @@ public interface IntakeIO extends RBSIIO {
     public boolean isIntakeInLeft = false;
     public boolean isIntakeInRight = false;
     public double[] currentAmps = new double[] {};
+    public double[] voltageVolts = new double[] {};
+    public double powerWatts = 0.0;
+    public double totalPowerWattHours = 0.0;
+    public double batteryPercentUsed = 0.0;
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}
@@ -40,7 +44,7 @@ public interface IntakeIO extends RBSIIO {
 
   public default void setSpeed(double baseIntakeSpeed, double baseFeedSpeed) {}
 
-  public default void setIntakeTorque(double torqueSetpoint) {}
+  public default void setIntakeTorque(double torqueSetpoint, double feedSpeed) {}
 
   public default void setPositionSpeed(double positionSpeed) {}
 
@@ -61,4 +65,6 @@ public interface IntakeIO extends RBSIIO {
   public default void setFF(double kS, double kV, double kA, int motorNum) {}
 
   public default void configureAll() {}
+
+  public default void timeUpdate() {}
 }

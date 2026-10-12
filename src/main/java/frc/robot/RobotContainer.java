@@ -306,7 +306,7 @@ public class RobotContainer {
         "Start Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 2800));
 
     NamedCommands.registerCommand(
-        "Start Mid Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 3100));
+        "Start Mid Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 3200));
 
     NamedCommands.registerCommand(
         "Start Far Shoot", FlywheelCommands.setVelocity(m_flywheel, () -> 3800));
@@ -414,7 +414,7 @@ public class RobotContainer {
     // Hold right trigger --> Spin up m_intake to setpoint RPM with feed (closed loop)
     driverController
         .rightTrigger()
-        .whileTrue(IntakeCommands.runIntakeSpeed(m_intake, 0.3, 0.5))
+        .whileTrue(IntakeCommands.runIntakeSpeed(m_intake, 0.5, 0.5))
         // IntakeCommands.setIntakeVelocity(
         //     m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.8))
         .onFalse(IntakeCommands.stopIntake(m_intake));
@@ -444,12 +444,16 @@ public class RobotContainer {
     //         IntakeCommands.setIntakePosition(
     //             m_intake, Constants.IntakeConstants.extendedPositionDegrees));
 
-    // Press 3 lines/start button --> Toggle m_intake oscillation
+    // Press 3 lines/start button --> Toggle m_intake oscillation OLD; --> Run torqueCurrentFOC (60
+    // A)
+    // driverController
+    //     .start()
+    //     .toggleOnTrue(
+    //         IntakeCommands.oscillateIntakePosition(
+    //             m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.5, 0.1, 0.2));
     driverController
         .start()
-        .toggleOnTrue(
-            IntakeCommands.oscillateIntakePosition(
-                m_intake, Constants.IntakeConstants.intakeSetpointRPM, 0.5, 0.1, 0.2));
+        .whileTrue(IntakeCommands.setIntakeTorqueCurrent(m_intake, 70, 0.5)); // 70A Stator current
 
     // POV Up/Down --> Increment/Decrement Drive Speed
     driverController.povUp().onTrue(Commands.runOnce(m_drivebase::increaseSpeed, m_drivebase));
@@ -629,6 +633,7 @@ public class RobotContainer {
       autoChooserPathPlanner.addOption(
           "Drive Simple FF Characterization",
           DriveCommands.feedforwardCharacterization(m_drivebase));
+
       autoChooserPathPlanner.addOption(
           "Drive SysId (Quasistatic Forward)",
           m_drivebase.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -641,6 +646,19 @@ public class RobotContainer {
       autoChooserPathPlanner.addOption(
           "Drive SysId (Dynamic Reverse)",
           m_drivebase.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+      autoChooserPathPlanner.addOption(
+          "Drive SysId (Steer Quasistatic Forward)",
+          m_drivebase.sysIdSteerQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Drive SysId (Steer Quasistatic Reverse)",
+          m_drivebase.sysIdSteerQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooserPathPlanner.addOption(
+          "Drive SysId (Steer Dynamic Forward)",
+          m_drivebase.sysIdSteerDynamic(SysIdRoutine.Direction.kForward));
+      autoChooserPathPlanner.addOption(
+          "Drive SysId (Steer Dynamic Reverse)",
+          m_drivebase.sysIdSteerDynamic(SysIdRoutine.Direction.kReverse));
 
       // Flywheel SysId Characterization
       autoChooserPathPlanner.addOption(

@@ -94,6 +94,7 @@ public class Flywheel extends RBSISubsystem {
 
   @Override
   public void periodic() {
+    io.timeUpdate();
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
 
@@ -241,5 +242,17 @@ public class Flywheel extends RBSISubsystem {
 
   public double getKD() {
     return io.getKD();
+  }
+
+  public double getPowerConsumption() {
+    return inputs.powerWatts;
+  }
+
+  public double getEnergyConsumed() {
+    return inputs.totalPowerWattHours;
+  }
+
+  public double getBatteryPercentConsumed() {
+    return inputs.batteryPercentUsed;
   }
 }

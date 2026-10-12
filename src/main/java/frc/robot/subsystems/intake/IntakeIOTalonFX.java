@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.util.PhoenixUtil;
 
 /**
@@ -31,6 +32,10 @@ import frc.robot.util.PhoenixUtil;
  * @author DevAspen
  */
 public class IntakeIOTalonFX implements IntakeIO {
+
+  private double previousTime = 0;
+  private double currentTime = Timer.getFPGATimestamp();
+  private double deltaTime = currentTime - previousTime;
 
   private TalonFX positionMotor = new TalonFX(INTAKE_POSITION.getDeviceNumber());
   private TalonFX positionMotorFollower = new TalonFX(INTAKE_POSITION_FOLLOWER.getDeviceNumber());
@@ -57,6 +62,12 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Current> intakeCurrent = intakeMotor.getSupplyCurrent();
   private final StatusSignal<Current> feedCurrent = feedMotor.getSupplyCurrent();
   private final StatusSignal<Current> leaderAppliedTorque = positionMotor.getTorqueCurrent();
+
+  private final StatusSignal<Voltage> positionVoltage = positionMotor.getSupplyVoltage();
+  private final StatusSignal<Voltage> positionFollowerVoltage =
+      positionMotorFollower.getSupplyVoltage();
+  private final StatusSignal<Voltage> feedVoltage = feedMotor.getSupplyVoltage();
+  private final StatusSignal<Voltage> intakeVoltage = intakeMotor.getSupplyVoltage();
 
   private final TalonFXConfiguration positionConfig = new TalonFXConfiguration();
   private final TalonFXConfiguration positionFollowerConfig;
@@ -125,7 +136,11 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionCurrent,
         intakeCurrent,
         feedCurrent,
-        positionFollowerCurrent);
+        positionFollowerCurrent,
+        positionVoltage,
+        positionFollowerVoltage,
+        intakeVoltage,
+        feedVoltage);
     positionMotor.optimizeBusUtilization();
     positionMotorFollower.setControl(
         new Follower(positionMotor.getDeviceID(), MotorAlignmentValue.Opposed));
@@ -146,7 +161,11 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionCurrent,
         intakeCurrent,
         feedCurrent,
-        positionFollowerCurrent);
+        positionFollowerCurrent,
+        positionVoltage,
+        positionFollowerVoltage,
+        intakeVoltage,
+        feedVoltage);
     inputs.intakeSpeed = intakeMotor.get() * 100.0;
     inputs.positionDegrees = getRotationsInDegrees();
     inputs.positionLeader = Units.rotationsToDegrees(positionLeader.getValueAsDouble());
@@ -162,10 +181,24 @@ public class IntakeIOTalonFX implements IntakeIO {
     inputs.currentAmps =
         new double[] {
           positionCurrent.getValueAsDouble(),
+          positionFollowerCurrent.getValueAsDouble(),
           intakeCurrent.getValueAsDouble(),
-          feedCurrent.getValueAsDouble(),
-          positionFollowerCurrent.getValueAsDouble()
+          feedCurrent.getValueAsDouble()
         };
+    inputs.voltageVolts =
+        new double[] {
+          positionVoltage.getValueAsDouble(),
+          positionFollowerVoltage.getValueAsDouble(),
+          intakeVoltage.getValueAsDouble(),
+          feedVoltage.getValueAsDouble()
+        };
+    inputs.powerWatts = 0;
+    for (int i = 0; i < inputs.currentAmps.length; i++) {
+      inputs.powerWatts += inputs.currentAmps[i] * inputs.voltageVolts[i];
+    }
+    inputs.totalPowerWattHours += (inputs.powerWatts * deltaTime) / 3600;
+
+    inputs.batteryPercentUsed = inputs.totalPowerWattHours / 216 * 100;
 
     // Reset position encoder.
     if (inLimitLeft.get() || inLimitRight.get()) setEncoderRotations(0);
@@ -195,8 +228,9 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public void setIntakeTorque(double torqueSetpoint) {
+  public void setIntakeTorque(double torqueSetpoint, double feedSpeed) {
     intakeMotor.setControl(new TorqueCurrentFOC(torqueSetpoint));
+    feedMotor.set(feedSpeed);
   }
 
   @Override
@@ -320,5 +354,12 @@ public class IntakeIOTalonFX implements IntakeIO {
     PhoenixUtil.tryUntilOk(
         5, () -> positionMotorFollower.getConfigurator().apply(positionFollowerConfig));
     PhoenixUtil.tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig));
+  }
+
+  @Override
+  public void timeUpdate() {
+    currentTime = Timer.getFPGATimestamp();
+    deltaTime = currentTime - previousTime;
+    previousTime = currentTime;
   }
 }

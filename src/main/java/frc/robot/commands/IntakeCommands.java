@@ -140,4 +140,10 @@ public class IntakeCommands {
   public static Command setIntakeVelocity(Intake intake, double velocityRPM, double feedSpeed) {
     return Commands.runOnce(() -> intake.setIntakeVelocity(velocityRPM, feedSpeed));
   }
+
+  public static Command setIntakeTorqueCurrent(
+      Intake intake, double torqueCurrent, double feedSpeed) {
+    return Commands.runEnd(
+        () -> intake.setIntakeTorque(torqueCurrent, feedSpeed), () -> intake.stopIntake(), intake);
+  }
 }

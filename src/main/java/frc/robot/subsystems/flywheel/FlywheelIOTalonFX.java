@@ -30,6 +30,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.util.PhoenixUtil;
 
 /**
@@ -38,6 +39,10 @@ import frc.robot.util.PhoenixUtil;
  * @author DevAspen (modified from RBSI template)
  */
 public class FlywheelIOTalonFX implements FlywheelIO {
+
+  private double previousTime = 0;
+  private double currentTime = Timer.getFPGATimestamp();
+  private double deltaTime = currentTime - previousTime;
 
   // Define the leader / follower motors from the Ports section of RobotContainer
   private final TalonFX leader =
@@ -66,6 +71,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Current> secondaryRightCurrent = secondaryRight.getSupplyCurrent();
   private final StatusSignal<Current> secondaryLeftCurrent = secondaryLeft.getSupplyCurrent();
   private final StatusSignal<Current> feederCurrent = feeder.getSupplyCurrent();
+
+  private final StatusSignal<Voltage> leaderVoltage = leader.getSupplyVoltage();
+  private final StatusSignal<Voltage> followerVoltage = follower.getSupplyVoltage();
+  private final StatusSignal<Voltage> secondaryRightVoltage = secondaryRight.getSupplyVoltage();
+  private final StatusSignal<Voltage> secondaryLeftVoltage = secondaryLeft.getSupplyVoltage();
+  private final StatusSignal<Voltage> feederVoltage = feeder.getSupplyVoltage();
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final TalonFXConfiguration followerConfig;
@@ -126,7 +137,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         followerCurrent,
         secondaryRightCurrent,
         secondaryLeftCurrent,
-        feederCurrent);
+        feederCurrent,
+        leaderVoltage,
+        followerVoltage,
+        secondaryLeftVoltage,
+        secondaryRightVoltage,
+        feederVoltage);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
   }
@@ -134,7 +150,16 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+        leaderPosition, 
+        leaderVelocity, 
+        leaderAppliedVolts, 
+        leaderCurrent, 
+        followerCurrent, 
+        leaderVoltage,
+        followerVoltage,
+        secondaryLeftVoltage,
+        secondaryRightVoltage,
+        feederVoltage);
     inputs.positionRad =
         Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.velocityRadPerSec =
@@ -149,6 +174,21 @@ public class FlywheelIOTalonFX implements FlywheelIO {
           secondaryLeftCurrent.getValueAsDouble(),
           feederCurrent.getValueAsDouble()
         };
+    inputs.voltageVolts =
+        new double[] {
+          leaderVoltage.getValueAsDouble(),
+          followerVoltage.getValueAsDouble(),
+          secondaryRightVoltage.getValueAsDouble(),
+          secondaryLeftVoltage.getValueAsDouble(),
+          feederVoltage.getValueAsDouble()
+        };
+    inputs.powerWatts = 0;
+    for (int i = 0; i < inputs.currentAmps.length; i++) {
+      inputs.powerWatts += inputs.currentAmps[i] * inputs.voltageVolts[i];
+    }
+    inputs.totalPowerWattHours += (inputs.powerWatts * deltaTime) / 3600;
+
+    inputs.batteryPercentUsed = inputs.totalPowerWattHours / 216 * 100;
     inputs.kP = config.Slot0.kP;
     inputs.kI = config.Slot0.kI;
     inputs.kD = config.Slot0.kD;
@@ -289,5 +329,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public double getKD() {
     return config.Slot0.kD;
+  }
+
+  @Override
+  public void timeUpdate() {
+    currentTime = Timer.getFPGATimestamp();
+    deltaTime = currentTime - previousTime;
+    previousTime = currentTime;
   }
 }

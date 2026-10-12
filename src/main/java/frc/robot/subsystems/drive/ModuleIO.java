@@ -27,6 +27,7 @@ public interface ModuleIO {
     public Rotation2d turnPosition = Rotation2d.kZero;
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
+    public double turnPositionRad = 0.0;
     public double turnCurrentAmps = 0.0;
 
     public double[] odometryTimestamps = new double[] {};

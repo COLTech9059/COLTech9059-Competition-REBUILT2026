@@ -27,6 +27,10 @@ public interface FlywheelIO extends RBSIIO {
     public double velocityRPM = 0.0;
     public double appliedVolts = 0.0;
     public double[] currentAmps = new double[] {};
+    public double[] voltageVolts = new double[] {};
+    public double powerWatts = 0.0;
+    public double totalPowerWattHours = 0.0;
+    public double batteryPercentUsed = 0.0;
     public double kP = 0.0;
     public double kI = 0.0;
     public double kD = 0.0;
@@ -68,4 +72,6 @@ public interface FlywheelIO extends RBSIIO {
   public default double getKD() {
     return 0;
   }
+
+  public default void timeUpdate() {}
 }

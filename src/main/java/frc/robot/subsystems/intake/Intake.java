@@ -81,6 +81,7 @@ public class Intake extends RBSISubsystem {
 
   @Override
   public void periodic() {
+    io.timeUpdate();
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
     Logger.recordOutput("Intake/Total Current", getTotalCurrent());
@@ -130,8 +131,8 @@ public class Intake extends RBSISubsystem {
     Logger.recordOutput("Intake/setpointPosition", out);
   }
 
-  public void setIntakeTorque(double torqueSetpoint) {
-    io.setIntakeTorque(torqueSetpoint);
+  public void setIntakeTorque(double torqueSetpoint, double feedSpeed) {
+    io.setIntakeTorque(torqueSetpoint, feedSpeed);
   }
 
   /**
@@ -223,5 +224,17 @@ public class Intake extends RBSISubsystem {
   /** Returns a command to run a dynamic intake roller test in the specified direction */
   public Command sysIdDynamicIntake(SysIdRoutine.Direction direction) {
     return sysIdRollers.dynamic(direction);
+  }
+
+  public double getPowerConsumption() {
+    return inputs.powerWatts;
+  }
+
+  public double getEnergyConsumed() {
+    return inputs.totalPowerWattHours;
+  }
+
+  public double getBatteryPercentConsumed() {
+    return inputs.batteryPercentUsed;
   }
 }

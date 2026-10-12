@@ -266,7 +266,7 @@ public final class Constants {
     public static final int[] MULTI_TOGGLE = {4, 5};
 
     // TODO: Temp flywheel velocity values, replace with real
-    public static final double FLYWHEEL_MIN_RPM = 2500;
+    public static final double FLYWHEEL_MIN_RPM = 2400;
     public static final double FLYWHEEL_MID_RPM = 3000;
     public static final double FLYWHEEL_MAX_RPM = 4000;
     public static final double FLYWHEEL_UNCLOG_RPM = -1000;
@@ -324,15 +324,15 @@ public final class Constants {
     //             Adjust these downward until your modules behave correctly
     public static final double kDriveP = 15.0; // 0.9945475;
     public static final double kDriveD = 0.15; // 0.0;
+    public static final double kDriveS = 0.10265;
     public static final double kDriveV = 0.1210375;
     public static final double kDriveA = 0.001816195;
-    public static final double kDriveS = 0.10265;
     public static final double kDriveT =
         SwerveConstants.kDriveGearRatio / DCMotor.getKrakenX60Foc(1).KtNMPerAmp;
     public static final double kSteerP = 500; // 400
     public static final double kSteerD = 20; // 20
     public static final double kSteerS = 0;
-    public static final double kSteerV = 0;
+    public static final double kSteerV = 2;
     public static final double kSteerA = 0;
   }
 
@@ -557,20 +557,20 @@ public final class Constants {
     // Example Cameras are mounted in the back corners, 18" up from the floor, facing sideways
     public static Transform3d robotToCamera0 = // Left Camera
         new Transform3d(
-            Inches.of(-14.691),
             Inches.of(-3.375),
+            Inches.of(14.691),
             Inches.of(17.25),
             new Rotation3d(0.0, 0.0, Math.PI / 2));
     public static Transform3d robotToCamera1 = // Right Camera
         new Transform3d(
-            Inches.of(14.691),
             Inches.of(-3.375),
+            Inches.of(-14.691),
             Inches.of(17.25),
             new Rotation3d(0.0, 0.0, -Math.PI / 2));
     public static Transform3d robotToCamera2 = // Center Camera
         new Transform3d(
+            Inches.of(2.179), // -2.179?s
             Inches.of(0.0),
-            Inches.of(2.179),
             Inches.of(23.396),
             new Rotation3d(0.0, -Math.PI / 12, 0));
 

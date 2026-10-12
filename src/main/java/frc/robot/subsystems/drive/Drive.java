@@ -9,6 +9,7 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.DrivebaseConstants.*;
 import static frc.robot.subsystems.drive.SwerveConstants.*;
@@ -68,6 +69,7 @@ public class Drive extends SubsystemBase {
   private final ImuIO.ImuIOInputs imuInputs = new ImuIO.ImuIOInputs();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
+  private final SysIdRoutine sysIdSteer;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
@@ -204,12 +206,22 @@ public class Drive extends SubsystemBase {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
+                Volts.per(Seconds).of(0.5),
                 null,
                 null,
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    sysIdSteer =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.per(Seconds).of(0.5),
+                null,
+                null,
+                (state) -> Logger.recordOutput("Drive/SysIdStateSteer", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> runSteerCharacterization(voltage.in(Volts)), null, this));
   }
 
   /** Periodic function that is called each robot cycle by the command scheduler */
@@ -402,6 +414,12 @@ public class Drive extends SubsystemBase {
     }
   }
 
+  public void runSteerCharacterization(double output) {
+    for (int i = 0; i < 4; i++) {
+      modules[i].runSteerCharacterization(output);
+    }
+  }
+
   /**
    * Reset the heading ProfiledPIDController
    *
@@ -418,13 +436,27 @@ public class Drive extends SubsystemBase {
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0))
-        .withTimeout(1.0)
+        .withTimeout(0.25)
         .andThen(sysId.quasistatic(direction));
   }
 
   /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
+    return run(() -> runCharacterization(0.0)).withTimeout(0.25).andThen(sysId.dynamic(direction));
+  }
+
+  /** Returns a command to run a quasistatic test in the specified direction. */
+  public Command sysIdSteerQuasistatic(SysIdRoutine.Direction direction) {
+    return run(() -> runCharacterization(0.0))
+        .withTimeout(0.25)
+        .andThen(sysIdSteer.quasistatic(direction));
+  }
+
+  /** Returns a command to run a dynamic test in the specified direction. */
+  public Command sysIdSteerDynamic(SysIdRoutine.Direction direction) {
+    return run(() -> runCharacterization(0.0))
+        .withTimeout(0.25)
+        .andThen(sysIdSteer.dynamic(direction));
   }
 
   /** Getter Functions ***************************************************** */
